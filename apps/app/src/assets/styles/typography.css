@@ -1,0 +1,94 @@
+/*
+  Typography scale for the app. Use these classes (or the bare tags they style)
+  instead of ad-hoc Tailwind text utilities so headings/body/captions stay
+  consistent across pages.
+
+  Naming: `t-*` to make typography classes easy to grep and to avoid colliding
+  with Element Plus or Tailwind utilities.
+
+  Pair with the dark theme: colors come from CSS vars so light/dark themes
+  share the same scale. Element Plus already exposes the vars we need.
+*/
+
+@layer components {
+  /* Display — hero / landing only. Reach for h1 in 99% of cases. */
+  .t-display {
+    @apply text-4xl font-semibold tracking-tight;
+    color: var(--el-text-color-primary);
+  }
+
+  /* Page title. Use once per page. */
+  .t-h1,
+  h1 {
+    @apply text-2xl font-semibold tracking-tight;
+    color: var(--el-text-color-primary);
+  }
+
+  /* Section heading inside a page. */
+  .t-h2,
+  h2 {
+    @apply text-xl font-semibold;
+    color: var(--el-text-color-primary);
+  }
+
+  /* Subsection / card title. */
+  .t-h3,
+  h3 {
+    @apply text-lg font-medium;
+    color: var(--el-text-color-primary);
+  }
+
+  /* Small heading (sidebars, dense lists). */
+  .t-h4,
+  h4 {
+    @apply text-base font-medium;
+    color: var(--el-text-color-primary);
+  }
+
+  /* Default body copy. */
+  .t-body {
+    @apply text-base leading-relaxed;
+    color: var(--el-text-color-regular);
+  }
+
+  /* Compact body — table cells, dense UI. */
+  .t-body-sm {
+    @apply text-sm leading-relaxed;
+    color: var(--el-text-color-regular);
+  }
+
+  /* Form labels, table headers, key/value pairs. */
+  .t-label {
+    @apply text-sm font-medium;
+    color: var(--el-text-color-primary);
+  }
+
+  /* Caption / metadata — timestamps, helper text under inputs, footnotes. */
+  .t-caption {
+    @apply text-xs;
+    color: var(--el-text-color-secondary);
+  }
+
+  /* De-emphasized text — paragraphs that should fade back. */
+  .t-muted {
+    color: var(--el-text-color-secondary);
+  }
+
+  /* Disabled / placeholder-style text. */
+  .t-disabled {
+    color: var(--el-text-color-disabled);
+  }
+
+  /* Inline emphasis. Avoid using <strong> for color alone. */
+  .t-strong {
+    @apply font-semibold;
+    color: var(--el-text-color-primary);
+  }
+
+  /* Inline code / monospace. */
+  .t-code {
+    @apply text-sm font-mono px-1 py-0.5 rounded;
+    background-color: var(--el-fill-color-light);
+    color: var(--el-text-color-primary);
+  }
+}

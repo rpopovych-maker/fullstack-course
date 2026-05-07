@@ -21,7 +21,11 @@ export const AutoImportScripts = () => AutoImport({
 
     './src/store/*.store.ts',
     './src/features/**/*.store.ts',
-    './src/views/**/*.store.ts'
+    './src/views/**/*.store.ts',
+
+    './src/store/*.queries.ts',
+    './src/features/**/*.queries.ts',
+    './src/views/**/*.queries.ts'
   ],
 
   vueTemplate: true,

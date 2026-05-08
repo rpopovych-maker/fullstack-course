@@ -11,6 +11,6 @@ export const AutoImportComponents = () => Components({
     './src/views/**/components/**/*.vue'
   ],
   resolvers: [
-    ElementPlusResolver({ importStyle: false })
+    ElementPlusResolver({ importStyle: true })
   ]
 })

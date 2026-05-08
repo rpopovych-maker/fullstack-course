@@ -72,3 +72,23 @@ See `architecture.md` for the full feature-module convention.
   ```
 
 - **Tailwind for layout, Element Plus for components, no overrides.** Don't deep-style EP class names; if you need a slightly different look, prefer composition (slots, Tailwind on wrappers) over CSS overrides.
+
+- **`.vue` block order is `template` → `script` → `style`.** Always. Even when there's no `<style>` block, keep `<template>` above `<script>` so the file reads top-down (markup first, behavior next). New components and refactors must follow this order.
+
+- **Shared types live in a `*.types.d.ts` file per feature, not inline.** For each feature folder (e.g. `views/posts/`), create one ambient `<entity>.types.d.ts` and put all DTO-derived aliases there. The file has **no `import`/`export` statements** so the types are picked up globally — just like `features/platform/api/dts/index.d.ts`. Then reference those names directly from queries, services, and components. Do **not** redeclare types like `type TComment = TResponse<'/api/posts/{postId}/', 'get'>['comments'][number]` inside a `.vue` file or a `.queries.ts` file. Example:
+  ```ts
+  // views/posts/post.types.d.ts (no imports, no exports)
+  type TPostList = TResponse<'/api/posts/', 'get'>
+  type TPostListItem = TPostList[number]
+  type TPostDetail = TResponse<'/api/posts/{postId}/', 'get'>
+  type TComment = TPostDetail['comments'][number]
+  type TCreatePostBody = TRequestBody<'/api/posts/', 'post'>
+  ```
+
+- **Extract reusable presentational components instead of inlining.** Loading skeletons, empty states, error placeholders, and similar repeating chunks belong in their own `*.vue` file in the feature's `components/` folder (e.g. `PostSkeleton.vue` consumed by both `Posts.vue` and `PostDetail.vue`). Don't sprinkle bare `<el-skeleton>` blocks around the codebase.
+
+- **No clever string-prefix flags or other hacky branches.** Don't tag client-only state by prefixing IDs (e.g. `id.startsWith('optimistic-')`) and then branching on the prefix in the UI. If you need to distinguish transient state, model it explicitly — or, more often, trust the cache/invalidation lifecycle to converge and don't add the branch at all. If you find yourself reaching for a workaround like this, stop and rethink.
+
+- **Use canonical Tailwind v4 class names.** No deprecated aliases. Specifically: `wrap-break-word` (not `break-words`), `border-(--var-name)` (not `border-[var(--var-name)]`), and follow any other "this can be written as…" hints from the IDE. Lint/IDE warnings about non-canonical classes must be fixed, not silenced.
+
+- **Use reactive props destructuring with default values, not `withDefaults`.** Vue 3.5+ keeps destructured props reactive, so `const { count = 6 } = defineProps<{ count?: number }>()` is the canonical form. Don't write `withDefaults(defineProps<...>(), { count: 6 })`. Note: if you pass a destructured prop into a function/composable that needs reactivity (a watcher, a `useTimeAgo` getter, etc.), wrap the access in a getter — `useTimeAgo(() => createdAt)` — so reactivity isn't lost.

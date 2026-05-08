@@ -415,6 +415,7 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
+                    postId: string;
                     commentId: string;
                 };
                 cookie?: never;

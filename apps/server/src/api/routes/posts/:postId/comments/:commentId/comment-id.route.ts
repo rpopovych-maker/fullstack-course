@@ -13,6 +13,7 @@ const routes: FastifyPluginAsync = async function (f) {
     {
       schema: {
         params: z.object({
+          postId: z.string().uuid(),
           commentId: z.string().uuid()
         }),
         response: {

@@ -7,11 +7,7 @@ export const EnvSchema = z.object({
   NODE_ENV: z.enum(['local', 'staging', 'production']),
   PORT: z.string(),
   HOST: z.string(),
-  PGHOST: z.string(),
-  PGPORT: z.string(),
-  PGUSERNAME: z.string(),
-  PGPASSWORD: z.string(),
-  PGDATABASE: z.string(),
+  DATABASE_URL: z.string(),
   SWAGGER_USER: z.string(),
   SWAGGER_PWD: z.string().min(10)
 });

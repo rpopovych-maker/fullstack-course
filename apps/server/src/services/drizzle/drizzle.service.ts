@@ -1,25 +1,17 @@
-import { HealthMetrics } from 'src/types/HealthMetrics';
 import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { HealthMetrics } from 'src/types/HealthMetrics';
 import { ITransactionManager } from 'src/types/ITransaction';
 
 export function getDb(opts : {
-  port: number,
-  host: string,
-  pwd: string,
-  user: string,
-  db: string,
+  databaseUrl: string,
   logsEnabled: boolean
 }) {
   const db = drizzle({
     casing: 'snake_case',
     logger: opts.logsEnabled,
     connection: {
-      ssl: false,
-      port: opts.port,
-      host: opts.host,
-      password: opts.pwd,
-      database: opts.db,
-      user: opts.user
+      connectionString: opts.databaseUrl,
+      ssl: false
     }
   });
   return db;

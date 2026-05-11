@@ -11,8 +11,7 @@
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix --cache",
     "prepare": "husky",
-    "openapi-generate": "curl -u 'admin:supersecure123' http://localhost:3000/api/documentation/json -o /tmp/openapi-spec.json -s && npx openapi-typescript /tmp/openapi-spec.json -o ./src/features/platform/api/schema.ts",
-    "postinstall": "run-p openapi-generate"
+    "openapi-generate": "curl -u 'admin:supersecure123' http://localhost:3000/api/documentation/json -o /tmp/openapi-spec.json -s && npx openapi-typescript /tmp/openapi-spec.json -o ./src/features/platform/api/schema.ts"
   },
   "dependencies": {
     "@pinia/colada": "^1.2.1",

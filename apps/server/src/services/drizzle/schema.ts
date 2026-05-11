@@ -1,4 +1,4 @@
-import { uuid, pgTable, varchar, timestamp } from 'drizzle-orm/pg-core';
+import { uuid, pgTable, varchar, timestamp, text } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
 export const entityTable = pgTable('entities', {
@@ -18,7 +18,7 @@ export const postsTable = pgTable('posts', {
     .primaryKey()
     .default(sql`uuid_generate_v4()`),
   title: varchar({ length: 255 }).notNull(),
-  description: varchar({ length: 255 }),
+  description: text(),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp()
     .defaultNow()
@@ -32,7 +32,7 @@ export const commentsTable = pgTable('comments', {
   postId: uuid()
     .notNull()
     .references(() => postsTable.id, { onDelete: 'cascade' }),
-  text: varchar({ length: 255 }).notNull(),
+  text: varchar({ length: 1000 }).notNull(),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp()
     .defaultNow()

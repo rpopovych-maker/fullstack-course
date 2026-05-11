@@ -15,6 +15,13 @@
       "when": 1774957560691,
       "tag": "0001_warm_the_twelve",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778516042932,
+      "tag": "0002_lethal_rocket_racer",
+      "breakpoints": true
     }
   ]
 }

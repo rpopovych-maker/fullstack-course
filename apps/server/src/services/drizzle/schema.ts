@@ -19,6 +19,7 @@ export const postsTable = pgTable('posts', {
     .default(sql`uuid_generate_v4()`),
   title: varchar({ length: 255 }).notNull(),
   description: text(),
+  status: varchar({ length: 20 }),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp()
     .defaultNow()

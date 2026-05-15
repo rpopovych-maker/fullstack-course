@@ -41,6 +41,9 @@ const createdAgo = useTimeAgo(() => props.post.createdAt)
   border: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.06),
     0 8px 24px rgba(0, 0, 0, 0.25);
@@ -53,7 +56,7 @@ const createdAgo = useTimeAgo(() => props.post.createdAt)
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
     0 14px 36px rgba(0, 0, 0, 0.4);
-  transform: translateY(-2px);
+  transform: translate3d(0, -2px, 0);
 }
 
 .post-card__tag {

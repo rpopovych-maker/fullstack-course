@@ -4,7 +4,7 @@
     :title="isEdit ? 'Edit post' : 'New post'"
     :before-close="close"
     destroy-on-close
-    width="560px"
+    width="min(560px, calc(100vw - 32px))"
   >
     <el-form
       ref="formRef"
@@ -34,7 +34,7 @@
     </el-form>
 
     <template #footer>
-      <div class="flex justify-end gap-2">
+      <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
         <el-button @click="close">Cancel</el-button>
         <el-button type="primary" @click="submit">
           {{ isEdit ? 'Save changes' : 'Create post' }}

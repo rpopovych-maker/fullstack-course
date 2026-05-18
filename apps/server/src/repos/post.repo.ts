@@ -1,4 +1,4 @@
-import { count, eq, getTableColumns } from 'drizzle-orm';
+import { count, desc, eq, getTableColumns } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { IPostRepo } from 'src/types/post/IPostRepo';
 import { PostSchema } from 'src/types/post/Post';
@@ -34,7 +34,9 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
       });
     },
 
-    async getAllPosts() {
+    async getPosts({ page, pageSize }) {
+      const offset = (page - 1) * pageSize;
+
       const posts = await db
         .select({
           ...getTableColumns(postsTable),
@@ -42,9 +44,12 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
         })
         .from(postsTable)
         .leftJoin(commentsTable, eq(postsTable.id, commentsTable.postId))
-        .groupBy(postsTable.id);
-
-      return PostWithCommentsCountSchema.array().parse(posts);
+        .groupBy(postsTable.id)
+        .orderBy(desc(postsTable.createdAt))
+        .limit(pageSize)
+        .offset(offset)
+      
+       return PostWithCommentsCountSchema.array().parse(posts);
     }
   };
 }

@@ -44,7 +44,10 @@ const routes: FastifyPluginAsync = async function (f) {
         postRepo: fastify.repos.postRepo,
         page: req.query.page,
         pageSize: req.query.pageSize,
-        search: req.query.search
+        search: req.query.search,
+        orderBy: req.query.orderBy,
+        order: req.query.order,
+        minCommentsCount: req.query.minCommentsCount
       });
       return posts;
     }

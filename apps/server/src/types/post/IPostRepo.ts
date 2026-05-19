@@ -1,6 +1,8 @@
+import { SortOrder } from 'src/types/SortOrder';
 import { Post } from './Post';
 import { PostWithComments } from './PostWithComments';
-import { PostWithCommentsCount } from './PostWithCommentsCount';
+import { GetPostsResult } from './GetPostsResult';
+import { PostOrderBy } from './PostOrderBy';
 
 export interface IPostRepo {
   createPost(data: Pick<Post, 'title' | 'description'>): Promise<Post>;
@@ -9,5 +11,12 @@ export interface IPostRepo {
     data: Partial<Pick<Post, 'title' | 'description'>>
   ): Promise<Post | null>;
   getPostById(id: string): Promise<PostWithComments | null>;
-  getPosts(params: { page: number; pageSize: number, search?: string }): Promise<PostWithCommentsCount[]>;
+  getPosts(params: {
+    page: number;
+    pageSize: number,
+    search?: string,
+    orderBy?: PostOrderBy,
+    order?: SortOrder,
+    minCommentsCount?: number
+  }): Promise<GetPostsResult>;
 }

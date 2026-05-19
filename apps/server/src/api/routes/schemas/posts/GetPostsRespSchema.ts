@@ -1,4 +1,3 @@
-import { PostWithCommentsCountSchema } from 'src/types/post/PostWithCommentsCount';
-import { z } from 'zod';
+import { GetPostsResultSchema } from 'src/types/post/GetPostsResult';
 
-export const GetPostsRespSchema = z.array(PostWithCommentsCountSchema);
+export const GetPostsRespSchema = GetPostsResultSchema;

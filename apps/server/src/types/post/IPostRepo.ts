@@ -9,5 +9,5 @@ export interface IPostRepo {
     data: Partial<Pick<Post, 'title' | 'description'>>
   ): Promise<Post | null>;
   getPostById(id: string): Promise<PostWithComments | null>;
-  getPosts(params: { page: number; pageSize: number }): Promise<PostWithCommentsCount[]>;
+  getPosts(params: { page: number; pageSize: number, search?: string }): Promise<PostWithCommentsCount[]>;
 }

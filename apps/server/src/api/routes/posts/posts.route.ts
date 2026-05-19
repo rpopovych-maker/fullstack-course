@@ -43,7 +43,8 @@ const routes: FastifyPluginAsync = async function (f) {
       const posts = await getPosts({
         postRepo: fastify.repos.postRepo,
         page: req.query.page,
-        pageSize: req.query.pageSize
+        pageSize: req.query.pageSize,
+        search: req.query.search
       });
       return posts;
     }

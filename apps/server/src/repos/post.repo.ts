@@ -1,4 +1,4 @@
-import { count, desc, eq, getTableColumns } from 'drizzle-orm';
+import { count, desc, eq, getTableColumns, ilike, or, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { IPostRepo } from 'src/types/post/IPostRepo';
 import { PostSchema } from 'src/types/post/Post';
@@ -34,8 +34,22 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
       });
     },
 
-    async getPosts({ page, pageSize }) {
+    async getPosts({ page, pageSize, search }) {
       const offset = (page - 1) * pageSize;
+
+      const searchCondition = search
+        ? or(
+          ilike(postsTable.title, `%${search}%`),
+          ilike(postsTable.description, `%${search}%`),
+          sql`${postsTable.title} % ${search}`,
+          sql`${postsTable.description} % ${search}`
+        )
+        : undefined;
+
+      const searchRank = sql<number>`greatest(
+      similarity(${postsTable.title}, ${search}),
+      similarity(${postsTable.description}, ${search})
+      )`;
 
       const posts = await db
         .select({
@@ -44,12 +58,17 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
         })
         .from(postsTable)
         .leftJoin(commentsTable, eq(postsTable.id, commentsTable.postId))
+        .where(searchCondition)
         .groupBy(postsTable.id)
-        .orderBy(desc(postsTable.createdAt))
+        .orderBy(
+          ...(search
+            ? [desc(searchRank), desc(postsTable.createdAt)]
+            : [desc(postsTable.createdAt)])
+        )
         .limit(pageSize)
         .offset(offset)
-      
-       return PostWithCommentsCountSchema.array().parse(posts);
+
+      return PostWithCommentsCountSchema.array().parse(posts);
     }
   };
 }

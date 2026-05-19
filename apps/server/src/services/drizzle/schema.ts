@@ -1,4 +1,4 @@
-import { uuid, pgTable, varchar, timestamp, text } from 'drizzle-orm/pg-core';
+import { uuid, pgTable, varchar, timestamp, text, index } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
 export const entityTable = pgTable('entities', {
@@ -24,7 +24,10 @@ export const postsTable = pgTable('posts', {
   updatedAt: timestamp()
     .defaultNow()
     .$onUpdate(() => new Date())
-});
+}, (t) => [
+  index('posts_title_trgm_idx').using('gin', t.title.op('gin_trgm_ops')),
+  index('posts_description_trgm_idx').using('gin', t.description.op('gin_trgm_ops'))
+]);
 
 export const commentsTable = pgTable('comments', {
   id: uuid()

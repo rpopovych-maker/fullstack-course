@@ -1,9 +1,11 @@
 import { FastifyPluginAsync } from 'fastify';
 import { ZodTypeProvider } from 'fastify-type-provider-zod';
-import { CreatePostReqSchema } from 'src/api/routes/schemas/posts/CreatePostReqSchema';
-import { GetPostsRespSchema } from 'src/api/routes/schemas/posts/GetPostsRespSchema';
 import { createPost } from 'src/controllers/post/create-post';
-import { PostRespSchema } from '../schemas/posts/PostRespSchema';
+import { getPosts } from 'src/controllers/post/get-posts';
+import { GetPostsRespSchema } from 'src/api/routes/schemas/posts/GetPostsRespSchema';
+import { CreatePostReqSchema } from 'src/api/routes/schemas/posts/CreatePostReqSchema';
+import { PostRespSchema } from 'src/api/routes/schemas/posts/PostRespSchema';
+import { GetPostsQuerySchema } from 'src/api/routes/schemas/posts/GetPostsQuerySchema';
 
 const routes: FastifyPluginAsync = async function (f) {
   const fastify = f.withTypeProvider<ZodTypeProvider>();
@@ -31,13 +33,22 @@ const routes: FastifyPluginAsync = async function (f) {
     '/',
     {
       schema: {
+        querystring: GetPostsQuerySchema,
         response: {
           200: GetPostsRespSchema
         }
       }
     },
-    async () => {
-      const posts = await fastify.repos.postRepo.getAllPosts();
+    async (req) => {
+      const posts = await getPosts({
+        postRepo: fastify.repos.postRepo,
+        page: req.query.page,
+        pageSize: req.query.pageSize,
+        search: req.query.search,
+        orderBy: req.query.orderBy,
+        order: req.query.order,
+        minCommentsCount: req.query.minCommentsCount
+      });
       return posts;
     }
   );

@@ -1,3 +1,3 @@
-import { PostWithCommentsSchema } from 'src/types/post/PostWithComments';
+import { PostSchema } from "src/types/post/Post";
 
-export const GetPostByIdRespSchema = PostWithCommentsSchema;
+export const GetPostByIdRespSchema = PostSchema;

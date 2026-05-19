@@ -1,6 +1,5 @@
 import { SortOrder } from 'src/types/SortOrder';
 import { Post } from './Post';
-import { PostWithComments } from './PostWithComments';
 import { GetPostsResult } from './GetPostsResult';
 import { PostOrderBy } from './PostOrderBy';
 
@@ -10,7 +9,7 @@ export interface IPostRepo {
     id: string,
     data: Partial<Pick<Post, 'title' | 'description'>>
   ): Promise<Post | null>;
-  getPostById(id: string): Promise<PostWithComments | null>;
+  getPostById(id: string): Promise<Post | null>;
   getPosts(params: {
     page: number;
     pageSize: number,

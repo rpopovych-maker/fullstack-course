@@ -4,7 +4,6 @@ import { IPostRepo } from 'src/types/post/IPostRepo';
 import { PostSchema } from 'src/types/post/Post';
 import { commentsTable, postsTable } from 'src/services/drizzle/schema';
 import { PostWithCommentsCountSchema } from 'src/types/post/PostWithCommentsCount';
-import { PostWithCommentsSchema } from 'src/types/post/PostWithComments';
 import { GetPostsResultSchema } from 'src/types/post/GetPostsResult';
 
 export function getPostRepo(db: NodePgDatabase): IPostRepo {
@@ -23,16 +22,7 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
     async getPostById(id: string) {
       const posts = await db.select().from(postsTable).where(eq(postsTable.id, id));
 
-      if (!posts.length) {
-        return null;
-      }
-
-      const comments = await db.select().from(commentsTable).where(eq(commentsTable.postId, id));
-
-      return PostWithCommentsSchema.parse({
-        ...posts[0],
-        comments
-      });
+      return posts.length > 0 ? PostSchema.parse(posts[0]) : null;
     },
 
     async getPosts({ page, pageSize, search, orderBy, order, minCommentsCount }) {
@@ -103,12 +93,11 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
         .from(matchingPosts);
 
       const [posts, totalResult] = await Promise.all([postsQuery, totalQuery]);
-      const data = PostWithCommentsCountSchema.array().parse(posts);
       const total = totalResult[0]?.total ?? 0;
       const totalPages = Math.ceil(total / pageSize);
 
       return GetPostsResultSchema.parse({
-        data,
+        data: posts,
         page,
         pageSize,
         total,

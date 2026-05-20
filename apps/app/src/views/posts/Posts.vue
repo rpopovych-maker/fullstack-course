@@ -13,7 +13,15 @@
       </el-button>
     </header>
 
-    <section class="flex justify-end">
+    <section class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <el-input
+        v-model="searchTerm"
+        clearable
+        class="w-full sm:max-w-sm"
+        placeholder="Search posts"
+        aria-label="Search posts"
+      />
+
       <el-select
         v-model="selectedSort"
         class="w-full sm:w-64"
@@ -32,7 +40,7 @@
 
     <el-empty
       v-else-if="!postsPage.data.length"
-      description="No posts yet"
+      :description="emptyDescription"
     >
       <el-button type="primary" @click="openModal('PostFormModal')">
         <span class="inline-flex items-center gap-1.5">
@@ -112,14 +120,22 @@ const sortOptions: Array<{
 ]
 
 const selectedSort = ref<TPostSortValue>('newest')
+const searchTerm = ref('')
 
 const selectedSortQuery = computed(() => {
   return sortOptions.find(option => option.value === selectedSort.value)?.query ?? defaultSortQuery
 })
 
+const searchQuery = computed(() => {
+  const trimmedSearch = searchTerm.value.trim()
+
+  return trimmedSearch.length >= 3 ? trimmedSearch : undefined
+})
+
 const postsQueryParams = computed<TPostListQuery>(() => ({
   page: pagination.page,
   pageSize: pagination.pageSize,
+  ...(searchQuery.value ? { search: searchQuery.value } : {}),
   ...selectedSortQuery.value
 }))
 
@@ -135,7 +151,13 @@ const postsPage = computed<TPostList>(() => {
   }
 })
 
+const emptyDescription = computed(() => searchQuery.value ? 'No posts match your search' : 'No posts yet')
+
 watch(selectedSort, () => {
+  pagination.page = 1
+})
+
+watch(searchTerm, () => {
   pagination.page = 1
 })
 </script>

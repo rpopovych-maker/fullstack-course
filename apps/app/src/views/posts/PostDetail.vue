@@ -2,7 +2,7 @@
   <div class="max-w-3xl mx-auto px-4 py-8 space-y-8">
     <div>
       <router-link
-        :to="{ name: routeNames.posts }"
+        :to="{ name: routeNames.posts, query: route.query }"
         class="t-label inline-flex items-center gap-1.5 hover:underline"
       >
         <Icon name="arrow-left" />
@@ -19,7 +19,7 @@
       sub-title="It may have been removed or the link is incorrect."
     >
       <template #extra>
-        <router-link :to="{ name: routeNames.posts }">
+        <router-link :to="{ name: routeNames.posts, query: route.query }">
           <el-button type="primary">Back to posts</el-button>
         </router-link>
       </template>

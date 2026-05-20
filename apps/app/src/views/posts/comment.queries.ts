@@ -15,7 +15,7 @@ export const usePostCommentsQuery = (postId: MaybeRefOrGetter<string>) => useInf
   key: () => commentsQueryKeys.post(toValue(postId)),
   query: ({ pageParam }) => commentsService.getPostComments(toValue(postId), pageParam),
   initialPageParam: { pageSize: COMMENTS_PAGE_SIZE },
-  getNextPageParam: lastPage => {
+  getNextPageParam: (lastPage) => {
     if (!lastPage.nextCursor) {
       return null
     }
@@ -31,76 +31,6 @@ export const usePostCommentsQuery = (postId: MaybeRefOrGetter<string>) => useInf
     pageParams: [{ pageSize: COMMENTS_PAGE_SIZE }]
   }) satisfies TPostCommentsInfiniteData
 })
-
-function createEmptyCommentsData (): TPostCommentsInfiniteData {
-  return {
-    pages: [{ data: [], nextCursor: null }],
-    pageParams: [{ pageSize: COMMENTS_PAGE_SIZE }]
-  }
-}
-
-function addCommentToPages (comments: TPostCommentsInfiniteData | undefined, comment: TComment) {
-  const nextComments = comments ?? createEmptyCommentsData()
-  const [firstPage, ...otherPages] = nextComments.pages
-
-  if (!firstPage) {
-    return {
-      ...nextComments,
-      pages: [{ data: [comment], nextCursor: null }]
-    }
-  }
-
-  return {
-    ...nextComments,
-    pages: [
-      {
-        ...firstPage,
-        data: [comment, ...firstPage.data.filter(item => item.id !== comment.id)]
-      },
-      ...otherPages
-    ]
-  }
-}
-
-function updateCommentInPages (
-  comments: TPostCommentsInfiniteData | undefined,
-  commentId: string,
-  updater: (comment: TComment) => TComment
-) {
-  const nextComments = comments ?? createEmptyCommentsData()
-
-  return {
-    ...nextComments,
-    pages: nextComments.pages.map(page => ({
-      ...page,
-      data: page.data.map(comment => comment.id === commentId ? updater(comment) : comment)
-    }))
-  }
-}
-
-function replaceCommentInPages (
-  comments: TPostCommentsInfiniteData | undefined,
-  commentId: string,
-  nextComment: TComment
-) {
-  return updateCommentInPages(comments, commentId, () => nextComment)
-}
-
-function setPostCommentsData (
-  cache: ReturnType<typeof useQueryCache>,
-  key: ReturnType<typeof commentsQueryKeys.post>,
-  data: TPostCommentsInfiniteData | ((oldData: TPostCommentsInfiniteData | undefined) => TPostCommentsInfiniteData)
-) {
-  setInfiniteQueryData<TPostComments, Error, TPostCommentsPageParam>(cache, key, data)
-}
-
-function restorePostCommentsData (
-  cache: ReturnType<typeof useQueryCache>,
-  key: ReturnType<typeof commentsQueryKeys.post>,
-  data: TPostCommentsInfiniteData | undefined
-) {
-  setPostCommentsData(cache, key, data ?? createEmptyCommentsData())
-}
 
 export const useCreateCommentMutation = () => {
   const cache = useQueryCache()
@@ -129,17 +59,36 @@ export const useCreateCommentMutation = () => {
         updatedAt: now
       }
 
-      setPostCommentsData(cache, commentsKey, previous => {
-        return addCommentToPages(previous, optimisticComment)
+      setInfiniteQueryData<TPostComments, Error, TPostCommentsPageParam>(cache, commentsKey, (previous) => {
+        const comments = previous ?? {
+          pages: [{ data: [], nextCursor: null }],
+          pageParams: [{ pageSize: COMMENTS_PAGE_SIZE }]
+        }
+        const [firstPage, ...otherPages] = comments.pages
+
+        return {
+          ...comments,
+          pages: [
+            {
+              ...(firstPage ?? { nextCursor: null }),
+              data: [optimisticComment, ...(firstPage?.data ?? []).filter(item => item.id !== optimisticComment.id)]
+            },
+            ...otherPages
+          ]
+        }
       })
 
-      cache.setQueriesData<TPostList>({ key: postsQueryKeys.lists() }, previous => {
+      cache.setQueriesData<TPostList>({ key: postsQueryKeys.lists() }, (previous) => {
         if (!previous) {
           return previous as unknown as TPostList
         }
         return {
           ...previous,
-          data: previous.data.map(p => p.id === postId ? { ...p, commentsCount: p.commentsCount + 1 } : p)
+          data: previous.data.map((post) => {
+            return post.id === postId
+              ? { ...post, commentsCount: post.commentsCount + 1 }
+              : post
+          })
         }
       })
 
@@ -149,13 +98,31 @@ export const useCreateCommentMutation = () => {
       if (!ctx?.commentsKey) {
         return
       }
-      setPostCommentsData(cache, ctx.commentsKey, previous => {
-        return replaceCommentInPages(previous, ctx.optimisticCommentId, comment)
+      setInfiniteQueryData<TPostComments, Error, TPostCommentsPageParam>(cache, ctx.commentsKey, (previous) => {
+        const comments = previous ?? {
+          pages: [{ data: [], nextCursor: null }],
+          pageParams: [{ pageSize: COMMENTS_PAGE_SIZE }]
+        }
+
+        return {
+          ...comments,
+          pages: comments.pages.map(page => ({
+            ...page,
+            data: page.data.map(item => item.id === ctx.optimisticCommentId ? comment : item)
+          }))
+        }
       })
     },
     onError: (_err, _vars, ctx) => {
       if (ctx?.commentsKey) {
-        restorePostCommentsData(cache, ctx.commentsKey, ctx.prevComments)
+        setInfiniteQueryData<TPostComments, Error, TPostCommentsPageParam>(
+          cache,
+          ctx.commentsKey,
+          ctx.prevComments ?? {
+            pages: [{ data: [], nextCursor: null }],
+            pageParams: [{ pageSize: COMMENTS_PAGE_SIZE }]
+          }
+        )
       }
       for (const snapshot of ctx?.prevPostLists ?? []) {
         if (snapshot.data) {
@@ -183,8 +150,23 @@ export const useUpdateCommentMutation = () => {
 
       const prevComments = cache.getQueryData<TPostCommentsInfiniteData>(commentsKey)
 
-      setPostCommentsData(cache, commentsKey, previous => {
-        return updateCommentInPages(previous, commentId, comment => ({ ...comment, ...body }))
+      setInfiniteQueryData<TPostComments, Error, TPostCommentsPageParam>(cache, commentsKey, (previous) => {
+        const comments = previous ?? {
+          pages: [{ data: [], nextCursor: null }],
+          pageParams: [{ pageSize: COMMENTS_PAGE_SIZE }]
+        }
+
+        return {
+          ...comments,
+          pages: comments.pages.map(page => ({
+            ...page,
+            data: page.data.map((comment) => {
+              return comment.id === commentId
+                ? { ...comment, ...body }
+                : comment
+            })
+          }))
+        }
       })
 
       return { prevComments, commentsKey }
@@ -193,13 +175,31 @@ export const useUpdateCommentMutation = () => {
       if (!ctx?.commentsKey) {
         return
       }
-      setPostCommentsData(cache, ctx.commentsKey, previous => {
-        return replaceCommentInPages(previous, vars.commentId, comment)
+      setInfiniteQueryData<TPostComments, Error, TPostCommentsPageParam>(cache, ctx.commentsKey, (previous) => {
+        const comments = previous ?? {
+          pages: [{ data: [], nextCursor: null }],
+          pageParams: [{ pageSize: COMMENTS_PAGE_SIZE }]
+        }
+
+        return {
+          ...comments,
+          pages: comments.pages.map(page => ({
+            ...page,
+            data: page.data.map(item => item.id === vars.commentId ? comment : item)
+          }))
+        }
       })
     },
     onError: (_err, _vars, ctx) => {
       if (ctx?.commentsKey) {
-        restorePostCommentsData(cache, ctx.commentsKey, ctx.prevComments)
+        setInfiniteQueryData<TPostComments, Error, TPostCommentsPageParam>(
+          cache,
+          ctx.commentsKey,
+          ctx.prevComments ?? {
+            pages: [{ data: [], nextCursor: null }],
+            pageParams: [{ pageSize: COMMENTS_PAGE_SIZE }]
+          }
+        )
       }
     },
     onSettled: (_d, _e, vars) => {

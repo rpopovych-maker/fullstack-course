@@ -46,7 +46,7 @@ export const useUpdatePostMutation = () => {
 
       const prevDetail = cache.getQueryData<TPostDetail>(detailKey)
 
-      cache.setQueriesData<TPostList>({ key: postsQueryKeys.lists() }, previous => {
+      cache.setQueriesData<TPostList>({ key: postsQueryKeys.lists() }, (previous) => {
         if (!previous) {
           return previous as unknown as TPostList
         }

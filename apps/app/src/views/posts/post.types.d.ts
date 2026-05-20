@@ -1,6 +1,7 @@
 type TPostList = TResponse<'/api/posts/', 'get'>
 type TPostListItem = TPostList['data'][number]
 type TPostListQuery = NonNullable<TRequestQuery<'/api/posts/', 'get'>>
+type TPostSortQuery = Pick<TPostListQuery, 'orderBy' | 'order'>
 
 type TPostDetail = TResponse<'/api/posts/{postId}/', 'get'>
 type TPostComments = TResponse<'/api/posts/{postId}/comments/', 'get'>

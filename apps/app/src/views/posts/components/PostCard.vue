@@ -1,6 +1,6 @@
 <template>
   <router-link
-    :to="{ name: routeNames.postDetail, params: { postId: post.id } }"
+    :to="{ name: routeNames.postDetail, params: { postId: post.id }, query: route.query }"
     class="post-card group flex h-full flex-col gap-3 rounded-xl p-5"
   >
     <h3 class="line-clamp-2 wrap-break-word">{{ post.title }}</h3>
@@ -27,6 +27,7 @@ const props = defineProps<{
   post: TPostListItem
 }>()
 
+const route = useRoute()
 const createdAgo = useTimeAgo(() => props.post.createdAt)
 </script>
 

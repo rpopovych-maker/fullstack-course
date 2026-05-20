@@ -35,9 +35,12 @@ declare module 'vue' {
     Modals: typeof import('./../../src/features/platform/modals/components/Modals.vue')['default']
     PostCard: typeof import('./../../src/views/posts/components/PostCard.vue')['default']
     PostDetailSkeleton: typeof import('./../../src/views/posts/components/PostDetailSkeleton.vue')['default']
+    PostFilters: typeof import('./../../src/views/posts/components/PostFilters.vue')['default']
     PostFormModal: typeof import('./../../src/views/posts/components/PostFormModal.vue')['default']
     PostSkeleton: typeof import('./../../src/views/posts/components/PostSkeleton.vue')['default']
+    PostSortSelect: typeof import('./../../src/views/posts/components/PostSortSelect.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SearchInput: typeof import('./../../src/views/posts/components/SearchInput.vue')['default']
   }
 }

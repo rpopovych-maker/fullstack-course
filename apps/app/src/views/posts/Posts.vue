@@ -13,27 +13,40 @@
       </el-button>
     </header>
 
-    <section class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <section class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
       <el-input
         v-model="searchTerm"
         clearable
-        class="w-full sm:max-w-sm"
+        class="w-full lg:max-w-sm"
         placeholder="Search posts"
         aria-label="Search posts"
       />
 
-      <el-select
-        v-model="selectedSort"
-        class="w-full sm:w-64"
-        aria-label="Sort posts"
-      >
-        <el-option
-          v-for="option in sortOptions"
-          :key="option.value"
-          :label="option.label"
-          :value="option.value"
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:w-auto">
+        <el-input-number
+          v-model="minCommentsCount"
+          class="w-full sm:w-56"
+          :min="0"
+          :step="1"
+          step-strictly
+          placeholder="Minimum comments"
+          aria-label="Minimum comments"
+          :value-on-clear="undefined"
         />
-      </el-select>
+
+        <el-select
+          v-model="selectedSort"
+          class="w-full sm:w-64"
+          aria-label="Sort posts"
+        >
+          <el-option
+            v-for="option in sortOptions"
+            :key="option.value"
+            :label="option.label"
+            :value="option.value"
+          />
+        </el-select>
+      </div>
     </section>
 
     <PostSkeleton v-if="isLoading && !postsPage.data.length" />
@@ -121,6 +134,7 @@ const sortOptions: Array<{
 
 const selectedSort = ref<TPostSortValue>('newest')
 const searchTerm = ref('')
+const minCommentsCount = ref<number>()
 
 const selectedSortQuery = computed(() => {
   return sortOptions.find(option => option.value === selectedSort.value)?.query ?? defaultSortQuery
@@ -132,10 +146,15 @@ const searchQuery = computed(() => {
   return trimmedSearch.length >= 3 ? trimmedSearch : undefined
 })
 
+const minCommentsCountQuery = computed(() => {
+  return minCommentsCount.value !== undefined ? minCommentsCount.value : undefined
+})
+
 const postsQueryParams = computed<TPostListQuery>(() => ({
   page: pagination.page,
   pageSize: pagination.pageSize,
   ...(searchQuery.value ? { search: searchQuery.value } : {}),
+  ...(minCommentsCountQuery.value !== undefined ? { minCommentsCount: minCommentsCountQuery.value } : {}),
   ...selectedSortQuery.value
 }))
 
@@ -151,13 +170,21 @@ const postsPage = computed<TPostList>(() => {
   }
 })
 
-const emptyDescription = computed(() => searchQuery.value ? 'No posts match your search' : 'No posts yet')
+const emptyDescription = computed(() => {
+  return searchQuery.value || minCommentsCountQuery.value !== undefined
+    ? 'No posts match your filters'
+    : 'No posts yet'
+})
 
 watch(selectedSort, () => {
   pagination.page = 1
 })
 
 watch(searchTerm, () => {
+  pagination.page = 1
+})
+
+watch(minCommentsCount, () => {
   pagination.page = 1
 })
 </script>

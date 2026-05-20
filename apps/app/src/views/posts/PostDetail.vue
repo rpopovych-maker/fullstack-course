@@ -53,7 +53,23 @@
           {{ commentsHeading }}
         </h2>
 
-        <PostSkeleton v-if="areCommentsLoading && !commentsPage.data.length" />
+        <div v-if="areCommentsLoading && !commentsPage.data.length" class="space-y-3">
+          <div
+            v-for="n in 2"
+            :key="n"
+            class="rounded-md border border-(--el-border-color-lighter) p-4"
+          >
+            <el-skeleton :rows="2" animated />
+          </div>
+        </div>
+
+        <el-alert
+          v-else-if="commentsError"
+          title="Comments could not be loaded"
+          type="error"
+          show-icon
+          :closable="false"
+        />
 
         <CommentList v-else :comments="commentsPage.data" :post-id="post.id" />
         <CommentCreate :post-id="post.id" />
@@ -70,7 +86,11 @@ const route = useRoute()
 const postId = computed(() => route.params.postId as string)
 
 const { data: post, isLoading, error } = usePostQuery(postId)
-const { data: comments, isLoading: areCommentsLoading } = usePostCommentsQuery(postId)
+const {
+  data: comments,
+  isLoading: areCommentsLoading,
+  error: commentsError
+} = usePostCommentsQuery(postId)
 const { openModal } = useModals()
 
 const isNotFound = computed(() => {

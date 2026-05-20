@@ -7,7 +7,7 @@ export const commentsQueryKeys = {
 
 export const usePostCommentsQuery = (postId: MaybeRefOrGetter<string>) => useQuery({
   key: () => commentsQueryKeys.post(toValue(postId)),
-  query: () => commentsService.getPostComments(toValue(postId)),
+  query: () => commentsService.getPostComments(toValue(postId), { pageSize: 100 }),
   placeholderData: () => ({
     data: [],
     nextCursor: null

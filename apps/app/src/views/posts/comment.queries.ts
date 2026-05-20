@@ -14,6 +14,46 @@ export const usePostCommentsQuery = (postId: MaybeRefOrGetter<string>) => useQue
   }) satisfies TPostComments
 })
 
+function addCommentToPage (page: TPostComments | undefined, comment: TComment) {
+  if (!page) {
+    return {
+      data: [comment],
+      nextCursor: null
+    }
+  }
+
+  return {
+    ...page,
+    data: [comment, ...page.data.filter(item => item.id !== comment.id)]
+  }
+}
+
+function updateCommentInPage (
+  page: TPostComments | undefined,
+  commentId: string,
+  updater: (comment: TComment) => TComment
+) {
+  if (!page) {
+    return {
+      data: [],
+      nextCursor: null
+    }
+  }
+
+  return {
+    ...page,
+    data: page.data.map(comment => comment.id === commentId ? updater(comment) : comment)
+  }
+}
+
+function replaceCommentInPage (
+  page: TPostComments | undefined,
+  commentId: string,
+  nextComment: TComment
+) {
+  return updateCommentInPage(page, commentId, () => nextComment)
+}
+
 export const useCreateCommentMutation = () => {
   const cache = useQueryCache()
 
@@ -22,14 +62,15 @@ export const useCreateCommentMutation = () => {
       return commentsService.createComment(postId, body)
     },
     onMutate: ({ postId, body }) => {
-      const detailKey = postsQueryKeys.detail(postId)
       const commentsKey = commentsQueryKeys.post(postId)
       cache.cancelQueries({ key: postsQueryKeys.lists() })
-      cache.cancelQueries({ key: detailKey, exact: true })
       cache.cancelQueries({ key: commentsKey, exact: true })
 
-      const prevDetail = cache.getQueryData<TPostDetail>(detailKey)
       const prevComments = cache.getQueryData<TPostComments>(commentsKey)
+      const prevPostLists = cache.getEntries({ key: postsQueryKeys.lists() }).map(entry => ({
+        key: entry.key,
+        data: entry.state.value.data as TPostList | undefined
+      }))
 
       const now = new Date().toISOString()
       const optimisticComment: TComment = {
@@ -40,12 +81,9 @@ export const useCreateCommentMutation = () => {
         updatedAt: now
       }
 
-      if (prevComments) {
-        cache.setQueryData<TPostComments>(commentsKey, {
-          ...prevComments,
-          data: [optimisticComment, ...prevComments.data]
-        })
-      }
+      cache.setQueryData<TPostComments>(commentsKey, previous => {
+        return addCommentToPage(previous, optimisticComment)
+      })
 
       cache.setQueriesData<TPostList>({ key: postsQueryKeys.lists() }, previous => {
         if (!previous) {
@@ -57,20 +95,25 @@ export const useCreateCommentMutation = () => {
         }
       })
 
-      return { prevDetail, prevComments, detailKey, commentsKey }
+      return { optimisticCommentId: optimisticComment.id, prevComments, prevPostLists, commentsKey }
+    },
+    onSuccess: (comment, _vars, ctx) => {
+      cache.setQueryData<TPostComments>(ctx.commentsKey, previous => {
+        return replaceCommentInPage(previous, ctx.optimisticCommentId, comment)
+      })
     },
     onError: (_err, _vars, ctx) => {
-      if (ctx.prevDetail && ctx.detailKey) {
-        cache.setQueryData<TPostDetail>(ctx.detailKey, ctx.prevDetail)
-      }
-      if (ctx.prevComments && ctx.commentsKey) {
+      if (ctx?.prevComments) {
         cache.setQueryData<TPostComments>(ctx.commentsKey, ctx.prevComments)
       }
-      cache.invalidateQueries({ key: postsQueryKeys.lists() })
+      for (const snapshot of ctx?.prevPostLists ?? []) {
+        if (snapshot.data) {
+          cache.setQueryData<TPostList>(snapshot.key, snapshot.data)
+        }
+      }
     },
     onSettled: (_d, _e, vars) => {
       cache.invalidateQueries({ key: postsQueryKeys.lists() })
-      cache.invalidateQueries({ key: postsQueryKeys.detail(vars.postId), exact: true })
       cache.invalidateQueries({ key: commentsQueryKeys.post(vars.postId), exact: true })
     }
   })
@@ -84,34 +127,28 @@ export const useUpdateCommentMutation = () => {
       return commentsService.updateComment(vars.postId, vars.commentId, vars.body)
     },
     onMutate: ({ postId, commentId, body }) => {
-      const detailKey = postsQueryKeys.detail(postId)
       const commentsKey = commentsQueryKeys.post(postId)
-      cache.cancelQueries({ key: detailKey, exact: true })
       cache.cancelQueries({ key: commentsKey, exact: true })
 
-      const prevDetail = cache.getQueryData<TPostDetail>(detailKey)
       const prevComments = cache.getQueryData<TPostComments>(commentsKey)
 
-      if (prevComments) {
-        cache.setQueryData<TPostComments>(commentsKey, {
-          ...prevComments,
-          data: prevComments.data.map(c => c.id === commentId ? { ...c, ...body } : c)
-        })
-      }
+      cache.setQueryData<TPostComments>(commentsKey, previous => {
+        return updateCommentInPage(previous, commentId, comment => ({ ...comment, ...body }))
+      })
 
-      return { prevDetail, prevComments, detailKey, commentsKey }
+      return { prevComments, commentsKey }
+    },
+    onSuccess: (comment, vars, ctx) => {
+      cache.setQueryData<TPostComments>(ctx.commentsKey, previous => {
+        return replaceCommentInPage(previous, vars.commentId, comment)
+      })
     },
     onError: (_err, _vars, ctx) => {
-      if (ctx.prevDetail && ctx.detailKey) {
-        cache.setQueryData<TPostDetail>(ctx.detailKey, ctx.prevDetail)
-      }
-      if (ctx.prevComments && ctx.commentsKey) {
+      if (ctx?.prevComments) {
         cache.setQueryData<TPostComments>(ctx.commentsKey, ctx.prevComments)
       }
     },
     onSettled: (_d, _e, vars) => {
-      cache.invalidateQueries({ key: postsQueryKeys.lists() })
-      cache.invalidateQueries({ key: postsQueryKeys.detail(vars.postId), exact: true })
       cache.invalidateQueries({ key: commentsQueryKeys.post(vars.postId), exact: true })
     }
   })

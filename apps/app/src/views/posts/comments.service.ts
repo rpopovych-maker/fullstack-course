@@ -1,5 +1,5 @@
 class CommentsService {
-  getPostComments (postId: string, params: TPostCommentsQuery = { pageSize: 100 }) {
+  getPostComments (postId: string, params: TPostCommentsQuery = { pageSize: 20 }) {
     return apiClient.get('/api/posts/{postId}/comments/', {
       dynamicKeys: { postId },
       params

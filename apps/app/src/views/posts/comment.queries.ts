@@ -1,57 +1,105 @@
-import { useMutation, useQuery, useQueryCache } from '@pinia/colada'
+import { setInfiniteQueryData, useInfiniteQuery, useMutation, useQueryCache } from '@pinia/colada'
+import type { UseInfiniteQueryData } from '@pinia/colada'
+
+const COMMENTS_PAGE_SIZE = 20
+
+type TPostCommentsPageParam = Pick<TPostCommentsQuery, 'pageSize' | 'cursorId' | 'cursorCreatedAt'>
+type TPostCommentsInfiniteData = UseInfiniteQueryData<TPostComments, TPostCommentsPageParam>
 
 export const commentsQueryKeys = {
   all: ['comments'] as const,
   post: (postId: string) => [...commentsQueryKeys.all, 'post', postId] as const
 }
 
-export const usePostCommentsQuery = (postId: MaybeRefOrGetter<string>) => useQuery({
+export const usePostCommentsQuery = (postId: MaybeRefOrGetter<string>) => useInfiniteQuery({
   key: () => commentsQueryKeys.post(toValue(postId)),
-  query: () => commentsService.getPostComments(toValue(postId), { pageSize: 100 }),
+  query: ({ pageParam }) => commentsService.getPostComments(toValue(postId), pageParam),
+  initialPageParam: { pageSize: COMMENTS_PAGE_SIZE },
+  getNextPageParam: lastPage => {
+    if (!lastPage.nextCursor) {
+      return null
+    }
+
+    return {
+      pageSize: COMMENTS_PAGE_SIZE,
+      cursorId: lastPage.nextCursor.id,
+      cursorCreatedAt: lastPage.nextCursor.createdAt
+    }
+  },
   placeholderData: () => ({
-    data: [],
-    nextCursor: null
-  }) satisfies TPostComments
+    pages: [{ data: [], nextCursor: null }],
+    pageParams: [{ pageSize: COMMENTS_PAGE_SIZE }]
+  }) satisfies TPostCommentsInfiniteData
 })
 
-function addCommentToPage (page: TPostComments | undefined, comment: TComment) {
-  if (!page) {
+function createEmptyCommentsData (): TPostCommentsInfiniteData {
+  return {
+    pages: [{ data: [], nextCursor: null }],
+    pageParams: [{ pageSize: COMMENTS_PAGE_SIZE }]
+  }
+}
+
+function addCommentToPages (comments: TPostCommentsInfiniteData | undefined, comment: TComment) {
+  const nextComments = comments ?? createEmptyCommentsData()
+  const [firstPage, ...otherPages] = nextComments.pages
+
+  if (!firstPage) {
     return {
-      data: [comment],
-      nextCursor: null
+      ...nextComments,
+      pages: [{ data: [comment], nextCursor: null }]
     }
   }
 
   return {
-    ...page,
-    data: [comment, ...page.data.filter(item => item.id !== comment.id)]
+    ...nextComments,
+    pages: [
+      {
+        ...firstPage,
+        data: [comment, ...firstPage.data.filter(item => item.id !== comment.id)]
+      },
+      ...otherPages
+    ]
   }
 }
 
-function updateCommentInPage (
-  page: TPostComments | undefined,
+function updateCommentInPages (
+  comments: TPostCommentsInfiniteData | undefined,
   commentId: string,
   updater: (comment: TComment) => TComment
 ) {
-  if (!page) {
-    return {
-      data: [],
-      nextCursor: null
-    }
-  }
+  const nextComments = comments ?? createEmptyCommentsData()
 
   return {
-    ...page,
-    data: page.data.map(comment => comment.id === commentId ? updater(comment) : comment)
+    ...nextComments,
+    pages: nextComments.pages.map(page => ({
+      ...page,
+      data: page.data.map(comment => comment.id === commentId ? updater(comment) : comment)
+    }))
   }
 }
 
-function replaceCommentInPage (
-  page: TPostComments | undefined,
+function replaceCommentInPages (
+  comments: TPostCommentsInfiniteData | undefined,
   commentId: string,
   nextComment: TComment
 ) {
-  return updateCommentInPage(page, commentId, () => nextComment)
+  return updateCommentInPages(comments, commentId, () => nextComment)
+}
+
+function setPostCommentsData (
+  cache: ReturnType<typeof useQueryCache>,
+  key: ReturnType<typeof commentsQueryKeys.post>,
+  data: TPostCommentsInfiniteData | ((oldData: TPostCommentsInfiniteData | undefined) => TPostCommentsInfiniteData)
+) {
+  setInfiniteQueryData<TPostComments, Error, TPostCommentsPageParam>(cache, key, data)
+}
+
+function restorePostCommentsData (
+  cache: ReturnType<typeof useQueryCache>,
+  key: ReturnType<typeof commentsQueryKeys.post>,
+  data: TPostCommentsInfiniteData | undefined
+) {
+  setPostCommentsData(cache, key, data ?? createEmptyCommentsData())
 }
 
 export const useCreateCommentMutation = () => {
@@ -66,7 +114,7 @@ export const useCreateCommentMutation = () => {
       cache.cancelQueries({ key: postsQueryKeys.lists() })
       cache.cancelQueries({ key: commentsKey, exact: true })
 
-      const prevComments = cache.getQueryData<TPostComments>(commentsKey)
+      const prevComments = cache.getQueryData<TPostCommentsInfiniteData>(commentsKey)
       const prevPostLists = cache.getEntries({ key: postsQueryKeys.lists() }).map(entry => ({
         key: entry.key,
         data: entry.state.value.data as TPostList | undefined
@@ -81,8 +129,8 @@ export const useCreateCommentMutation = () => {
         updatedAt: now
       }
 
-      cache.setQueryData<TPostComments>(commentsKey, previous => {
-        return addCommentToPage(previous, optimisticComment)
+      setPostCommentsData(cache, commentsKey, previous => {
+        return addCommentToPages(previous, optimisticComment)
       })
 
       cache.setQueriesData<TPostList>({ key: postsQueryKeys.lists() }, previous => {
@@ -98,13 +146,16 @@ export const useCreateCommentMutation = () => {
       return { optimisticCommentId: optimisticComment.id, prevComments, prevPostLists, commentsKey }
     },
     onSuccess: (comment, _vars, ctx) => {
-      cache.setQueryData<TPostComments>(ctx.commentsKey, previous => {
-        return replaceCommentInPage(previous, ctx.optimisticCommentId, comment)
+      if (!ctx?.commentsKey) {
+        return
+      }
+      setPostCommentsData(cache, ctx.commentsKey, previous => {
+        return replaceCommentInPages(previous, ctx.optimisticCommentId, comment)
       })
     },
     onError: (_err, _vars, ctx) => {
-      if (ctx?.prevComments) {
-        cache.setQueryData<TPostComments>(ctx.commentsKey, ctx.prevComments)
+      if (ctx?.commentsKey) {
+        restorePostCommentsData(cache, ctx.commentsKey, ctx.prevComments)
       }
       for (const snapshot of ctx?.prevPostLists ?? []) {
         if (snapshot.data) {
@@ -130,22 +181,25 @@ export const useUpdateCommentMutation = () => {
       const commentsKey = commentsQueryKeys.post(postId)
       cache.cancelQueries({ key: commentsKey, exact: true })
 
-      const prevComments = cache.getQueryData<TPostComments>(commentsKey)
+      const prevComments = cache.getQueryData<TPostCommentsInfiniteData>(commentsKey)
 
-      cache.setQueryData<TPostComments>(commentsKey, previous => {
-        return updateCommentInPage(previous, commentId, comment => ({ ...comment, ...body }))
+      setPostCommentsData(cache, commentsKey, previous => {
+        return updateCommentInPages(previous, commentId, comment => ({ ...comment, ...body }))
       })
 
       return { prevComments, commentsKey }
     },
     onSuccess: (comment, vars, ctx) => {
-      cache.setQueryData<TPostComments>(ctx.commentsKey, previous => {
-        return replaceCommentInPage(previous, vars.commentId, comment)
+      if (!ctx?.commentsKey) {
+        return
+      }
+      setPostCommentsData(cache, ctx.commentsKey, previous => {
+        return replaceCommentInPages(previous, vars.commentId, comment)
       })
     },
     onError: (_err, _vars, ctx) => {
-      if (ctx?.prevComments) {
-        cache.setQueryData<TPostComments>(ctx.commentsKey, ctx.prevComments)
+      if (ctx?.commentsKey) {
+        restorePostCommentsData(cache, ctx.commentsKey, ctx.prevComments)
       }
     },
     onSettled: (_d, _e, vars) => {

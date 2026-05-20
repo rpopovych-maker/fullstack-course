@@ -36,6 +36,13 @@
       "when": 1779108644899,
       "tag": "0004_regular_tyrannus",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1779272523448,
+      "tag": "0005_thin_stick",
+      "breakpoints": true
     }
   ]
 }

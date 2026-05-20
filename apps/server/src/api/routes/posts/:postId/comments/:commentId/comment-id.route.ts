@@ -23,12 +23,12 @@ const routes: FastifyPluginAsync = async function (f) {
       }
     },
     async (req) => {
-      const entity = await updateCommentById({
+      const comment = await updateCommentById({
         commentRepo: fastify.repos.commentRepo,
         commentId: req.params.commentId,
         data: req.body
       });
-      return entity;
+      return comment;
     }
   );
 };

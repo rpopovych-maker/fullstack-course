@@ -23,11 +23,11 @@ const routes: FastifyPluginAsync = async function (f) {
       }
     },
     async (req) => {
-      const entity = await getPostById({
+      const post = await getPostById({
         postRepo: fastify.repos.postRepo,
         postId: req.params.postId
       });
-      return entity;
+      return post;
     }
   );
 
@@ -45,12 +45,12 @@ const routes: FastifyPluginAsync = async function (f) {
       }
     },
     async (req) => {
-      const entity = await updatePostById({
+      const post = await updatePostById({
         postRepo: fastify.repos.postRepo,
         postId: req.params.postId,
         data: req.body
       });
-      return entity;
+      return post;
     }
   );
 };

@@ -27,10 +27,9 @@ const routes: FastifyPluginAsync = async function (f) {
     async (req) => {
       const comment = await createComment({
         commentRepo: fastify.repos.commentRepo,
-        data: {
-          ...req.body,
-          postId: req.params.postId
-        }
+        ...req.body,
+        postId: req.params.postId,
+        userId: req.user.id
       });
       return comment;
     }

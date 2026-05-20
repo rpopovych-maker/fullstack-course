@@ -3,7 +3,7 @@ import { CommentCursor } from './CommentCursor';
 import { GetPostCommentsResult } from './GetPostCommentsResult';
 
 export interface ICommentRepo {
-  createComment(data: Pick<Comment, 'postId' | 'text'>): Promise<Comment>;
+  createComment(data: Pick<Comment, 'userId' | 'postId' | 'text'>): Promise<Comment>;
   updateCommentById(id: string, data: Partial<Pick<Comment, 'text'>>): Promise<Comment | null>;
   getPostComments(params: {
     postId: string;

@@ -14,6 +14,9 @@ export const postsTable = pgTable('posts', {
   id: uuid()
     .primaryKey()
     .default(sql`uuid_generate_v4()`),
+  userId: uuid()
+    .notNull()
+    .references(() => usersTable.id, { onDelete: 'cascade' }),
   title: varchar({ length: 255 }).notNull(),
   description: text(),
   status: varchar({ length: 20 }),
@@ -30,6 +33,9 @@ export const commentsTable = pgTable('comments', {
   id: uuid()
     .primaryKey()
     .default(sql`uuid_generate_v4()`),
+  userId: uuid()
+    .notNull()
+    .references(() => usersTable.id, { onDelete: 'cascade' }),
   postId: uuid()
     .notNull()
     .references(() => postsTable.id, { onDelete: 'cascade' }),

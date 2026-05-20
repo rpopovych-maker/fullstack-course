@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const CommentSchema = z.object({
   id: z.string().uuid(),
+  userId: z.string().uuid(),
   postId: z.string().uuid(),
   text: z.string(),
   updatedAt: z.date(),

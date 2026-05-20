@@ -4,7 +4,7 @@ import { GetPostsResult } from './GetPostsResult';
 import { PostOrderBy } from './PostOrderBy';
 
 export interface IPostRepo {
-  createPost(data: Pick<Post, 'title' | 'description'>): Promise<Post>;
+  createPost(data: Pick<Post, 'userId' | 'title' | 'description'>): Promise<Post>;
   updatePostById(
     id: string,
     data: Partial<Pick<Post, 'title' | 'description'>>

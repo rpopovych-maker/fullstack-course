@@ -3,9 +3,15 @@ import { Post } from 'src/types/post/Post';
 
 export async function createPost(params: {
   postRepo: IPostRepo;
-  data: Pick<Post, 'title' | 'description'>;
+  title: string;
+  description?: string | null;
+  userId: string;
 }) {
-  const post = await params.postRepo.createPost(params.data);
+  const post = await params.postRepo.createPost({
+    title: params.title,
+    description: params.description,
+    userId: params.userId
+  });
 
   return post;
 }

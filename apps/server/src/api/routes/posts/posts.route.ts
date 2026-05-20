@@ -23,8 +23,10 @@ const routes: FastifyPluginAsync = async function (f) {
     async (req) => {
       const post = await createPost({
         postRepo: fastify.repos.postRepo,
-        data: req.body
+        userId: req.user.id,
+        ...req.body
       });
+
       return post;
     }
   );

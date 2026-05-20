@@ -1,4 +1,18 @@
-import { useMutation, useQueryCache } from '@pinia/colada'
+import { useMutation, useQuery, useQueryCache } from '@pinia/colada'
+
+export const commentsQueryKeys = {
+  all: ['comments'] as const,
+  post: (postId: string) => [...commentsQueryKeys.all, 'post', postId] as const
+}
+
+export const usePostCommentsQuery = (postId: MaybeRefOrGetter<string>) => useQuery({
+  key: () => commentsQueryKeys.post(toValue(postId)),
+  query: () => commentsService.getPostComments(toValue(postId)),
+  placeholderData: () => ({
+    data: [],
+    nextCursor: null
+  }) satisfies TPostComments
+})
 
 export const useCreateCommentMutation = () => {
   const cache = useQueryCache()
@@ -8,12 +22,14 @@ export const useCreateCommentMutation = () => {
       return commentsService.createComment(postId, body)
     },
     onMutate: ({ postId, body }) => {
-      const detailKey = [...postsQueryKeys.posts, postId]
-      cache.cancelQueries({ key: postsQueryKeys.posts })
+      const detailKey = postsQueryKeys.detail(postId)
+      const commentsKey = commentsQueryKeys.post(postId)
+      cache.cancelQueries({ key: postsQueryKeys.lists() })
       cache.cancelQueries({ key: detailKey, exact: true })
+      cache.cancelQueries({ key: commentsKey, exact: true })
 
-      const prevList = cache.getQueryData<TPostList>(postsQueryKeys.posts)
       const prevDetail = cache.getQueryData<TPostDetail>(detailKey)
+      const prevComments = cache.getQueryData<TPostComments>(commentsKey)
 
       const now = new Date().toISOString()
       const optimisticComment: TComment = {
@@ -24,32 +40,38 @@ export const useCreateCommentMutation = () => {
         updatedAt: now
       }
 
-      if (prevDetail) {
-        cache.setQueryData<TPostDetail>(detailKey, {
-          ...prevDetail,
-          comments: [...prevDetail.comments, optimisticComment]
+      if (prevComments) {
+        cache.setQueryData<TPostComments>(commentsKey, {
+          ...prevComments,
+          data: [optimisticComment, ...prevComments.data]
         })
       }
-      if (prevList) {
-        cache.setQueryData<TPostList>(
-          postsQueryKeys.posts,
-          prevList.map(p => p.id === postId ? { ...p, commentsCount: p.commentsCount + 1 } : p)
-        )
-      }
 
-      return { prevList, prevDetail, detailKey }
+      cache.setQueriesData<TPostList>({ key: postsQueryKeys.lists() }, previous => {
+        if (!previous) {
+          return previous as unknown as TPostList
+        }
+        return {
+          ...previous,
+          data: previous.data.map(p => p.id === postId ? { ...p, commentsCount: p.commentsCount + 1 } : p)
+        }
+      })
+
+      return { prevDetail, prevComments, detailKey, commentsKey }
     },
     onError: (_err, _vars, ctx) => {
-      if (ctx.prevList) {
-        cache.setQueryData<TPostList>(postsQueryKeys.posts, ctx.prevList)
-      }
       if (ctx.prevDetail && ctx.detailKey) {
         cache.setQueryData<TPostDetail>(ctx.detailKey, ctx.prevDetail)
       }
+      if (ctx.prevComments && ctx.commentsKey) {
+        cache.setQueryData<TPostComments>(ctx.commentsKey, ctx.prevComments)
+      }
+      cache.invalidateQueries({ key: postsQueryKeys.lists() })
     },
     onSettled: (_d, _e, vars) => {
-      cache.invalidateQueries({ key: postsQueryKeys.posts })
-      cache.invalidateQueries({ key: [...postsQueryKeys.posts, vars.postId], exact: true })
+      cache.invalidateQueries({ key: postsQueryKeys.lists() })
+      cache.invalidateQueries({ key: postsQueryKeys.detail(vars.postId), exact: true })
+      cache.invalidateQueries({ key: commentsQueryKeys.post(vars.postId), exact: true })
     }
   })
 }
@@ -62,27 +84,35 @@ export const useUpdateCommentMutation = () => {
       return commentsService.updateComment(vars.postId, vars.commentId, vars.body)
     },
     onMutate: ({ postId, commentId, body }) => {
-      const detailKey = [...postsQueryKeys.posts, postId]
+      const detailKey = postsQueryKeys.detail(postId)
+      const commentsKey = commentsQueryKeys.post(postId)
       cache.cancelQueries({ key: detailKey, exact: true })
+      cache.cancelQueries({ key: commentsKey, exact: true })
 
       const prevDetail = cache.getQueryData<TPostDetail>(detailKey)
-      if (prevDetail) {
-        cache.setQueryData<TPostDetail>(detailKey, {
-          ...prevDetail,
-          comments: prevDetail.comments.map(c => c.id === commentId ? { ...c, ...body } : c)
+      const prevComments = cache.getQueryData<TPostComments>(commentsKey)
+
+      if (prevComments) {
+        cache.setQueryData<TPostComments>(commentsKey, {
+          ...prevComments,
+          data: prevComments.data.map(c => c.id === commentId ? { ...c, ...body } : c)
         })
       }
 
-      return { prevDetail, detailKey }
+      return { prevDetail, prevComments, detailKey, commentsKey }
     },
     onError: (_err, _vars, ctx) => {
       if (ctx.prevDetail && ctx.detailKey) {
         cache.setQueryData<TPostDetail>(ctx.detailKey, ctx.prevDetail)
       }
+      if (ctx.prevComments && ctx.commentsKey) {
+        cache.setQueryData<TPostComments>(ctx.commentsKey, ctx.prevComments)
+      }
     },
     onSettled: (_d, _e, vars) => {
-      cache.invalidateQueries({ key: postsQueryKeys.posts })
-      cache.invalidateQueries({ key: [...postsQueryKeys.posts, vars.postId], exact: true })
+      cache.invalidateQueries({ key: postsQueryKeys.lists() })
+      cache.invalidateQueries({ key: postsQueryKeys.detail(vars.postId), exact: true })
+      cache.invalidateQueries({ key: commentsQueryKeys.post(vars.postId), exact: true })
     }
   })
 }

@@ -52,7 +52,10 @@
           <Icon name="chat" />
           {{ commentsHeading }}
         </h2>
-        <CommentList :comments="post.comments" :post-id="post.id" />
+
+        <PostSkeleton v-if="areCommentsLoading && !commentsPage.data.length" />
+
+        <CommentList v-else :comments="commentsPage.data" :post-id="post.id" />
         <CommentCreate :post-id="post.id" />
       </section>
     </template>
@@ -67,6 +70,7 @@ const route = useRoute()
 const postId = computed(() => route.params.postId as string)
 
 const { data: post, isLoading, error } = usePostQuery(postId)
+const { data: comments, isLoading: areCommentsLoading } = usePostCommentsQuery(postId)
 const { openModal } = useModals()
 
 const isNotFound = computed(() => {
@@ -75,7 +79,8 @@ const isNotFound = computed(() => {
 })
 
 const createdAgo = useTimeAgo(() => post.value?.createdAt ?? '')
-const commentsHeading = computed(() => pluralize('Comment', post.value?.comments.length ?? 0, true))
+const commentsPage = computed<TPostComments>(() => comments.value ?? { data: [], nextCursor: null })
+const commentsHeading = computed(() => pluralize('Comment', commentsPage.value.data.length, true))
 
 function openEditModal () {
   if (!post.value) {

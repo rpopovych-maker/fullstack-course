@@ -168,6 +168,7 @@ declare global {
   const useCounter: typeof import('@vueuse/core').useCounter
   const useCreateCommentMutation: typeof import('../../src/views/posts/comment.queries').useCreateCommentMutation
   const useCreatePostMutation: typeof import('../../src/views/posts/post.queries').useCreatePostMutation
+  const usePostCommentsQuery: typeof import('../../src/views/posts/comment.queries').usePostCommentsQuery
   const useCssModule: typeof import('vue').useCssModule
   const useCssSupports: typeof import('@vueuse/core').useCssSupports
   const useCssVar: typeof import('@vueuse/core').useCssVar
@@ -515,6 +516,7 @@ declare module 'vue' {
     readonly useCounter: UnwrapRef<typeof import('@vueuse/core')['useCounter']>
     readonly useCreateCommentMutation: UnwrapRef<typeof import('../../src/views/posts/comment.queries')['useCreateCommentMutation']>
     readonly useCreatePostMutation: UnwrapRef<typeof import('../../src/views/posts/post.queries')['useCreatePostMutation']>
+    readonly usePostCommentsQuery: UnwrapRef<typeof import('../../src/views/posts/comment.queries')['usePostCommentsQuery']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssSupports: UnwrapRef<typeof import('@vueuse/core')['useCssSupports']>
     readonly useCssVar: UnwrapRef<typeof import('@vueuse/core')['useCssVar']>

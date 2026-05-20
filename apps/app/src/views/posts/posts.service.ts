@@ -1,6 +1,6 @@
 class PostsService {
-  getPosts () {
-    return apiClient.get('/api/posts/')
+  getPosts (params?: TPostListQuery) {
+    return apiClient.get('/api/posts/', { params })
   }
 
   getPostById (postId: string) {

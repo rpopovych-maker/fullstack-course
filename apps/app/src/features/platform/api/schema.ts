@@ -148,7 +148,14 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    page?: number;
+                    pageSize?: number;
+                    search?: string;
+                    orderBy?: "title" | "createdAt" | "commentsCount";
+                    order?: "asc" | "desc";
+                    minCommentsCount?: number;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -162,16 +169,22 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** Format: uuid */
-                            id: string;
-                            title: string;
-                            description?: string | null;
-                            /** Format: date-time */
-                            updatedAt: string;
-                            /** Format: date-time */
-                            createdAt: string;
-                            commentsCount: number;
-                        }[];
+                            data: {
+                                /** Format: uuid */
+                                id: string;
+                                title: string;
+                                description?: string | null;
+                                /** Format: date-time */
+                                updatedAt: string;
+                                /** Format: date-time */
+                                createdAt: string;
+                                commentsCount: number;
+                            }[];
+                            page: number;
+                            pageSize: number;
+                            total: number;
+                            totalPages: number;
+                        };
                     };
                 };
             };
@@ -252,17 +265,6 @@ export interface paths {
                             updatedAt: string;
                             /** Format: date-time */
                             createdAt: string;
-                            comments: {
-                                /** Format: uuid */
-                                id: string;
-                                /** Format: uuid */
-                                postId: string;
-                                text: string;
-                                /** Format: date-time */
-                                updatedAt: string;
-                                /** Format: date-time */
-                                createdAt: string;
-                            }[];
                         };
                     };
                 };
@@ -322,7 +324,11 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    pageSize?: number;
+                    cursorId?: string;
+                    cursorCreatedAt?: string;
+                };
                 header?: never;
                 path: {
                     postId: string;
@@ -338,16 +344,24 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** Format: uuid */
-                            id: string;
-                            /** Format: uuid */
-                            postId: string;
-                            text: string;
-                            /** Format: date-time */
-                            updatedAt: string;
-                            /** Format: date-time */
-                            createdAt: string;
-                        }[];
+                            data: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                postId: string;
+                                text: string;
+                                /** Format: date-time */
+                                updatedAt: string;
+                                /** Format: date-time */
+                                createdAt: string;
+                            }[];
+                            nextCursor: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: date-time */
+                                createdAt: string;
+                            } | null;
+                        };
                     };
                 };
             };

@@ -13,6 +13,21 @@
       </el-button>
     </header>
 
+    <section class="flex justify-end">
+      <el-select
+        v-model="selectedSort"
+        class="w-full sm:w-64"
+        aria-label="Sort posts"
+      >
+        <el-option
+          v-for="option in sortOptions"
+          :key="option.value"
+          :label="option.label"
+          :value="option.value"
+        />
+      </el-select>
+    </section>
+
     <PostSkeleton v-if="isLoading && !postsPage.data.length" />
 
     <el-empty
@@ -59,9 +74,53 @@ const pagination = reactive({
   pageSize: 9
 })
 
+type TPostSortValue = 'newest' | 'oldest' | 'mostCommented' | 'leastCommented' | 'alphabetical'
+type TPostSortQuery = Pick<TPostListQuery, 'orderBy' | 'order'>
+
+const defaultSortQuery: TPostSortQuery = { orderBy: 'createdAt', order: 'desc' }
+
+const sortOptions: Array<{
+  label: string
+  value: TPostSortValue
+  query: TPostSortQuery
+}> = [
+  {
+    label: 'Newest first',
+    value: 'newest',
+    query: defaultSortQuery
+  },
+  {
+    label: 'Oldest first',
+    value: 'oldest',
+    query: { orderBy: 'createdAt', order: 'asc' }
+  },
+  {
+    label: 'Most commented',
+    value: 'mostCommented',
+    query: { orderBy: 'commentsCount', order: 'desc' }
+  },
+  {
+    label: 'Least commented',
+    value: 'leastCommented',
+    query: { orderBy: 'commentsCount', order: 'asc' }
+  },
+  {
+    label: 'Alphabetical',
+    value: 'alphabetical',
+    query: { orderBy: 'title', order: 'asc' }
+  }
+]
+
+const selectedSort = ref<TPostSortValue>('newest')
+
+const selectedSortQuery = computed(() => {
+  return sortOptions.find(option => option.value === selectedSort.value)?.query ?? defaultSortQuery
+})
+
 const postsQueryParams = computed<TPostListQuery>(() => ({
   page: pagination.page,
-  pageSize: pagination.pageSize
+  pageSize: pagination.pageSize,
+  ...selectedSortQuery.value
 }))
 
 const { data: posts, isLoading } = usePostsQuery(postsQueryParams)
@@ -74,5 +133,9 @@ const postsPage = computed<TPostList>(() => {
     total: 0,
     totalPages: 0
   }
+})
+
+watch(selectedSort, () => {
+  pagination.page = 1
 })
 </script>

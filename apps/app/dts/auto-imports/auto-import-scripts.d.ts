@@ -11,6 +11,7 @@ declare global {
   const apiClient: typeof import('../../src/features/platform/api/client').apiClient
   const asyncComputed: typeof import('@vueuse/core').asyncComputed
   const autoResetRef: typeof import('@vueuse/core').autoResetRef
+  const commentsQueryKeys: typeof import('../../src/views/posts/comment.queries').commentsQueryKeys
   const commentsService: typeof import('../../src/views/posts/comments.service').commentsService
   const computed: typeof import('vue').computed
   const computedAsync: typeof import('@vueuse/core').computedAsync
@@ -47,7 +48,6 @@ declare global {
   const getCurrentWatcher: typeof import('vue').getCurrentWatcher
   const h: typeof import('vue').h
   const helpers: typeof import('../../src/utils/helpers').helpers
-  const homeService: typeof import('../../src/views/home/home.service').homeService
   const ignorableWatch: typeof import('@vueuse/core').ignorableWatch
   const inject: typeof import('vue').inject
   const injectLocal: typeof import('@vueuse/core').injectLocal
@@ -136,7 +136,6 @@ declare global {
   const useAbortController: typeof import('../../src/composables/useAbortController').useAbortController
   const useActiveElement: typeof import('@vueuse/core').useActiveElement
   const useAnimate: typeof import('@vueuse/core').useAnimate
-  const useApiClient: typeof import('../../src/features/platform/api/client').useApiClient
   const useArrayDifference: typeof import('@vueuse/core').useArrayDifference
   const useArrayEvery: typeof import('@vueuse/core').useArrayEvery
   const useArrayFilter: typeof import('@vueuse/core').useArrayFilter
@@ -168,7 +167,6 @@ declare global {
   const useCounter: typeof import('@vueuse/core').useCounter
   const useCreateCommentMutation: typeof import('../../src/views/posts/comment.queries').useCreateCommentMutation
   const useCreatePostMutation: typeof import('../../src/views/posts/post.queries').useCreatePostMutation
-  const usePostCommentsQuery: typeof import('../../src/views/posts/comment.queries').usePostCommentsQuery
   const useCssModule: typeof import('vue').useCssModule
   const useCssSupports: typeof import('@vueuse/core').useCssSupports
   const useCssVar: typeof import('@vueuse/core').useCssVar
@@ -214,7 +212,6 @@ declare global {
   const useGeolocation: typeof import('@vueuse/core').useGeolocation
   const useGlobalProperties: typeof import('../../src/composables/useGlobalProperties').useGlobalProperties
   const useHead: typeof import('@vueuse/head').useHead
-  const useHomeStore: typeof import('../../src/views/home/home.store').useHomeStore
   const useId: typeof import('vue').useId
   const useIdle: typeof import('@vueuse/core').useIdle
   const useImage: typeof import('@vueuse/core').useImage
@@ -255,6 +252,7 @@ declare global {
   const usePointer: typeof import('@vueuse/core').usePointer
   const usePointerLock: typeof import('@vueuse/core').usePointerLock
   const usePointerSwipe: typeof import('@vueuse/core').usePointerSwipe
+  const usePostCommentsQuery: typeof import('../../src/views/posts/comment.queries').usePostCommentsQuery
   const usePostQuery: typeof import('../../src/views/posts/post.queries').usePostQuery
   const usePostsQuery: typeof import('../../src/views/posts/post.queries').usePostsQuery
   const usePreferredColorScheme: typeof import('@vueuse/core').usePreferredColorScheme
@@ -361,6 +359,7 @@ declare module 'vue' {
     readonly apiClient: UnwrapRef<typeof import('../../src/features/platform/api/client')['apiClient']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
+    readonly commentsQueryKeys: UnwrapRef<typeof import('../../src/views/posts/comment.queries')['commentsQueryKeys']>
     readonly commentsService: UnwrapRef<typeof import('../../src/views/posts/comments.service')['commentsService']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly computedAsync: UnwrapRef<typeof import('@vueuse/core')['computedAsync']>
@@ -516,7 +515,6 @@ declare module 'vue' {
     readonly useCounter: UnwrapRef<typeof import('@vueuse/core')['useCounter']>
     readonly useCreateCommentMutation: UnwrapRef<typeof import('../../src/views/posts/comment.queries')['useCreateCommentMutation']>
     readonly useCreatePostMutation: UnwrapRef<typeof import('../../src/views/posts/post.queries')['useCreatePostMutation']>
-    readonly usePostCommentsQuery: UnwrapRef<typeof import('../../src/views/posts/comment.queries')['usePostCommentsQuery']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssSupports: UnwrapRef<typeof import('@vueuse/core')['useCssSupports']>
     readonly useCssVar: UnwrapRef<typeof import('@vueuse/core')['useCssVar']>
@@ -602,6 +600,7 @@ declare module 'vue' {
     readonly usePointer: UnwrapRef<typeof import('@vueuse/core')['usePointer']>
     readonly usePointerLock: UnwrapRef<typeof import('@vueuse/core')['usePointerLock']>
     readonly usePointerSwipe: UnwrapRef<typeof import('@vueuse/core')['usePointerSwipe']>
+    readonly usePostCommentsQuery: UnwrapRef<typeof import('../../src/views/posts/comment.queries')['usePostCommentsQuery']>
     readonly usePostQuery: UnwrapRef<typeof import('../../src/views/posts/post.queries')['usePostQuery']>
     readonly usePostsQuery: UnwrapRef<typeof import('../../src/views/posts/post.queries')['usePostsQuery']>
     readonly usePreferredColorScheme: UnwrapRef<typeof import('@vueuse/core')['usePreferredColorScheme']>

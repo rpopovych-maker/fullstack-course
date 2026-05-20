@@ -43,6 +43,13 @@
       "when": 1779272523448,
       "tag": "0005_thin_stick",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1779274082869,
+      "tag": "0006_ancient_blink",
+      "breakpoints": true
     }
   ]
 }

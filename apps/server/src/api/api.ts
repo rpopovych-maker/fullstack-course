@@ -1,4 +1,4 @@
- 
+
 import 'src/services/env/env.service';
 import fastify from 'fastify';
 import autoload from '@fastify/autoload';
@@ -18,6 +18,7 @@ import routePrinter from './plugins/route-printer.plugin';
 import { setupSwagger } from './plugins/swagger.plugin';
 import { getLoggerOptions } from './plugins/logger.plugin';
 import { getDb, dbHealthCheck } from 'src/services/drizzle/drizzle.service';
+import { getIdentityService } from 'src/services/identity/identity.service';
 
 async function run() {
   const server = fastify({
@@ -63,10 +64,10 @@ async function run() {
 
   // load context
   server.decorate('uuid', getUUIDService());
-  // server.decorate(
-  //   'identityService',
-  //   getAWSCognitoService(process.env.AWS_REGION)
-  // );
+  server.decorate(
+    'identityService',
+    getIdentityService(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY)
+  );
   server.decorate(
     'db',
     getDb({

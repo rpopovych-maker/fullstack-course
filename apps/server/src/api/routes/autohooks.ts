@@ -1,8 +1,8 @@
 import { FastifyPluginAsync } from 'fastify';
-import { testHook } from '../hooks/test.hook';
+import { getAuthHook } from 'src/api/hooks/auth.hook';
 
 const hooks: FastifyPluginAsync = async function (fastify) {
-  fastify.addHook('preHandler', testHook);
+  fastify.addHook('preHandler', getAuthHook(fastify))
 };
 
 export default hooks;

@@ -1,6 +1,15 @@
 import { uuid, pgTable, varchar, timestamp, text, index } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
+export const usersTable = pgTable('users', {
+  id: uuid().primaryKey().default(sql`uuid_generate_v4()`),
+  subId: uuid().notNull().unique(),
+  email: text().notNull().unique(),
+  createdAt: timestamp().defaultNow().notNull(),
+  updatedAt: timestamp().defaultNow().$onUpdate(() => new Date()).notNull()
+});
+
+
 export const postsTable = pgTable('posts', {
   id: uuid()
     .primaryKey()
@@ -29,4 +38,10 @@ export const commentsTable = pgTable('comments', {
   updatedAt: timestamp()
     .defaultNow()
     .$onUpdate(() => new Date())
-});
+}, (t) => [
+  index('comments_post_created_id_idx').on(
+    t.postId,
+    t.createdAt.desc(),
+    t.id.asc()
+  )
+]);

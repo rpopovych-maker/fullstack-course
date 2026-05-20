@@ -9,7 +9,9 @@ export const EnvSchema = z.object({
   HOST: z.string(),
   DATABASE_URL: z.string(),
   SWAGGER_USER: z.string(),
-  SWAGGER_PWD: z.string().min(10)
+  SWAGGER_PWD: z.string().min(10),
+  SUPABASE_URL: z.string(),
+  SUPABASE_PUBLISHABLE_KEY: z.string()
 });
 
 export type Env = z.infer<typeof EnvSchema>;

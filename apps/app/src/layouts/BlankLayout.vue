@@ -2,6 +2,12 @@
 import { useAuthStore } from '@/views/auth/auth.store'
 
 const authStore = useAuthStore()
+const router = useRouter()
+
+const signOut = async () => {
+  await authStore.signOut()
+  await router.push({ name: routeNames.posts })
+}
 </script>
 
 <template>
@@ -29,7 +35,10 @@ const authStore = useAuthStore()
           </el-button>
         </RouterLink>
 
-        <el-dropdown v-else>
+        <el-dropdown
+          v-else
+          @command="signOut"
+        >
           <button
             class="flex items-center gap-2 rounded px-2 py-1 text-left hover:bg-[var(--el-fill-color-light)]"
             type="button"
@@ -38,8 +47,8 @@ const authStore = useAuthStore()
           </button>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item disabled>
-                Signed in
+              <el-dropdown-item command="sign-out">
+                Sign out
               </el-dropdown-item>
             </el-dropdown-menu>
           </template>

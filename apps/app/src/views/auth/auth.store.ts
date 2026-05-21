@@ -12,9 +12,21 @@ export const useAuthStore = defineStore('auth', () => {
     return user.value
   }
 
+  const signIn = async (email: string, password: string) => {
+    await authService.signIn(email, password)
+    return loadCurrentUser()
+  }
+
+  const signOut = async () => {
+    await authService.signOut()
+    user.value = null
+  }
+
   return {
     user,
     isAuthenticated,
-    loadCurrentUser
+    loadCurrentUser,
+    signIn,
+    signOut
   }
 })

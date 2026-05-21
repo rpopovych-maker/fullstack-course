@@ -1,6 +1,6 @@
 <template>
   <el-input
-    v-model="search"
+    v-model.trim="search"
     clearable
     placeholder="Search posts"
     aria-label="Search posts"

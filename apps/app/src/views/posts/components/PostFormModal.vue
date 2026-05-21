@@ -15,7 +15,7 @@
     >
       <el-form-item label="Title" prop="title">
         <el-input
-          v-model="form.title"
+          v-model.trim="form.title"
           placeholder="Give your post a title"
           maxlength="255"
           show-word-limit
@@ -23,7 +23,7 @@
       </el-form-item>
       <el-form-item label="Description" prop="description">
         <el-input
-          v-model="form.description"
+          v-model.trim="form.description"
           type="textarea"
           :rows="5"
           placeholder="What's on your mind?"
@@ -88,8 +88,8 @@ async function submit () {
   }
 
   const body = {
-    title: form.title.trim(),
-    description: form.description.trim() || null
+    title: form.title,
+    description: form.description || null
   }
 
   if (isEdit.value && props.post) {

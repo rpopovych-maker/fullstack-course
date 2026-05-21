@@ -86,3 +86,5 @@ See `architecture.md` for the full feature-module convention.
 - **UI design**  See `.claude/skills/ui-design/SKILL.md` for the full design rules.
 
 - **Use Pinia Colada for server state, plain Pinia stores only for true client state.** Anything that's "data fetched from the API" (lists, detail views, mutations) should be a `useQuery` / `useMutation` from `@pinia/colada`, not a hand-rolled Pinia store with `loading` / `error` / `data` refs.
+
+- *Use .trim on v-model instead of trim() whenever possible*

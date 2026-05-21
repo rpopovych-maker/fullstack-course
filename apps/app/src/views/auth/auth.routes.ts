@@ -15,6 +15,19 @@ export const authRoutes: RouteRecordRaw[] = [
         path: 'sign-in',
         name: routeNames.signIn,
         component: () => import('./SignIn.vue')
+      },
+      {
+        path: 'forgot-password',
+        name: routeNames.forgotPassword,
+        component: () => import('./ForgotPassword.vue')
+      },
+      {
+        path: 'reset-password',
+        name: routeNames.resetPassword,
+        meta: {
+          allowAuthenticated: true
+        },
+        component: () => import('./ResetPassword.vue')
       }
     ]
   }

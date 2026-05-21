@@ -62,7 +62,6 @@ const createdAgo = useTimeAgo(() => props.post.createdAt)
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
     0 14px 36px rgba(0, 0, 0, 0.4);
-  transform: translate3d(0, -2px, 0);
 }
 
 .post-card__tag {

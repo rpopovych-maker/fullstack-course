@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-2">
     <el-input
-      v-model="text"
+      v-model.trim="text"
       type="textarea"
       :rows="3"
       placeholder="Write a comment…"
@@ -9,7 +9,7 @@
     <div class="flex justify-end">
       <el-button
         type="primary"
-        :disabled="!text.trim()"
+        :disabled="!text"
         @click="submit"
       >
         <span class="inline-flex items-center gap-1.5">
@@ -36,7 +36,7 @@ const authStore = useAuthStore()
 const createMutation = useCreateCommentMutation()
 
 async function submit () {
-  const body = text.value.trim()
+  const body = text.value
   if (!body) {
     return
   }

@@ -78,9 +78,7 @@ const debouncedSearchTerm = refDebounced(searchTerm, 300)
 const minCommentsCount = ref<number>()
 
 const searchQuery = computed(() => {
-  const trimmedSearch = debouncedSearchTerm.value.trim()
-
-  return trimmedSearch.length >= 3 ? trimmedSearch : undefined
+  return debouncedSearchTerm.value.length >= 3 ? debouncedSearchTerm.value : undefined
 })
 
 const minCommentsCountQuery = computed(() => {

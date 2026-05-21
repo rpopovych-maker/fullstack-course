@@ -25,7 +25,7 @@
 
         <div v-else class="space-y-2">
           <el-input
-            v-model="draft"
+            v-model.trim="draft"
             type="textarea"
             :rows="3"
             autofocus
@@ -72,7 +72,7 @@ function cancelEdit () {
 }
 
 function save () {
-  const text = draft.value.trim()
+  const text = draft.value
   if (!text || text === props.comment.text) {
     cancelEdit()
     return

@@ -8,9 +8,7 @@ let authStateUnsubscribe: (() => void) | null = null
 export const initializeAuth = (pinia: Pinia) => {
   subscribeToAuthChanges(pinia)
 
-  if (!authInitPromise) {
-    authInitPromise = hydrateAuth(pinia)
-  }
+  authInitPromise ??= hydrateAuth(pinia)
 
   return authInitPromise
 }

@@ -17,7 +17,7 @@
 
     <el-form-item label="Email" prop="email">
       <el-input
-        v-model="form.email"
+        v-model.trim="form.email"
         autocomplete="email"
         placeholder="you@example.com"
         type="email"
@@ -32,6 +32,15 @@
         show-password
         type="password"
       />
+
+      <p class="t-body-sm w-full text-right mt-1">
+        <RouterLink
+          :to="{ name: routeNames.forgotPassword }"
+          class="underline underline-offset-4"
+        >
+          Forgot your password?
+        </RouterLink>
+      </p>
     </el-form-item>
 
     <el-button
@@ -113,7 +122,7 @@ const submit = async () => {
   isSubmitting.value = true
 
   try {
-    await authStore.signIn(form.email.trim(), form.password)
+    await authStore.signIn(form.email, form.password)
     await router.push(getRedirectTarget())
   } catch (error) {
     if (isInvalidCredentialsError(error)) {

@@ -17,7 +17,7 @@
 
     <el-form-item label="Email" prop="email">
       <el-input
-        v-model="form.email"
+        v-model.trim="form.email"
         autocomplete="email"
         placeholder="you@example.com"
         type="email"
@@ -127,7 +127,7 @@ const submit = async () => {
   isSubmitting.value = true
 
   try {
-    await authStore.signUp(form.email.trim(), form.password)
+    await authStore.signUp(form.email, form.password)
     await router.push(getRedirectTarget())
   } catch (error) {
     if (isAlreadyRegisteredError(error)) {

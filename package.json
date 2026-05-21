@@ -5,8 +5,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "corepack pnpm run typecheck",
-    "typecheck": "corepack pnpm --filter softonix-vue-guidelines type-check && corepack pnpm --filter @fullstack-course/server build"
+    "test": "npm run typecheck",
+    "typecheck": "npm --prefix apps/app run type-check && npm --prefix apps/server run build"
   },
   "keywords": [],
   "author": "",

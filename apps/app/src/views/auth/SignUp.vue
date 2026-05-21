@@ -11,7 +11,10 @@
 
     <p class="t-body-sm text-center">
       Already have an account?
-      <RouterLink :to="{ name: routeNames.signIn }">
+      <RouterLink
+        :to="{ name: routeNames.signIn }"
+        class="underline underline-offset-4"
+      >
         Sign in
       </RouterLink>
     </p>

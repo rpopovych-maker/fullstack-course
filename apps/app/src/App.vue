@@ -1,20 +1,20 @@
 <script setup lang="ts">
 import AuthLayout from '@/layouts/AuthLayout.vue'
-import BlankLayout from '@/layouts/BlankLayout.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
 import { getAuthInitPromise } from '@/views/auth/auth.init'
 
 const route = useRoute()
 const isAuthReady = ref(false)
 
 const layouts = {
-  AuthLayout,
-  BlankLayout
+  AppLayout,
+  AuthLayout
 }
 
 const currentLayout = computed(() => {
   const layoutName = route.meta.layout as keyof typeof layouts | undefined
 
-  return layouts[layoutName || 'BlankLayout'] || BlankLayout
+  return layouts[layoutName || 'AppLayout'] || AppLayout
 })
 
 getAuthInitPromise().finally(() => {

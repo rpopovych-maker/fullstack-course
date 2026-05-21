@@ -1,18 +1,14 @@
 import { supabase } from '@/features/platform/supabase/supabase.client'
-import { http } from '@/services/http'
 
 class AuthService {
   getUser (): Promise<TUser | null> {
-    return http.get('/api/me/')
+    return apiClient.get('/api/me/')
   }
 
   async signUp (email: string, password: string) {
     const { data, error } = await supabase.auth.signUp({
       email,
-      password,
-      options: {
-        data: {}
-      }
+      password
     })
 
     if (error) {

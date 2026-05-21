@@ -1,41 +1,47 @@
 <template>
-  <div class="rounded-md border border-(--el-border-color-lighter) p-4 space-y-2">
-    <div class="flex items-center justify-between gap-2">
-      <span class="t-caption">{{ createdAgo }}</span>
-      <el-button
-        v-if="!isEditing"
-        text
-        size="small"
-        @click="startEdit"
-      >
-        <span class="inline-flex items-center gap-1">
-          <Icon name="edit" />
-          Edit
-        </span>
-      </el-button>
-    </div>
+  <div class="rounded-md border border-(--el-border-color-lighter) p-4">
+    <div class="flex items-start gap-3">
+      <AuthorAvatar :user-id="comment.userId" />
 
-    <p v-if="!isEditing" class="t-body whitespace-pre-line wrap-break-word">
-      {{ comment.text }}
-    </p>
+      <div class="min-w-0 flex-1 space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <span class="t-caption">{{ createdAgo }}</span>
+          <el-button
+            v-if="!isEditing"
+            text
+            size="small"
+            @click="startEdit"
+          >
+            <span class="inline-flex items-center gap-1">
+              <Icon name="edit" />
+              Edit
+            </span>
+          </el-button>
+        </div>
 
-    <div v-else class="space-y-2">
-      <el-input
-        v-model="draft"
-        type="textarea"
-        :rows="3"
-        autofocus
-        @keydown.esc="cancelEdit"
-      />
-      <div class="flex justify-end gap-2">
-        <el-button size="small" @click="cancelEdit">Cancel</el-button>
-        <el-button
-          size="small"
-          type="primary"
-          @click="save"
-        >
-          Save
-        </el-button>
+        <p v-if="!isEditing" class="t-body whitespace-pre-line wrap-break-word">
+          {{ comment.text }}
+        </p>
+
+        <div v-else class="space-y-2">
+          <el-input
+            v-model="draft"
+            type="textarea"
+            :rows="3"
+            autofocus
+            @keydown.esc="cancelEdit"
+          />
+          <div class="flex justify-end gap-2">
+            <el-button size="small" @click="cancelEdit">Cancel</el-button>
+            <el-button
+              size="small"
+              type="primary"
+              @click="save"
+            >
+              Save
+            </el-button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

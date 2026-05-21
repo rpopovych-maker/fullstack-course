@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-dvh max-w-6xl mx-auto px-4 py-8 flex flex-col gap-8">
+  <div class="h-[calc(100dvh-4rem)] max-w-6xl mx-auto px-4 py-6 flex flex-col gap-6 overflow-hidden">
     <header class="flex items-center justify-between gap-4">
       <div class="space-y-1">
         <h1>Posts</h1>
@@ -19,11 +19,12 @@
       v-model:sort-query="sortQuery"
     />
 
-    <div class="flex-1">
+    <div class="min-h-0 flex-1 overflow-y-auto pr-1">
       <PostSkeleton v-if="isLoading && !postsPage.data.length" />
 
       <el-empty
         v-else-if="!postsPage.data.length"
+        class="h-full"
         :description="emptyDescription"
       >
         <el-button type="primary" @click="startCreatePost">
@@ -46,7 +47,7 @@
       </div>
     </div>
 
-    <div v-if="postsPage.totalPages > 1" class="mt-auto flex justify-center pt-2">
+    <div v-if="postsPage.totalPages > 1" class="flex justify-center">
       <el-pagination
         v-model:current-page="pagination.page"
         background

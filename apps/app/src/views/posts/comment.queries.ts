@@ -1,5 +1,6 @@
 import { setInfiniteQueryData, useInfiniteQuery, useMutation, useQueryCache } from '@pinia/colada'
 import type { UseInfiniteQueryData } from '@pinia/colada'
+import { useAuthStore } from '@/views/auth/auth.store'
 
 const COMMENTS_PAGE_SIZE = 20
 
@@ -40,6 +41,7 @@ export const useCreateCommentMutation = () => {
       return commentsService.createComment(postId, body)
     },
     onMutate: ({ postId, body }) => {
+      const authStore = useAuthStore()
       const commentsKey = commentsQueryKeys.post(postId)
       cache.cancelQueries({ key: postsQueryKeys.lists() })
       cache.cancelQueries({ key: commentsKey, exact: true })
@@ -53,6 +55,7 @@ export const useCreateCommentMutation = () => {
       const now = new Date().toISOString()
       const optimisticComment: TComment = {
         id: crypto.randomUUID(),
+        userId: authStore.user?.id ?? '',
         postId,
         text: body.text,
         createdAt: now,

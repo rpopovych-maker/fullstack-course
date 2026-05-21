@@ -1,15 +1,17 @@
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios'
+import { supabase } from '@/features/platform/supabase/supabase.client'
 import { parseDynamicKeys } from '../helpers'
 
-// TODO: the following code is just an example. Please write your own project specific interceptors
-
-const requestInterceptor = (requestConfig: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-  // if (requestConfig.headers) {
-  //   requestConfig.headers.Authorization = `Bearer ${await authStore.getToken()}`
-  // }
-
+const requestInterceptor = async (requestConfig: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> => {
   if (requestConfig.url) {
     requestConfig.url = parseDynamicKeys(requestConfig.url, requestConfig.dynamicKeys as TIndexedObject | undefined)
+  }
+
+  const { data } = await supabase.auth.getSession()
+  const accessToken = data.session?.access_token
+
+  if (accessToken) {
+    requestConfig.headers.Authorization = `Bearer ${accessToken}`
   }
 
   return requestConfig

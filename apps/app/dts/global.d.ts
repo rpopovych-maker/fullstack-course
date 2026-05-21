@@ -7,6 +7,7 @@ declare module 'vue-router' {
     // todo: this is just an example. Please setup your own route meta params.
     label?: string
     requireAuth?: boolean
+    layout?: string
   }
 }
 

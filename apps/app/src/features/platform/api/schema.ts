@@ -37,30 +37,21 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/entities/": {
+    "/api/me/": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
-        post: {
+        get: {
             parameters: {
                 query?: never;
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        title: string;
-                        description?: string | null;
-                    };
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description Default Response */
                 200: {
@@ -69,74 +60,27 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
+                            /** Format: uuid */
                             id: string;
-                            title: string;
-                            description?: string | null;
-                            /** Format: date-time */
-                            updatedAt: string;
+                            /** Format: uuid */
+                            subId: string;
+                            /** Format: email */
+                            email: string;
                             /** Format: date-time */
                             createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
                         };
                     };
                 };
             };
         };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/entities/{entityId}/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    entityId: string;
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        title?: string;
-                        description?: string | null;
-                    };
-                };
-            };
-            responses: {
-                /** @description Default Response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            id: string;
-                            title: string;
-                            description?: string | null;
-                            /** Format: date-time */
-                            updatedAt: string;
-                            /** Format: date-time */
-                            createdAt: string;
-                        };
-                    };
-                };
-            };
-        };
+        patch?: never;
         trace?: never;
     };
     "/api/posts/": {
@@ -172,6 +116,8 @@ export interface paths {
                             data: {
                                 /** Format: uuid */
                                 id: string;
+                                /** Format: uuid */
+                                userId: string;
                                 title: string;
                                 description?: string | null;
                                 /** Format: date-time */
@@ -215,6 +161,8 @@ export interface paths {
                         "application/json": {
                             /** Format: uuid */
                             id: string;
+                            /** Format: uuid */
+                            userId: string;
                             title: string;
                             description?: string | null;
                             /** Format: date-time */
@@ -259,6 +207,8 @@ export interface paths {
                         "application/json": {
                             /** Format: uuid */
                             id: string;
+                            /** Format: uuid */
+                            userId: string;
                             title: string;
                             description?: string | null;
                             /** Format: date-time */
@@ -302,6 +252,8 @@ export interface paths {
                         "application/json": {
                             /** Format: uuid */
                             id: string;
+                            /** Format: uuid */
+                            userId: string;
                             title: string;
                             description?: string | null;
                             /** Format: date-time */
@@ -348,6 +300,8 @@ export interface paths {
                                 /** Format: uuid */
                                 id: string;
                                 /** Format: uuid */
+                                userId: string;
+                                /** Format: uuid */
                                 postId: string;
                                 text: string;
                                 /** Format: date-time */
@@ -393,6 +347,8 @@ export interface paths {
                         "application/json": {
                             /** Format: uuid */
                             id: string;
+                            /** Format: uuid */
+                            userId: string;
                             /** Format: uuid */
                             postId: string;
                             text: string;
@@ -451,6 +407,8 @@ export interface paths {
                         "application/json": {
                             /** Format: uuid */
                             id: string;
+                            /** Format: uuid */
+                            userId: string;
                             /** Format: uuid */
                             postId: string;
                             text: string;

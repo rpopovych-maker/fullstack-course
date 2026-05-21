@@ -7,13 +7,17 @@ import { router } from '@/router'
 import {
   VueGlobalPropertiesPlugin
 } from '@/plugins'
+import { initializeAuth } from '@/views/auth/auth.init'
 
 import '@/assets/styles/main.css'
 
 const app = createApp(App)
+const pinia = createPinia()
+
+initializeAuth(pinia)
 
 app
-  .use(createPinia())
+  .use(pinia)
   .use(PiniaColada)
   .use(router)
   .use(VueGlobalPropertiesPlugin)

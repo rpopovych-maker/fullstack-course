@@ -11,7 +11,7 @@ export const EnvSchema = z.object({
   SWAGGER_USER: z.string(),
   SWAGGER_PWD: z.string().min(10),
   SUPABASE_URL: z.string(),
-  SUPABASE_PUBLISHABLE_KEY: z.string()
+  SUPABASE_SECRET_KEY: z.string()
 });
 
 export type Env = z.infer<typeof EnvSchema>;

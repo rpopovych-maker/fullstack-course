@@ -1,9 +1,8 @@
-import { asc, count, desc, eq, getTableColumns, gte, ilike, or, sql } from 'drizzle-orm';
+import { and, asc, count, desc, eq, getTableColumns, gte, ilike, or, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { IPostRepo } from 'src/types/post/IPostRepo';
 import { PostSchema } from 'src/types/post/Post';
 import { commentsTable, postsTable } from 'src/services/drizzle/schema';
-import { PostWithCommentsCountSchema } from 'src/types/post/PostWithCommentsCount';
 import { GetPostsResultSchema } from 'src/types/post/GetPostsResult';
 
 export function getPostRepo(db: NodePgDatabase): IPostRepo {
@@ -13,10 +12,14 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
       return PostSchema.parse(posts[0]);
     },
 
-    async updatePostById(id, data) {
-      const posts = await db.update(postsTable).set(data).where(eq(postsTable.id, id)).returning();
+    async updatePostById(postId, userId, data) {
+      const posts = await db
+        .update(postsTable)
+        .set(data)
+        .where(and(eq(postsTable.userId, userId), eq(postsTable.id, postId)))
+        .returning();
 
-      return posts.length > 0 ? PostSchema.parse(posts[0]) : null;k
+      return posts.length > 0 ? PostSchema.parse(posts[0]) : null;
     },
 
     async getPostById(id: string) {

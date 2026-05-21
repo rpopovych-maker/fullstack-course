@@ -66,7 +66,7 @@ async function run() {
   server.decorate('uuid', getUUIDService());
   server.decorate(
     'identityService',
-    getIdentityService(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY)
+    getIdentityService(process.env.SUPABASE_URL, process.env.SUPABASE_SECRET_KEY)
   );
   server.decorate(
     'db',

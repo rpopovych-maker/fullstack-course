@@ -12,11 +12,15 @@ export function getCommentRepo(db: NodePgDatabase): ICommentRepo {
       return CommentSchema.parse(comments[0]);
     },
 
-    async updateCommentById(id, data) {
+    async updateCommentById({commentId, userId, postId, data}) {
       const comments = await db
         .update(commentsTable)
         .set(data)
-        .where(eq(commentsTable.id, id))
+        .where(and(
+          eq(commentsTable.id, commentId),
+          eq(commentsTable.userId, userId),
+          eq(commentsTable.postId, postId)
+        ))
         .returning();
 
       return comments.length > 0 ? CommentSchema.parse(comments[0]) : null;

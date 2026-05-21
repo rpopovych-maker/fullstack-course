@@ -26,6 +26,8 @@ const routes: FastifyPluginAsync = async function (f) {
       const comment = await updateCommentById({
         commentRepo: fastify.repos.commentRepo,
         commentId: req.params.commentId,
+        postId: req.params.postId,
+        userId: req.user.id,
         data: req.body
       });
       return comment;

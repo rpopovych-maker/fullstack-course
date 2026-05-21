@@ -6,7 +6,8 @@ import { PostOrderBy } from './PostOrderBy';
 export interface IPostRepo {
   createPost(data: Pick<Post, 'userId' | 'title' | 'description'>): Promise<Post>;
   updatePostById(
-    id: string,
+    postId: string,
+    userId: string,
     data: Partial<Pick<Post, 'title' | 'description'>>
   ): Promise<Post | null>;
   getPostById(id: string): Promise<Post | null>;

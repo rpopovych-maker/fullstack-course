@@ -61,6 +61,7 @@ const routes: FastifyPluginAsync = async function (f) {
 
       const comments = await getPostComments({
         commentRepo: fastify.repos.commentRepo,
+        postRepo: fastify.repos.postRepo,
         postId: req.params.postId,
         cursor,
         pageSize: req.query.pageSize

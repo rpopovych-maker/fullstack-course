@@ -5,7 +5,7 @@
         <h1>Posts</h1>
         <p class="t-muted">Share what's on your mind.</p>
       </div>
-      <el-button type="primary" @click="openModal('PostFormModal')">
+      <el-button type="primary" @click="startCreatePost">
         <span class="inline-flex items-center gap-1.5">
           <Icon name="plus" />
           New post
@@ -26,7 +26,7 @@
         v-else-if="!postsPage.data.length"
         :description="emptyDescription"
       >
-        <el-button type="primary" @click="openModal('PostFormModal')">
+        <el-button type="primary" @click="startCreatePost">
           <span class="inline-flex items-center gap-1.5">
             <Icon name="plus" />
             Create the first post
@@ -59,9 +59,12 @@
 </template>
 
 <script lang="ts" setup>
+import { useAuthStore } from '@/views/auth/auth.store'
+
 const { openModal } = useModals()
 const route = useRoute()
 const router = useRouter()
+const authStore = useAuthStore()
 
 const pagination = reactive({
   page: readPageQuery(),
@@ -148,5 +151,19 @@ function readPageQuery () {
   const page = Number(rawPage)
 
   return Number.isInteger(page) && page > 0 ? page : 1
+}
+
+async function startCreatePost () {
+  if (!authStore.isAuthenticated) {
+    await router.push({
+      name: routeNames.signIn,
+      query: {
+        redirect: '/posts'
+      }
+    })
+    return
+  }
+
+  openModal('PostFormModal')
 }
 </script>

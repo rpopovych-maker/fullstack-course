@@ -23,19 +23,34 @@
 
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
+import { useAuthStore } from '@/views/auth/auth.store'
 
 const props = defineProps<{
   postId: string
 }>()
 
 const text = ref('')
+const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
 const createMutation = useCreateCommentMutation()
 
-function submit () {
+async function submit () {
   const body = text.value.trim()
   if (!body) {
     return
   }
+
+  if (!authStore.isAuthenticated) {
+    await router.push({
+      name: routeNames.signIn,
+      query: {
+        redirect: route.path
+      }
+    })
+    return
+  }
+
   const draft = body
   text.value = ''
   createMutation.mutateAsync({ postId: props.postId, body: { text: draft } }).catch(() => {

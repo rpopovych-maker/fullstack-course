@@ -17,6 +17,11 @@ export const useAuthStore = defineStore('auth', () => {
     return loadCurrentUser()
   }
 
+  const signUp = async (email: string, password: string) => {
+    await authService.signUp(email, password)
+    return loadCurrentUser()
+  }
+
   const signOut = async () => {
     await authService.signOut()
     user.value = null
@@ -27,6 +32,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     loadCurrentUser,
     signIn,
+    signUp,
     signOut
   }
 })

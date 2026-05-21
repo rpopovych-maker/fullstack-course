@@ -20,6 +20,9 @@ const routes: FastifyPluginAsync = async function (f) {
         response: {
           200: GetPostByIdRespSchema
         }
+      },
+      config: {
+        skipAuth: true
       }
     },
     async (req) => {

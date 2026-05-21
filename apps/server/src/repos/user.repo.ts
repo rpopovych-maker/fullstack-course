@@ -6,15 +6,6 @@ import { UserSchema } from 'src/types/user/User';
 
 export function getUserRepo(db: NodePgDatabase): IUserRepo {
   return {
-    async createUser(data) {
-      const user = await db
-        .insert(usersTable)
-        .values(data)
-        .returning()
-
-      return UserSchema.parse(user[0])
-    },
-
     async getUserBySubId(subId) {
       const users = await db
         .select()

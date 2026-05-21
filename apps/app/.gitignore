@@ -19,6 +19,10 @@ dist-ssr
 coverage
 *.local
 
+# auto-imports
+.config/auto-imports/auto-import.json
+dts/auto-imports
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -13,6 +13,15 @@ export function getUserRepo(db: NodePgDatabase): IUserRepo {
         .where(eq(usersTable.subId, subId));
 
       return users.length > 0 ? UserSchema.parse(users[0]) : null
-    }
+    },
+
+    async createUser(data) {
+      const result = await (db)
+        .insert(usersTable)
+        .values(data)
+        .returning();
+
+      return UserSchema.parse(result[0]);
+    },
   };
 }

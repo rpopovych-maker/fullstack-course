@@ -35,7 +35,11 @@
               <p class="t-caption">{{ createdAgo }}</p>
             </div>
           </div>
-          <el-button text @click="openEditModal">
+          <el-button
+            v-if="canEditPost"
+            text
+            @click="openEditModal"
+          >
             <span class="inline-flex items-center gap-1">
               <Icon name="edit" />
               Edit
@@ -106,8 +110,10 @@
 <script lang="ts" setup>
 import type { AxiosError } from 'axios'
 import pluralize from 'pluralize'
+import { useAuthStore } from '@/views/auth/auth.store'
 
 const route = useRoute()
+const authStore = useAuthStore()
 const postId = computed(() => route.params.postId as string)
 
 const { data: post, isLoading, error } = usePostQuery(postId)
@@ -130,6 +136,7 @@ const isNotFound = computed(() => {
 const createdAgo = useTimeAgo(() => post.value?.createdAt ?? '')
 const flatComments = computed(() => comments.value?.pages.flatMap(page => page.data) ?? [])
 const commentsHeading = computed(() => pluralize('Comment', flatComments.value.length, true))
+const canEditPost = computed(() => post.value?.userId === authStore.user?.id)
 
 useIntersectionObserver(
   commentsLoadMoreTarget,
@@ -155,7 +162,7 @@ async function loadMoreComments () {
 }
 
 function openEditModal () {
-  if (!post.value) {
+  if (!post.value || !canEditPost.value) {
     return
   }
   openModal('PostFormModal', {

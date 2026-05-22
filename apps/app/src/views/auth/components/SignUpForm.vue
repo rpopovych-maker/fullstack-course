@@ -46,6 +46,7 @@
 </template>
 
 <script setup lang="ts">
+import { isAxiosError } from 'axios'
 import { ElMessage } from 'element-plus'
 import { useAuthStore } from '../auth.store'
 
@@ -65,6 +66,14 @@ const rules = useElFormRules({
 
 const isSubmitting = ref(false)
 const serverError = ref('')
+
+const getApiError = (error: unknown) => {
+  if (isAxiosError(error) && error.response?.data) {
+    return error.response.data
+  }
+
+  return error
+}
 
 const getRedirectTarget = () => {
   const redirect = route.query.redirect
@@ -95,8 +104,9 @@ const getErrorMessage = (error: unknown) => {
 }
 
 const isAlreadyRegisteredError = (error: unknown) => {
-  const code = getErrorCode(error)
-  const message = getErrorMessage(error)
+  const apiError = getApiError(error)
+  const code = getErrorCode(apiError)
+  const message = getErrorMessage(apiError)
 
   return code === 'user_already_registered' ||
     message.includes('user already registered') ||
@@ -104,8 +114,9 @@ const isAlreadyRegisteredError = (error: unknown) => {
 }
 
 const isWeakPasswordError = (error: unknown) => {
-  const code = getErrorCode(error)
-  const message = getErrorMessage(error)
+  const apiError = getApiError(error)
+  const code = getErrorCode(apiError)
+  const message = getErrorMessage(apiError)
 
   return code === 'weak_password' ||
     message.includes('weak password') ||
@@ -127,7 +138,11 @@ const submit = async () => {
   isSubmitting.value = true
 
   try {
-    await authStore.signUp(form.email, form.password)
+    await authService.signUp(form.email, form.password)
+    await authService.signIn(form.email, form.password)
+
+    await authStore.loadCurrentUser()
+
     await router.push(getRedirectTarget())
   } catch (error) {
     if (isAlreadyRegisteredError(error)) {

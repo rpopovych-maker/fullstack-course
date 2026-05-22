@@ -1,5 +1,4 @@
 import { IdentityService } from "src/types/services/IdentityService";
-import { HttpError } from "src/api/errors/HttpError";
 import { IUserRepo } from "src/types/user/IUserRepo";
 
 export async function signUp(params: {

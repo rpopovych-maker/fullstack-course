@@ -49,11 +49,12 @@
 
     <div v-if="postsPage.totalPages > 1" class="flex justify-center">
       <el-pagination
-        v-model:current-page="pagination.page"
         background
+        :current-page="pagination.page"
         layout="prev, pager, next, total"
         :page-size="pagination.pageSize"
         :total="postsPage.total"
+        @current-change="setPage"
       />
     </div>
   </div>
@@ -112,38 +113,41 @@ const emptyDescription = computed(() => {
 })
 
 watch(sortQuery, () => {
-  pagination.page = 1
+  setPage(1)
 })
 
 watch(searchTerm, () => {
-  pagination.page = 1
+  setPage(1)
 })
 
 watch(minCommentsCount, () => {
-  pagination.page = 1
+  setPage(1)
 })
 
 watch(
   () => route.query.page,
   () => {
-    pagination.page = readPageQuery()
-  }
-)
+    const page = readPageQuery()
 
-watch(
-  () => pagination.page,
-  (page) => {
-    const query = { ...route.query }
-
-    if (page > 1) {
-      query.page = String(page)
-    } else {
-      delete query.page
+    if (page !== pagination.page) {
+      pagination.page = page
     }
-
-    void router.replace({ query })
   }
 )
+
+function setPage (page: number) {
+  pagination.page = page
+
+  const query = { ...route.query }
+
+  if (page > 1) {
+    query.page = String(page)
+  } else {
+    delete query.page
+  }
+
+  void router.replace({ query })
+}
 
 function readPageQuery () {
   const rawPage = Array.isArray(route.query.page) ? route.query.page[0] : route.query.page

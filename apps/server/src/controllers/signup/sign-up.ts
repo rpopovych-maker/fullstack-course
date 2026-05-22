@@ -7,11 +7,13 @@ export async function signUp(params: {
   userRepo: IUserRepo;
   email: string;
   password: string;
+  username: string;
 }) {
     const { subId, email } = await params.identityService.createUser(params.email, params.password);
     const user = await params.userRepo.createUser({
       subId,
-      email
+      email,
+      username: params.username
     });
 
     return user;

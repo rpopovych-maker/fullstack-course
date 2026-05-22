@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { PostSchema } from './Post';
+import { PostWithAuthorSchema } from './PostWithAuthor';
 
-export const PostWithCommentsCountSchema = PostSchema.extend({
+export const PostWithCommentsCountSchema = PostWithAuthorSchema.extend({
   commentsCount: z.number()
 });
 

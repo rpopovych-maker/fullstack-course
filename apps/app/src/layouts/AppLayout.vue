@@ -8,16 +8,14 @@ const signOut = async () => {
   await authStore.signOut()
   await router.push({ name: routeNames.signIn })
 }
-
-const userInitial = computed(() => {
-  return authStore.user?.email.trim().charAt(0).toUpperCase() || '?'
-})
 </script>
 
 <template>
-  <div class="min-h-screen bg-[var(--el-bg-color-page)]">
-    <header class="sticky top-0 z-10 border-b border-[var(--el-border-color-lighter)] bg-[var(--el-bg-color-page)]/85 backdrop-blur">
-      <div class="max-w-6xl mx-auto h-16 px-4 flex items-center justify-between gap-4">
+  <div class="min-h-screen bg-(--el-bg-color-page)">
+    <header
+      class="sticky top-0 z-10 border-b border-(--el-border-color-lighter) bg-(--el-bg-color-page)/85 backdrop-blur"
+    >
+      <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
         <RouterLink
           :to="{ name: routeNames.posts }"
           class="t-h4 no-underline"
@@ -28,14 +26,14 @@ const userInitial = computed(() => {
         <nav class="flex items-center gap-2">
           <RouterLink
             :to="{ name: routeNames.posts }"
-            class="t-body-sm no-underline px-2 py-1 rounded hover:bg-[var(--el-fill-color-light)]"
+            class="t-body-sm rounded px-2 py-1 no-underline hover:bg-(--el-fill-color-light)"
           >
             Posts
           </RouterLink>
 
           <RouterLink
             v-if="!authStore.isAuthenticated"
-            v-slot="{ navigate }"
+            #default="{ navigate }"
             :to="{ name: routeNames.signIn }"
             custom
           >
@@ -52,12 +50,13 @@ const userInitial = computed(() => {
             @command="signOut"
           >
             <button
-              class="flex items-center gap-2 rounded px-2 py-1 text-left hover:bg-[var(--el-fill-color-light)]"
+              class="flex items-center gap-2 rounded px-2 py-1 text-left hover:bg-(--el-fill-color-light)"
               type="button"
             >
-              <el-avatar :size="28">
-                {{ userInitial }}
-              </el-avatar>
+              <AuthorAvatar
+                :username="authStore.user?.username ?? ''"
+                :size="28"
+              />
               <span class="t-body-sm hidden sm:inline">{{ authStore.user?.email }}</span>
             </button>
             <template #dropdown>

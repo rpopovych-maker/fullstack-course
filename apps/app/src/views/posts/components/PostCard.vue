@@ -3,13 +3,7 @@
     :to="{ name: routeNames.postDetail, params: { postId: post.id }, query: route.query }"
     class="post-card group flex h-full flex-col gap-3 rounded-xl p-5"
   >
-    <div class="flex items-start gap-3">
-      <AuthorAvatar :user-id="post.userId" />
-      <div class="min-w-0 flex-1 space-y-2">
-        <h3 class="line-clamp-2 wrap-break-word">{{ post.title }}</h3>
-        <span class="t-caption">{{ createdAgo }}</span>
-      </div>
-    </div>
+    <h3 class="line-clamp-2 wrap-break-word">{{ post.title }}</h3>
 
     <p
       v-if="post.description"
@@ -18,7 +12,14 @@
       {{ post.description }}
     </p>
 
-    <div class="mt-auto flex justify-end pt-2">
+    <span class="t-caption">{{ createdAgo }}</span>
+
+    <div class="mt-auto flex items-center justify-between gap-3 pt-2">
+      <span class="min-w-0 inline-flex items-center gap-2 t-caption">
+        <AuthorAvatar :username="post.author.username" :size="24" />
+        <span class="truncate">{{ post.author.username }}</span>
+      </span>
+
       <span class="post-card__tag inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 t-caption">
         <Icon name="chat" />
         {{ post.commentsCount }}

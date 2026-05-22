@@ -29,10 +29,10 @@
       <article class="space-y-4">
         <div class="flex items-start justify-between gap-4">
           <div class="flex min-w-0 items-start gap-3">
-            <AuthorAvatar :user-id="post.userId" :size="40" />
+            <AuthorAvatar :username="post.author.username" :size="40" />
             <div class="space-y-1 min-w-0">
               <h1 class="wrap-break-word">{{ post.title }}</h1>
-              <p class="t-caption">{{ createdAgo }}</p>
+              <p class="t-caption">{{ post.author.username }} · {{ createdAgo }}</p>
             </div>
           </div>
           <el-button

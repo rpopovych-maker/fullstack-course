@@ -17,7 +17,8 @@ const routes: FastifyPluginAsync = async function (f) {
       identityService: fastify.identityService,
       userRepo: fastify.repos.userRepo,
       email: req.body.email,
-      password: req.body.password 
+      password: req.body.password,
+      username: req.body.username
   }));
 };
 

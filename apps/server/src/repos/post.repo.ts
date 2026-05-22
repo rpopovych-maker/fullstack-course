@@ -2,8 +2,9 @@ import { and, asc, count, desc, eq, getTableColumns, gte, ilike, or, sql } from 
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { IPostRepo } from 'src/types/post/IPostRepo';
 import { PostSchema } from 'src/types/post/Post';
-import { commentsTable, postsTable } from 'src/services/drizzle/schema';
+import { commentsTable, postsTable, usersTable } from 'src/services/drizzle/schema';
 import { GetPostsResultSchema } from 'src/types/post/GetPostsResult';
+import { PostWithAuthorSchema } from 'src/types/post/PostWithAuthor';
 
 export function getPostRepo(db: NodePgDatabase): IPostRepo {
   return {
@@ -23,9 +24,19 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
     },
 
     async getPostById(id: string) {
-      const posts = await db.select().from(postsTable).where(eq(postsTable.id, id));
+      const posts = await db
+        .select({
+          ...getTableColumns(postsTable),
+          author: {
+            id: usersTable.id,
+            username: usersTable.username
+          }
+        })
+        .from(postsTable)
+        .innerJoin(usersTable, eq(postsTable.userId, usersTable.id))
+        .where(eq(postsTable.id, id));
 
-      return posts.length > 0 ? PostSchema.parse(posts[0]) : null;
+      return posts.length > 0 ? PostWithAuthorSchema.parse(posts[0]) : null;
     },
 
     async getPosts({ page, pageSize, search, orderBy, order, minCommentsCount }) {
@@ -69,6 +80,7 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
       const matchingPosts = db
         .select({ id: postsTable.id })
         .from(postsTable)
+        .innerJoin(usersTable, eq(postsTable.userId, usersTable.id))
         .leftJoin(commentsTable, eq(postsTable.id, commentsTable.postId))
         .where(searchCondition)
         .groupBy(postsTable.id)
@@ -78,12 +90,17 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
       const postsQuery = db
         .select({
           ...getTableColumns(postsTable),
+          author: {
+            id: usersTable.id,
+            username: usersTable.username
+          },
           commentsCount: commentsCount.as('commentsCount')
         })
         .from(postsTable)
+        .innerJoin(usersTable, eq(postsTable.userId, usersTable.id))
         .leftJoin(commentsTable, eq(postsTable.id, commentsTable.postId))
         .where(searchCondition)
-        .groupBy(postsTable.id)
+        .groupBy(postsTable.id, usersTable.id)
         .having(commentsCountCondition)
         .orderBy(...sortExpressions)
         .limit(pageSize)

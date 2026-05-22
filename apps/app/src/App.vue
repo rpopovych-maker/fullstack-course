@@ -14,7 +14,7 @@ const layouts = {
 const currentLayout = computed(() => {
   const layoutName = route.meta.layout as keyof typeof layouts | undefined
 
-  return layouts[layoutName || 'AppLayout'] || AppLayout
+  return layouts[layoutName ?? 'AppLayout'] ?? AppLayout
 })
 
 getAuthInitPromise().finally(() => {

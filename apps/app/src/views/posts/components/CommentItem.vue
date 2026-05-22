@@ -1,11 +1,11 @@
 <template>
   <div class="rounded-md border border-(--el-border-color-lighter) p-4">
     <div class="flex items-start gap-3">
-      <AuthorAvatar :user-id="comment.userId" />
+      <AuthorAvatar :username="comment.author.username" />
 
       <div class="min-w-0 flex-1 space-y-2">
         <div class="flex items-center justify-between gap-2">
-          <span class="t-caption">{{ createdAgo }}</span>
+          <span class="t-caption">{{ comment.author.username }} · {{ createdAgo }}</span>
           <el-button
             v-if="canEditComment && !isEditing"
             text

@@ -24,6 +24,14 @@
       />
     </el-form-item>
 
+    <el-form-item label="Username" prop="username">
+      <el-input
+        v-model.trim="form.username"
+        autocomplete="username"
+        placeholder="alice"
+      />
+    </el-form-item>
+
     <el-form-item label="Password" prop="password">
       <el-input
         v-model="form.password"
@@ -57,10 +65,12 @@ const router = useRouter()
 const formRef = useElFormRef(null)
 const form = useElFormModel({
   email: '',
+  username: '',
   password: ''
 })
 const rules = useElFormRules({
   email: [useRequiredRule(), useEmailRule()],
+  username: [useRequiredRule(), useMinLenRule(3)],
   password: [useRequiredRule(), useMinLenRule(8)]
 })
 
@@ -138,7 +148,7 @@ const submit = async () => {
   isSubmitting.value = true
 
   try {
-    await authService.signUp(form.email, form.password)
+    await authService.signUp(form.email, form.password, form.username)
     await authService.signIn(form.email, form.password)
 
     await authStore.loadCurrentUser()

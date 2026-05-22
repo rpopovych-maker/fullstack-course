@@ -66,6 +66,7 @@ export interface paths {
                             subId: string;
                             /** Format: email */
                             email: string;
+                            username: string;
                             /** Format: date-time */
                             createdAt: string;
                             /** Format: date-time */
@@ -124,6 +125,11 @@ export interface paths {
                                 updatedAt: string;
                                 /** Format: date-time */
                                 createdAt: string;
+                                author: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    username: string;
+                                };
                                 commentsCount: number;
                             }[];
                             page: number;
@@ -215,6 +221,11 @@ export interface paths {
                             updatedAt: string;
                             /** Format: date-time */
                             createdAt: string;
+                            author: {
+                                /** Format: uuid */
+                                id: string;
+                                username: string;
+                            };
                         };
                     };
                 };
@@ -308,6 +319,11 @@ export interface paths {
                                 updatedAt: string;
                                 /** Format: date-time */
                                 createdAt: string;
+                                author: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    username: string;
+                                };
                             }[];
                             nextCursor: {
                                 /** Format: uuid */
@@ -445,6 +461,7 @@ export interface paths {
                         /** Format: email */
                         email: string;
                         password: string;
+                        username: string;
                     };
                 };
             };
@@ -454,14 +471,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "application/json": {
-                            /** Format: uuid */
-                            subId: string;
-                            /** Format: email */
-                            email: string;
-                        };
-                    };
+                    content?: never;
                 };
             };
         };

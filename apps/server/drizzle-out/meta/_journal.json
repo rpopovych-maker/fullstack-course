@@ -57,6 +57,20 @@
       "when": 1779278711467,
       "tag": "0007_wooden_revanche",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1779446273519,
+      "tag": "0008_acoustic_ravenous",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1779446360614,
+      "tag": "0009_cuddly_kronos",
+      "breakpoints": true
     }
   ]
 }

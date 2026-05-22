@@ -5,10 +5,11 @@ class AuthService {
     return apiClient.get('/api/me/')
   }
 
-  async signUp (email: string, password: string) {
+  async signUp (email: string, password: string, username: string) {
     return await apiClient.post('/api/sign-up/', {
       email,
-      password
+      password,
+      username
     })
   }
 

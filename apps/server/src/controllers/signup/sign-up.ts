@@ -1,5 +1,5 @@
-import { IdentityService } from "src/types/services/IdentityService";
-import { IUserRepo } from "src/types/user/IUserRepo";
+import { IdentityService } from 'src/types/services/IdentityService';
+import { IUserRepo } from 'src/types/user/IUserRepo';
 
 export async function signUp(params: {
   identityService: IdentityService;
@@ -12,7 +12,8 @@ export async function signUp(params: {
     const user = await params.userRepo.createUser({
       subId,
       email,
-      username: params.username
+      username: params.username,
+      role: 'user'
     });
 
     return user;

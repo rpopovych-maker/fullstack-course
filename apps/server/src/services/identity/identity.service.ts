@@ -27,7 +27,7 @@ export function getIdentityService(
         email,
         password,
         email_confirm: true
-      })
+      });
 
       if (error) {
         throw new Error(error.message);

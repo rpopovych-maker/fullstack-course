@@ -71,6 +71,20 @@
       "when": 1779446360614,
       "tag": "0009_cuddly_kronos",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1779705645789,
+      "tag": "0010_groovy_joseph",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1779705717247,
+      "tag": "0011_damp_smasher",
+      "breakpoints": true
     }
   ]
 }

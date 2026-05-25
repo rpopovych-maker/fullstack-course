@@ -1,7 +1,12 @@
-import { SortOrder } from 'src/types/SortOrder';
+import { GetUsersResult } from 'src/types/admin/GetUsersResult';
 import { User } from './User';
 
 export interface IUserRepo {
   getUserBySubId(subId: string): Promise<User | null>;
-  createUser(data: Pick<User, 'subId' | 'email' | 'username'>): Promise<User>;
+  createUser(data: Pick<User, 'subId' | 'email' | 'username' | 'role'>): Promise<User>;
+  getUsers(params: {
+    page: number,
+    pageSize: number,
+    search?: string
+  }): Promise<GetUsersResult>;
 }

@@ -13,7 +13,7 @@ export interface IPostRepo {
   ): Promise<Post | null>;
   getPostById(id: string): Promise<PostWithAuthor | null>;
   getPosts(params: {
-    page: number;
+    page: number,
     pageSize: number,
     search?: string,
     orderBy?: PostOrderBy,

@@ -4,12 +4,12 @@ import { sql } from 'drizzle-orm';
 export const usersTable = pgTable('users', {
   id: uuid().primaryKey().default(sql`uuid_generate_v4()`),
   subId: uuid().notNull().unique(),
+  role: varchar({ length: 20 }).notNull(),
   email: text().notNull().unique(),
   username: varchar({ length: 255 }).notNull().unique(),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().defaultNow().$onUpdate(() => new Date()).notNull()
 });
-
 
 export const postsTable = pgTable('posts', {
   id: uuid()

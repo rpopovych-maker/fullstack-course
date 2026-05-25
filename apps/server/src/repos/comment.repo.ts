@@ -43,9 +43,9 @@ export function getCommentRepo(db: NodePgDatabase): ICommentRepo {
             cursor
               ? or(
                 lt(commentsTable.createdAt, cursor.createdAt),
-                and(eq(commentsTable.createdAt, cursor.createdAt), gt(commentsTable.id, cursor.id)),
+                and(eq(commentsTable.createdAt, cursor.createdAt), gt(commentsTable.id, cursor.id))
               )
-              : undefined,
+              : undefined
           ))
         .limit(pageSize + 1)
         .orderBy(desc(commentsTable.createdAt), asc(commentsTable.id));

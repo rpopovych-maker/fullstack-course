@@ -5,20 +5,19 @@ import { HttpError } from '../errors/HttpError';
 export function getAuthHook(fastify: FastifyInstance): preHandlerAsyncHookHandler {
   return async function (request) {
     if (request.routeOptions.config.skipAuth) {
-      return
+      return;
     }
 
-    const header = request.headers.authorization
+    const header = request.headers.authorization;
 
     if (!header?.startsWith('Bearer ')) {
-      throw new HttpError(401, 'Unauthorized')
+      throw new HttpError(401, 'Unauthorized');
     }
 
-    const token = header.split(' ')[1]
-
+    const token = header.split(' ')[1];
 
     try {
-      request.identityUser = await fastify.identityService.identify(token)
+      request.identityUser = await fastify.identityService.identify(token);
     } catch (error) {
       throw new HttpError(401, 'Unauthorized', error);
     }
@@ -30,5 +29,5 @@ export function getAuthHook(fastify: FastifyInstance): preHandlerAsyncHookHandle
     }
 
     request.user = user;
-  }
+  };
 }

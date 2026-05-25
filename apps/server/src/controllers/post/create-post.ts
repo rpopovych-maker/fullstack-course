@@ -1,5 +1,4 @@
 import { IPostRepo } from 'src/types/post/IPostRepo';
-import { Post } from 'src/types/post/Post';
 
 export async function createPost(params: {
   postRepo: IPostRepo;

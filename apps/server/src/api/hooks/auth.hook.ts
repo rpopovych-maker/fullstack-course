@@ -23,14 +23,12 @@ export function getAuthHook(fastify: FastifyInstance): preHandlerAsyncHookHandle
       throw new HttpError(401, 'Unauthorized', error);
     }
 
-    if (!request.routeOptions.config.skipUserLookup) {
-      const user = await fastify.repos.userRepo.getUserBySubId(request.identityUser.subId);
+    const user = await fastify.repos.userRepo.getUserBySubId(request.identityUser.subId);
 
-      if (!user) {
-        throw new HttpError(404, 'User not found');
-      }
-
-      request.user = user;
+    if (!user) {
+      throw new HttpError(404, 'User not found');
     }
+
+    request.user = user;
   }
 }

@@ -23,6 +23,5 @@ declare module 'fastify' {
 
   interface FastifyContextConfig {
     skipAuth?: boolean;
-    skipUserLookup?: boolean;
   }
 }

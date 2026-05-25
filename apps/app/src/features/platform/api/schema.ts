@@ -66,6 +66,7 @@ export interface paths {
                             subId: string;
                             /** Format: email */
                             email: string;
+                            username: string;
                             /** Format: date-time */
                             createdAt: string;
                             /** Format: date-time */
@@ -124,6 +125,11 @@ export interface paths {
                                 updatedAt: string;
                                 /** Format: date-time */
                                 createdAt: string;
+                                author: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    username: string;
+                                };
                                 commentsCount: number;
                             }[];
                             page: number;
@@ -215,6 +221,11 @@ export interface paths {
                             updatedAt: string;
                             /** Format: date-time */
                             createdAt: string;
+                            author: {
+                                /** Format: uuid */
+                                id: string;
+                                username: string;
+                            };
                         };
                     };
                 };
@@ -308,6 +319,11 @@ export interface paths {
                                 updatedAt: string;
                                 /** Format: date-time */
                                 createdAt: string;
+                                author: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    username: string;
+                                };
                             }[];
                             nextCursor: {
                                 /** Format: uuid */
@@ -421,6 +437,48 @@ export interface paths {
                 };
             };
         };
+        trace?: never;
+    };
+    "/api/sign-up/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** Format: email */
+                        email: string;
+                        password: string;
+                        username: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
 }

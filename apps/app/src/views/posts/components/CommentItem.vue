@@ -1,13 +1,13 @@
 <template>
   <div class="rounded-md border border-(--el-border-color-lighter) p-4">
     <div class="flex items-start gap-3">
-      <AuthorAvatar :user-id="comment.userId" />
+      <AuthorAvatar :username="comment.author.username" />
 
       <div class="min-w-0 flex-1 space-y-2">
         <div class="flex items-center justify-between gap-2">
-          <span class="t-caption">{{ createdAgo }}</span>
+          <span class="t-caption">{{ comment.author.username }} · {{ createdAgo }}</span>
           <el-button
-            v-if="!isEditing"
+            v-if="canEditComment && !isEditing"
             text
             size="small"
             @click="startEdit"
@@ -49,19 +49,26 @@
 
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
+import { useAuthStore } from '@/views/auth/auth.store'
 
 const props = defineProps<{
   comment: TComment
   postId: string
 }>()
 
+const authStore = useAuthStore()
 const isEditing = ref(false)
 const draft = ref(props.comment.text)
 const updateMutation = useUpdateCommentMutation()
 
 const createdAgo = useTimeAgo(() => props.comment.createdAt)
+const canEditComment = computed(() => props.comment.userId === authStore.user?.id)
 
 function startEdit () {
+  if (!canEditComment.value) {
+    return
+  }
+
   draft.value = props.comment.text
   isEditing.value = true
 }
@@ -72,6 +79,11 @@ function cancelEdit () {
 }
 
 function save () {
+  if (!canEditComment.value) {
+    cancelEdit()
+    return
+  }
+
   const text = draft.value
   if (!text || text === props.comment.text) {
     cancelEdit()

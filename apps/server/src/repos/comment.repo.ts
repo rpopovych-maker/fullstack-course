@@ -1,8 +1,8 @@
-import { and, asc, desc, eq, gt, or, lt } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, or, lt, getTableColumns } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { ICommentRepo } from 'src/types/comment/ICommentRepo';
 import { CommentSchema } from 'src/types/comment/Comment';
-import { commentsTable } from 'src/services/drizzle/schema';
+import { commentsTable, usersTable } from 'src/services/drizzle/schema';
 import { GetPostCommentsResultSchema } from 'src/types/comment/GetPostCommentsResult';
 
 export function getCommentRepo(db: NodePgDatabase): ICommentRepo {
@@ -12,7 +12,7 @@ export function getCommentRepo(db: NodePgDatabase): ICommentRepo {
       return CommentSchema.parse(comments[0]);
     },
 
-    async updateCommentById({commentId, userId, postId, data}) {
+    async updateCommentById({ commentId, userId, postId, data }) {
       const comments = await db
         .update(commentsTable)
         .set(data)
@@ -28,8 +28,15 @@ export function getCommentRepo(db: NodePgDatabase): ICommentRepo {
 
     async getPostComments({ postId, cursor, pageSize }) {
       const comments = await db
-        .select()
+        .select({
+          ...getTableColumns(commentsTable),
+          author: {
+            id: usersTable.id,
+            username: usersTable.username
+          }
+        })
         .from(commentsTable)
+        .innerJoin(usersTable, eq(commentsTable.userId, usersTable.id))
         .where(
           and(
             eq(commentsTable.postId, postId),

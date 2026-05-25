@@ -63,7 +63,6 @@ watch(
   selectedSort,
   (value) => {
     selectedQuery.value = options.find(option => option.value === value)?.query ?? defaultSortQuery
-  },
-  { immediate: true }
+  }
 )
 </script>

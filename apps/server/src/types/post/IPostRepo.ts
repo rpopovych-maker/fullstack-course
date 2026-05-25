@@ -2,6 +2,7 @@ import { SortOrder } from 'src/types/SortOrder';
 import { Post } from './Post';
 import { GetPostsResult } from './GetPostsResult';
 import { PostOrderBy } from './PostOrderBy';
+import { PostWithAuthor } from './PostWithAuthor';
 
 export interface IPostRepo {
   createPost(data: Pick<Post, 'userId' | 'title' | 'description'>): Promise<Post>;
@@ -10,7 +11,7 @@ export interface IPostRepo {
     userId: string,
     data: Partial<Pick<Post, 'title' | 'description'>>
   ): Promise<Post | null>;
-  getPostById(id: string): Promise<Post | null>;
+  getPostById(id: string): Promise<PostWithAuthor | null>;
   getPosts(params: {
     page: number;
     pageSize: number,

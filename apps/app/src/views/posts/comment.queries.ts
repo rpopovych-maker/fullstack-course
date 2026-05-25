@@ -59,7 +59,11 @@ export const useCreateCommentMutation = () => {
         postId,
         text: body.text,
         createdAt: now,
-        updatedAt: now
+        updatedAt: now,
+        author: {
+          id: authStore.user?.id ?? '',
+          username: authStore.user?.username ?? 'You'
+        }
       }
 
       setInfiniteQueryData<TPostComments, Error, TPostCommentsPageParam>(cache, commentsKey, (previous) => {
@@ -111,7 +115,7 @@ export const useCreateCommentMutation = () => {
           ...comments,
           pages: comments.pages.map(page => ({
             ...page,
-            data: page.data.map(item => item.id === ctx.optimisticCommentId ? comment : item)
+            data: page.data.map(item => item.id === ctx.optimisticCommentId ? { ...item, ...comment } : item)
           }))
         }
       })
@@ -188,7 +192,7 @@ export const useUpdateCommentMutation = () => {
           ...comments,
           pages: comments.pages.map(page => ({
             ...page,
-            data: page.data.map(item => item.id === vars.commentId ? comment : item)
+            data: page.data.map(item => item.id === vars.commentId ? { ...item, ...comment } : item)
           }))
         }
       })

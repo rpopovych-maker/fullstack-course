@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { CommentSchema } from './Comment';
+import { CommentWithAuthorSchema } from './CommentWithAuthor';
 import { CommentCursorSchema } from './CommentCursor';
 
 export const GetPostCommentsResultSchema = z.object({
-  data: z.array(CommentSchema),
+  data: z.array(CommentWithAuthorSchema),
   nextCursor: CommentCursorSchema.nullable()
 });
 

@@ -1,3 +1,3 @@
-import { PostSchema } from "src/types/post/Post";
+import { PostWithAuthorSchema } from 'src/types/post/PostWithAuthor';
 
-export const GetPostByIdRespSchema = PostSchema;
+export const GetPostByIdRespSchema = PostWithAuthorSchema;

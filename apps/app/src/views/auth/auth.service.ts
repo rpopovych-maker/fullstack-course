@@ -5,17 +5,12 @@ class AuthService {
     return apiClient.get('/api/me/')
   }
 
-  async signUp (email: string, password: string) {
-    const { data, error } = await supabase.auth.signUp({
+  async signUp (email: string, password: string, username: string) {
+    return await apiClient.post('/api/sign-up/', {
       email,
-      password
+      password,
+      username
     })
-
-    if (error) {
-      throw error
-    }
-
-    return data
   }
 
   async signIn (email: string, password: string) {

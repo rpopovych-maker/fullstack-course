@@ -1,6 +1,7 @@
 
 import { FastifyInstance, preHandlerAsyncHookHandler } from 'fastify';
-import { HttpError } from '../errors/HttpError';
+import { HttpError } from 'src/api/errors/HttpError';
+import { IdentityUser } from 'src/types/identity/IdentityUser';
 
 export function getAuthHook(fastify: FastifyInstance): preHandlerAsyncHookHandler {
   return async function (request) {
@@ -16,13 +17,15 @@ export function getAuthHook(fastify: FastifyInstance): preHandlerAsyncHookHandle
 
     const token = header.split(' ')[1];
 
+    let identityUser: IdentityUser;
+
     try {
-      request.identityUser = await fastify.identityService.identify(token);
+      identityUser = await fastify.identityService.identify(token);
     } catch (error) {
       throw new HttpError(401, 'Unauthorized', error);
     }
 
-    const user = await fastify.repos.userRepo.getUserBySubId(request.identityUser.subId);
+    const user = await fastify.repos.userRepo.getUserBySubId(identityUser.subId);
 
     if (!user) {
       throw new HttpError(404, 'User not found');

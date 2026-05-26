@@ -28,7 +28,7 @@ const routes: FastifyPluginAsync = async function (f) {
           isCommentOwner({
             commentRepo: fastify.repos.commentRepo,
             commentId: (req.params as { commentId: string }).commentId,
-            userId: req.user.id
+            userId: req.user!.id
           })
         )
       ]

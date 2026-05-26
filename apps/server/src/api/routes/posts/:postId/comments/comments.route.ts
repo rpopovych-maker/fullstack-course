@@ -31,7 +31,7 @@ const routes: FastifyPluginAsync = async function (f) {
         commentRepo: fastify.repos.commentRepo,
         ...req.body,
         postId: req.params.postId,
-        userId: req.user.id
+        userId: req.user!.id
       });
       return comment;
     }

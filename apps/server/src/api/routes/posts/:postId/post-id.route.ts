@@ -53,7 +53,7 @@ const routes: FastifyPluginAsync = async function (f) {
           isPostOwner({
             postRepo: fastify.repos.postRepo,
             postId: (req.params as { postId: string }).postId,
-            userId: req.user.id
+            userId: req.user!.id
           })
         )
       ]

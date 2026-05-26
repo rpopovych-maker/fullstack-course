@@ -37,6 +37,27 @@ export function getIdentityService(
         subId: data.user?.id,
         email: data.user?.email
       });
+    },
+
+    async banUser(userId) {
+      const { error } = await supabase.auth.admin.updateUserById(userId, {
+        // about 100 years
+        ban_duration: '876000h'
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+    },
+
+    async unbanUser(userId) {
+      const { error } = await supabase.auth.admin.updateUserById(userId, {
+        ban_duration: 'none'
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
     }
   };
 }

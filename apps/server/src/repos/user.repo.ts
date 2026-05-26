@@ -7,11 +7,40 @@ import { UserSchema } from 'src/types/user/User';
 
 export function getUserRepo(db: NodePgDatabase): IUserRepo {
   return {
+    async banUser(id) {
+      const users = await db
+        .update(usersTable)
+        .set({ bannedAt: new Date() })
+        .where(eq(usersTable.id, id))
+        .returning();
+      
+      return users.length > 0 ? UserSchema.parse(users[0]) : null;
+    },
+
+    async unbanUser(id) {
+      const users = await db
+        .update(usersTable)
+        .set({ bannedAt: null })
+        .where(eq(usersTable.id, id))
+        .returning();
+      
+      return users.length > 0 ? UserSchema.parse(users[0]) : null;
+    },
+
     async getUserBySubId(subId) {
       const users = await db
         .select()
         .from(usersTable)
         .where(eq(usersTable.subId, subId));
+
+      return users.length > 0 ? UserSchema.parse(users[0]) : null;
+    },
+
+    async getUserById(id) {
+      const users = await db
+        .select()
+        .from(usersTable)
+        .where(eq(usersTable.id, id));
 
       return users.length > 0 ? UserSchema.parse(users[0]) : null;
     },

@@ -1,8 +1,8 @@
 import { FastifyPluginAsync } from 'fastify';
 import { ZodTypeProvider } from 'fastify-type-provider-zod';
-import { GetUsersQuerySchema } from 'src/api/routes/schemas/admin/GetUsersQuerySchema';
-import { getUsers } from 'src/controllers/admin/get-users';
-import { GetUsersRespSchema } from 'src/api/routes/schemas/admin/GetUsersRespSchema';
+import { GetUsersQuerySchema } from 'src/api/routes/schemas/user/GetUsersQuerySchema';
+import { getUsers } from 'src/controllers/user/get-users';
+import { GetUsersRespSchema } from 'src/api/routes/schemas/user/GetUsersRespSchema';
 
 const routes: FastifyPluginAsync = async function (f) {
   const fastify = f.withTypeProvider<ZodTypeProvider>();

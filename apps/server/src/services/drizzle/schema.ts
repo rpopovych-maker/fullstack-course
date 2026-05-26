@@ -7,6 +7,7 @@ export const usersTable = pgTable('users', {
   role: varchar({ length: 20 }).notNull(),
   email: text().notNull().unique(),
   username: varchar({ length: 255 }).notNull().unique(),
+  bannedAt: timestamp(),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().defaultNow().$onUpdate(() => new Date()).notNull()
 });

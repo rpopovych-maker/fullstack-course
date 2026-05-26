@@ -62,7 +62,7 @@ const draft = ref(props.comment.text)
 const updateMutation = useUpdateCommentMutation()
 
 const createdAgo = useTimeAgo(() => props.comment.createdAt)
-const canEditComment = computed(() => props.comment.userId === authStore.user?.id)
+const canEditComment = computed(() => authStore.hasPermission('update:comments', props.comment))
 
 function startEdit () {
   if (!canEditComment.value) {

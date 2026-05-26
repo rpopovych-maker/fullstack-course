@@ -136,7 +136,7 @@ const isNotFound = computed(() => {
 const createdAgo = useTimeAgo(() => post.value?.createdAt ?? '')
 const flatComments = computed(() => comments.value?.pages.flatMap(page => page.data) ?? [])
 const commentsHeading = computed(() => pluralize('Comment', flatComments.value.length, true))
-const canEditPost = computed(() => post.value?.userId === authStore.user?.id)
+const canEditPost = computed(() => post.value ? authStore.hasPermission('update:posts', post.value) : false)
 
 useIntersectionObserver(
   commentsLoadMoreTarget,

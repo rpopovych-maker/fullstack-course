@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AuthLayout from '@/layouts/AuthLayout.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
+import AdminLayout from '@/layouts/AdminLayout.vue'
 import { getAuthInitPromise } from '@/views/auth/auth.init'
 
 const route = useRoute()
@@ -8,7 +9,8 @@ const isAuthReady = ref(false)
 
 const layouts = {
   AppLayout,
-  AuthLayout
+  AuthLayout,
+  AdminLayout
 }
 
 const currentLayout = computed(() => {

@@ -1,5 +1,6 @@
 import { authRoutes } from '@/views/auth/auth.routes'
 import { postsRoutes } from '@/views/posts/posts.routes'
+import { adminRoutes } from '@/views/admin/admin.routes'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -8,7 +9,8 @@ const routes: RouteRecordRaw[] = [
   },
 
   ...postsRoutes,
-  ...authRoutes
+  ...authRoutes,
+  ...adminRoutes
 ]
 
 export {

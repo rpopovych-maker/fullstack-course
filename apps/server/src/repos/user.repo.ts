@@ -1,4 +1,4 @@
-import { desc, eq, ilike, or } from 'drizzle-orm';
+import { count, desc, eq, ilike, or } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { usersTable } from 'src/services/drizzle/schema';
 import { GetUsersResultSchema } from 'src/types/admin/GetUsersResult';
@@ -69,17 +69,19 @@ export function getUserRepo(db: NodePgDatabase): IUserRepo {
         .limit(pageSize)
         .offset(offset);
       
-      const allUsers = await db
-        .select()
+      const totalResult = await db
+        .select({ total: count() })
         .from(usersTable)
         .where(searchCondition);
       
+      const total = totalResult[0]?.total ?? 0;   
+
       return GetUsersResultSchema.parse({
         data: users,
         page,
         pageSize,
-        total: allUsers.length,
-        totalPages: Math.ceil(allUsers.length / pageSize)
+        total,
+        totalPages: Math.ceil(total / pageSize)
       });
     }
   };

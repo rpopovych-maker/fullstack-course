@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { updateCommentById } from 'src/controllers/comment/update-comment-by-id';
 import { CommentRespSchema } from 'src/api/routes/schemas/comments/CommentRespSchema';
 import { UpdateCommentByIdReqSchema } from 'src/api/routes/schemas/comments/UpdateCommentByIdReqSchema';
+import { hasPermission } from 'src/api/hooks/permission.hook';
+import { isCommentOwner } from 'src/controllers/comment/is-comment-owner';
 
 const routes: FastifyPluginAsync = async function (f) {
   const fastify = f.withTypeProvider<ZodTypeProvider>();
@@ -20,14 +22,22 @@ const routes: FastifyPluginAsync = async function (f) {
           200: CommentRespSchema
         },
         body: UpdateCommentByIdReqSchema
-      }
+      },
+      preHandler: [
+        hasPermission('update:comments', req =>
+          isCommentOwner({
+            commentRepo: fastify.repos.commentRepo,
+            commentId: (req.params as { commentId: string }).commentId,
+            userId: req.user.id
+          })
+        )
+      ]
     },
     async (req) => {
       const comment = await updateCommentById({
         commentRepo: fastify.repos.commentRepo,
         commentId: req.params.commentId,
         postId: req.params.postId,
-        userId: req.user.id,
         data: req.body
       });
       return comment;

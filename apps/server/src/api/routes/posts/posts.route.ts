@@ -6,6 +6,7 @@ import { GetPostsRespSchema } from 'src/api/routes/schemas/posts/GetPostsRespSch
 import { CreatePostReqSchema } from 'src/api/routes/schemas/posts/CreatePostReqSchema';
 import { PostRespSchema } from 'src/api/routes/schemas/posts/PostRespSchema';
 import { GetPostsQuerySchema } from 'src/api/routes/schemas/posts/GetPostsQuerySchema';
+import { hasPermission } from 'src/api/hooks/permission.hook';
 
 const routes: FastifyPluginAsync = async function (f) {
   const fastify = f.withTypeProvider<ZodTypeProvider>();
@@ -18,7 +19,8 @@ const routes: FastifyPluginAsync = async function (f) {
           200: PostRespSchema
         },
         body: CreatePostReqSchema
-      }
+      },
+      preHandler: [hasPermission('create:posts')]
     },
     async (req) => {
       const post = await createPost({

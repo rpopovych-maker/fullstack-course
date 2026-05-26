@@ -6,7 +6,6 @@ export interface ICommentRepo {
   createComment(data: Pick<Comment, 'userId' | 'postId' | 'text'>): Promise<Comment>;
   updateCommentById(params: {
     commentId: string;
-    userId: string;
     postId: string;
     data: Partial<Pick<Comment, 'text'>>
   }): Promise<Comment | null>;
@@ -15,4 +14,5 @@ export interface ICommentRepo {
     cursor?: CommentCursor;
     pageSize: number
   }): Promise<GetPostCommentsResult>;
+  getCommentOwner(commentId: string): Promise<string | null>;
 }

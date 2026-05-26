@@ -7,6 +7,7 @@ import { getPostComments } from 'src/controllers/comment/get-post-comments';
 import { GetPostCommentsQuerySchema } from 'src/api/routes/schemas/comments/GetPostCommentsQuerySchema';
 import { GetPostCommentsRespSchema } from 'src/api/routes/schemas/comments/GetPostCommentsRespSchema';
 import { z } from 'zod';
+import { hasPermission } from 'src/api/hooks/permission.hook';
 
 const routes: FastifyPluginAsync = async function (f) {
   const fastify = f.withTypeProvider<ZodTypeProvider>();
@@ -22,7 +23,8 @@ const routes: FastifyPluginAsync = async function (f) {
           200: CommentRespSchema
         },
         body: CreateCommentReqSchema
-      }
+      },
+      preHandler: [hasPermission('create:comments')]
     },
     async (req) => {
       const comment = await createComment({

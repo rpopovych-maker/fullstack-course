@@ -8,7 +8,6 @@ export interface IPostRepo {
   createPost(data: Pick<Post, 'userId' | 'title' | 'description'>): Promise<Post>;
   updatePostById(
     postId: string,
-    userId: string,
     data: Partial<Pick<Post, 'title' | 'description'>>
   ): Promise<Post | null>;
   getPostById(id: string): Promise<PostWithAuthor | null>;
@@ -20,4 +19,5 @@ export interface IPostRepo {
     order?: SortOrder,
     minCommentsCount?: number
   }): Promise<GetPostsResult>;
+  getPostOwner(postId: string): Promise<string | null>;
 }

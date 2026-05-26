@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, getTableColumns, gte, ilike, or, sql } from 'drizzle-orm';
+import { asc, count, desc, eq, getTableColumns, gte, ilike, or, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { IPostRepo } from 'src/types/post/IPostRepo';
 import { PostSchema } from 'src/types/post/Post';
@@ -8,16 +8,25 @@ import { PostWithAuthorSchema } from 'src/types/post/PostWithAuthor';
 
 export function getPostRepo(db: NodePgDatabase): IPostRepo {
   return {
+    async getPostOwner(postId) {
+      const posts = await db
+        .select({ userId: postsTable.userId })
+        .from(postsTable)
+        .where(eq(postsTable.id, postId));
+
+      return posts.length > 0 ? posts[0].userId : null;
+    },
+
     async createPost(data) {
       const posts = await db.insert(postsTable).values(data).returning();
       return PostSchema.parse(posts[0]);
     },
 
-    async updatePostById(postId, userId, data) {
+    async updatePostById(postId, data) {
       const posts = await db
         .update(postsTable)
         .set(data)
-        .where(and(eq(postsTable.userId, userId), eq(postsTable.id, postId)))
+        .where(eq(postsTable.id, postId))
         .returning();
 
       return posts.length > 0 ? PostSchema.parse(posts[0]) : null;

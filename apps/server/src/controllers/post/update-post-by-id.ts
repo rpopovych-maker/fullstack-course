@@ -5,10 +5,9 @@ import { Post } from 'src/types/post/Post';
 export async function updatePostById(params: {
   postRepo: IPostRepo;
   postId: string;
-  userId: string;
   data: Partial<Pick<Post, 'title' | 'description'>>;
 }) {
-  const post = await params.postRepo.updatePostById(params.postId, params.userId, params.data);
+  const post = await params.postRepo.updatePostById(params.postId, params.data);
 
   if (!post) {
     throw new HttpError(404, 'Post not found');

@@ -6,6 +6,8 @@ import { UpdatePostByIdReqSchema } from 'src/api/routes/schemas/posts/UpdatePost
 import { updatePostById } from 'src/controllers/post/update-post-by-id';
 import { getPostById } from 'src/controllers/post/get-post-by-id';
 import { PostRespSchema } from 'src/api/routes/schemas/posts/PostRespSchema';
+import { hasPermission } from 'src/api/hooks/permission.hook';
+import { isPostOwner } from 'src/controllers/post/is-post-owner';
 
 const routes: FastifyPluginAsync = async function (f) {
   const fastify = f.withTypeProvider<ZodTypeProvider>();
@@ -45,13 +47,21 @@ const routes: FastifyPluginAsync = async function (f) {
           200: PostRespSchema
         },
         body: UpdatePostByIdReqSchema
-      }
+      },
+      preHandler: [
+        hasPermission('update:posts', req =>
+          isPostOwner({
+            postRepo: fastify.repos.postRepo,
+            postId: (req.params as { postId: string }).postId,
+            userId: req.user.id
+          })
+        )
+      ]
     },
     async (req) => {
       const post = await updatePostById({
         postRepo: fastify.repos.postRepo,
         postId: req.params.postId,
-        userId: req.user.id,
         data: req.body
       });
       return post;

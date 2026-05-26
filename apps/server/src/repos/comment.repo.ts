@@ -7,18 +7,26 @@ import { GetPostCommentsResultSchema } from 'src/types/comment/GetPostCommentsRe
 
 export function getCommentRepo(db: NodePgDatabase): ICommentRepo {
   return {
+    async getCommentOwner(commentId) { 
+      const comments = await db
+        .select({ userId: commentsTable.userId })
+        .from(commentsTable)
+        .where(eq(commentsTable.id, commentId));
+
+      return comments.length > 0 ? comments[0].userId : null;
+    },
+    
     async createComment(data) {
       const comments = await db.insert(commentsTable).values(data).returning();
       return CommentSchema.parse(comments[0]);
     },
 
-    async updateCommentById({ commentId, userId, postId, data }) {
+    async updateCommentById({ commentId, postId, data }) {
       const comments = await db
         .update(commentsTable)
         .set(data)
         .where(and(
           eq(commentsTable.id, commentId),
-          eq(commentsTable.userId, userId),
           eq(commentsTable.postId, postId)
         ))
         .returning();

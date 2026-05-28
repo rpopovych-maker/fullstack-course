@@ -24,7 +24,7 @@ export function getIdentityService(
 
     async inviteUser(email) {
       const { data, error } = await supabase.auth.admin.inviteUserByEmail(email, {
-        redirectTo: `${process.env.CLIENT_APP_URL}/accept-invite`
+        redirectTo: `${process.env.CLIENT_APP_URL}/sign-up/invite`
       });
 
       if (error) {

@@ -45,8 +45,8 @@ export function getUserRepo(db: NodePgDatabase): IUserRepo {
       return users.length > 0 ? UserSchema.parse(users[0]) : null;
     },
 
-    async createUser(data) {
-      const result = await (db)
+    async createUser(data, tx) {
+      const result = await (tx ?? db)
         .insert(usersTable)
         .values(data)
         .returning();

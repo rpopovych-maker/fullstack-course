@@ -15,6 +15,19 @@ export const usersTable = pgTable('users', {
   index('users_email_trgm_idx').using('gin', t.email.op('gin_trgm_ops'))
 ]);
 
+export const invitesTable = pgTable('invites', {
+  id: uuid().primaryKey().default(sql`uuid_generate_v4()`),
+  subId: uuid().notNull().unique(),
+  email: text().notNull().unique(),
+  status: varchar({ length: 20 }).notNull(),
+  invitedByUserId: uuid().notNull().references(() => usersTable.id),
+  sentAt: timestamp().notNull(),
+  resentAt: timestamp(),
+  acceptedAt: timestamp(),
+  createdAt: timestamp().defaultNow().notNull(),
+  updatedAt: timestamp().defaultNow().$onUpdate(() => new Date()).notNull()
+});
+
 export const postsTable = pgTable('posts', {
   id: uuid()
     .primaryKey()
@@ -24,7 +37,6 @@ export const postsTable = pgTable('posts', {
     .references(() => usersTable.id, { onDelete: 'cascade' }),
   title: varchar({ length: 255 }).notNull(),
   description: text(),
-  status: varchar({ length: 20 }),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp()
     .defaultNow()

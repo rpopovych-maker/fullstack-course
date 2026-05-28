@@ -9,7 +9,7 @@ export function getIdentityService(
   const supabase = createClient(url, serviceRoleKey);
 
   return {
-    async identify(token: string) {
+    async identify(token) {
       const { data, error } = await supabase.auth.getUser(token);
 
       if (error || !data.user) {
@@ -22,7 +22,22 @@ export function getIdentityService(
       });
     },
 
-    async createUser(email: string, password: string) {
+    async inviteUser(email) {
+      const { data, error } = await supabase.auth.admin.inviteUserByEmail(email, {
+        redirectTo: `${process.env.CLIENT_APP_URL}/accept-invite`
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return IdentityUserSchema.parse({
+        subId: data.user.id,
+        email: data.user.email
+      });
+    },
+
+    async createUser(email, password) {
       const { data, error } = await supabase.auth.admin.createUser({
         email,
         password,
@@ -33,9 +48,24 @@ export function getIdentityService(
         throw new Error(error.message);
       }
 
-      return  IdentityUserSchema.parse({
+      return IdentityUserSchema.parse({
         subId: data.user?.id,
         email: data.user?.email
+      });
+    },
+
+    async setPassword(userId, password) {
+      const { data, error } = await supabase.auth.admin.updateUserById(userId, {
+        password
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return IdentityUserSchema.parse({
+        subId: data.user.id,
+        email: data.user.email
       });
     },
 

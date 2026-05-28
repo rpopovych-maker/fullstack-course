@@ -39,7 +39,7 @@ export function getTransactionManager(db: NodePgDatabase): ITransactionManager {
       return await db.transaction(async tx => {
         return await runnable({
           rollback: () => tx.rollback(),
-          sharedTx: tx
+          tx
         });
       });  
     }  

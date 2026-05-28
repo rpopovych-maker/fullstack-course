@@ -12,6 +12,11 @@ export const authRoutes: RouteRecordRaw[] = [
         component: () => import('./SignUp.vue')
       },
       {
+        path: 'sign-up/invite',
+        name: routeNames.invite,
+        component: () => import('./Invite.vue')
+      },
+      {
         path: 'sign-in',
         name: routeNames.signIn,
         component: () => import('./SignIn.vue')

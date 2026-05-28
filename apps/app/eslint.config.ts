@@ -2,10 +2,14 @@ import { globalIgnores } from 'eslint/config'
 
 import pluginStylistic from '@stylistic/eslint-plugin'
 import pluginVue from 'eslint-plugin-vue'
-import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
+import { configureVueProject, defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
 
 import { eslintRules } from './.config'
 import autoImport from './.config/auto-imports/auto-import.json'
+
+configureVueProject({
+  rootDir: import.meta.dirname
+})
 
 export default defineConfigWithVueTs(
   globalIgnores([
@@ -26,7 +30,10 @@ export default defineConfigWithVueTs(
     files: ['**/*.{vue,ts,mts,tsx}'],
     rules: eslintRules,
     languageOptions: {
-      globals: autoImport.globals
+      globals: autoImport.globals,
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname
+      }
     }
   }
 )

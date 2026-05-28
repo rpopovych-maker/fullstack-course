@@ -29,7 +29,6 @@ const hydrateAuth = async (pinia: Pinia) => {
   try {
     await authStore.loadCurrentUser()
   } catch {
-    await supabase.auth.signOut()
     authStore.user = null
   }
 }

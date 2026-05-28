@@ -57,6 +57,13 @@ class AuthService {
 
     return data
   }
+
+  async acceptInvite (username: string, password: string) {
+    return apiClient.post('/api/me/accept-invite/', {
+      password,
+      username
+    })
+  }
 }
 
 export const authService = new AuthService()

@@ -2,6 +2,7 @@
   <el-avatar
     :size="size"
     :style="avatarStyle"
+    class="shrink-0"
   >
     {{ initial }}
   </el-avatar>

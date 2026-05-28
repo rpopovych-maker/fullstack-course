@@ -12,6 +12,11 @@ export const adminRoutes: RouteRecordRaw[] = [
         path: 'users',
         name: routeNames.adminUsers,
         component: () => import('./Users.vue')
+      },
+      {
+        path: 'invites',
+        name: routeNames.adminInvites,
+        component: () => import('./Invites.vue')
       }
     ]
   }

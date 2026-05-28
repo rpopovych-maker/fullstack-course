@@ -2,6 +2,8 @@ import globals from 'globals';
 import pluginJs from '@eslint/js';
 import tsEslint from 'typescript-eslint';
 
+const tsconfigRootDir = import.meta.dirname;
+
 export default [
   {
     ignores: ['dist/', 'node_modules/', 'migrations/', '**/*.{js,mjs,cjs}']
@@ -16,6 +18,7 @@ export default [
       parser: tsEslint.parser,
       parserOptions: {
         project: 'tsconfig.json',
+        tsconfigRootDir,
         sourceType: 'module',
         ecmaVersion: 2022
       }

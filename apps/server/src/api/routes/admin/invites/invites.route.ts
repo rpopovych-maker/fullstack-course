@@ -7,6 +7,16 @@ import { inviteUser } from 'src/controllers/invite/invite-user';
 const routes: FastifyPluginAsync = async function (f) {
   const fastify = f.withTypeProvider<ZodTypeProvider>();
 
+  fastify.get('/', {
+    schema: {
+      response: {
+        200: InviteRespSchema.array()
+      }
+    }
+  }, async () => {
+    return fastify.repos.inviteRepo.getInvites();
+  });
+
   fastify.post('/', {
     schema: {
       response: {

@@ -17,7 +17,7 @@ export async function resendInvite(params: {
     throw new HttpError(409, 'Invite is already accepted');
   }
   
-  await params.identityService.inviteUser(invite.email);
+  await params.identityService.resendInvite(invite.email);
 
   const updatedInvite = await params.inviteRepo.updateInviteById(invite.id, {
     resentAt: new Date()

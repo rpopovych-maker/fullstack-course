@@ -1,4 +1,3 @@
-
 import 'src/services/env/env.service';
 import fastify from 'fastify';
 import autoload from '@fastify/autoload';
@@ -17,7 +16,7 @@ import healthCheck from './plugins/health-check.plugin';
 import routePrinter from './plugins/route-printer.plugin';
 import { setupSwagger } from './plugins/swagger.plugin';
 import { getLoggerOptions } from './plugins/logger.plugin';
-import { getDb, dbHealthCheck } from 'src/services/drizzle/drizzle.service';
+import { getDb, dbHealthCheck, getTransactionManager } from 'src/services/drizzle/drizzle.service';
 import { getIdentityService } from 'src/services/identity/identity.service';
 
 async function run() {
@@ -76,6 +75,7 @@ async function run() {
     })
   );
   server.decorate('repos', getRepos(server.db));
+  server.decorate('transactionManager', getTransactionManager(server.db));
 
   server.register(autoTagging);
 

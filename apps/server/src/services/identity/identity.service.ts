@@ -24,7 +24,7 @@ export function getIdentityService(
 
     async inviteUser(email) {
       const { data, error } = await supabase.auth.admin.inviteUserByEmail(email, {
-        redirectTo: `${process.env.CLIENT_APP_URL}/sign-up/invite`
+        redirectTo: `${process.env.CLIENT_APP_URL}/auth/sign-up/invite`
       });
 
       if (error) {
@@ -35,6 +35,20 @@ export function getIdentityService(
         subId: data.user.id,
         email: data.user.email
       });
+    },
+
+    async resendInvite(email) {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${process.env.CLIENT_APP_URL}/auth/sign-up/invite`,
+          shouldCreateUser: false
+        }
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
     },
 
     async createUser(email, password) {

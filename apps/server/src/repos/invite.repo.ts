@@ -43,6 +43,15 @@ export function getInviteRepo(db: NodePgDatabase): IInviteRepo {
       return invites.length > 0 ? InviteSchema.parse(invites[0]) : null;
     },
 
+    async getInviteByEmail(email) {
+      const invites = await db
+        .select()
+        .from(invitesTable)
+        .where(eq(invitesTable.email, email));
+      
+      return invites.length > 0 ? InviteSchema.parse(invites[0]) : null;
+    },
+
     async getInvites() {
       const invites = await db
         .select()

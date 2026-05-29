@@ -14,6 +14,10 @@
       label-position="top"
       @submit.prevent="submit"
     >
+      <el-form-item label="Invite API">
+        <InviteApiVersionSelect />
+      </el-form-item>
+
       <el-form-item label="Email" prop="email">
         <el-input
           v-model.trim="form.email"
@@ -55,6 +59,7 @@ const rules = useElFormRules({
 })
 
 const sendInviteMutation = useSendInviteMutation()
+const inviteApiVersion = useStorage<TInviteApiVersion>('admin-invite-api-version', 'v1')
 
 function close () {
   if (sendInviteMutation.isLoading.value) {
@@ -80,7 +85,10 @@ async function submit () {
   }
 
   try {
-    await sendInviteMutation.mutateAsync({ email: form.email })
+    await sendInviteMutation.mutateAsync({
+      body: { email: form.email },
+      version: inviteApiVersion.value
+    })
     ElMessage.success(`Invite sent to ${form.email}`)
     closeModal('InviteUserModal')
   } catch {

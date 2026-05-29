@@ -6,9 +6,12 @@
         <p class="t-muted">Track pending and accepted invitations.</p>
       </div>
 
-      <el-button type="primary" @click="openInviteDialog">
-        Invite user
-      </el-button>
+      <div class="flex flex-col items-stretch gap-3 sm:items-end">
+        <InviteApiVersionSelect />
+        <el-button type="primary" @click="openInviteDialog">
+          Invite user
+        </el-button>
+      </div>
     </header>
 
     <el-table
@@ -73,6 +76,7 @@ const resendInviteMutation = useResendInviteMutation()
 const { openModal } = useModals()
 
 const pendingResendInviteId = ref<string | null>(null)
+const inviteApiVersion = useStorage<TInviteApiVersion>('admin-invite-api-version', 'v1')
 
 const sortedInvites = computed<TInviteList>(() => {
   return [...(invites.value ?? [])].sort((a, b) => {
@@ -104,7 +108,10 @@ async function resendInvite (invite: TInvite) {
   pendingResendInviteId.value = invite.id
 
   try {
-    await resendInviteMutation.mutateAsync(invite.id)
+    await resendInviteMutation.mutateAsync({
+      inviteId: invite.id,
+      version: inviteApiVersion.value
+    })
     ElMessage.success(`Invite resent to ${invite.email}`)
   } catch {
     ElMessage.error('Failed to resend invite')

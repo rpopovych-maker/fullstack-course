@@ -50,7 +50,7 @@
         class="w-full"
         native-type="submit"
         type="primary"
-        :disabled="!hasInviteSession"
+        :disabled="!hasInviteAccess"
         :loading="isSubmitting"
       >
         Create account
@@ -81,9 +81,13 @@ const rules = useElFormRules({
 })
 
 const isLoadingInvite = ref(true)
-const hasInviteSession = ref(false)
+const hasInviteAccess = ref(false)
 const isSubmitting = ref(false)
 const serverError = ref('')
+const signedInvite = ref<{
+  expireAt: string
+  signature: string
+} | null>(null)
 
 function getApiError (error: unknown) {
   if (isAxiosError(error) && error.response?.data) {
@@ -146,7 +150,7 @@ function isDuplicateUsernameError (error: unknown) {
 }
 
 async function submit () {
-  if (!formRef.value || isSubmitting.value || !hasInviteSession.value) {
+  if (!formRef.value || isSubmitting.value || !hasInviteAccess.value) {
     return
   }
 
@@ -160,7 +164,18 @@ async function submit () {
   isSubmitting.value = true
 
   try {
-    await authService.acceptInvite(form.username, form.password)
+    if (signedInvite.value) {
+      await authService.acceptInviteV2({
+        email: form.email,
+        username: form.username,
+        password: form.password,
+        expireAt: signedInvite.value.expireAt,
+        signature: signedInvite.value.signature
+      })
+    } else {
+      await authService.acceptInvite(form.username, form.password)
+    }
+
     await authService.signIn(form.email, form.password)
     await authStore.loadCurrentUser()
     await router.push(getRedirectTarget())
@@ -179,7 +194,25 @@ async function submit () {
   }
 }
 
+function getQueryString (key: string) {
+  const value = route.query[key]
+
+  return typeof value === 'string' ? value : ''
+}
+
 onMounted(async () => {
+  const email = getQueryString('email')
+  const expireAt = getQueryString('expireAt')
+  const signature = getQueryString('signature')
+
+  if (email && expireAt && signature) {
+    form.email = email
+    signedInvite.value = { expireAt, signature }
+    hasInviteAccess.value = true
+    isLoadingInvite.value = false
+    return
+  }
+
   const { data, error } = await supabase.auth.getUser()
 
   if (error || !data.user?.email) {
@@ -189,7 +222,7 @@ onMounted(async () => {
   }
 
   form.email = data.user.email
-  hasInviteSession.value = true
+  hasInviteAccess.value = true
   isLoadingInvite.value = false
 })
 </script>

@@ -140,7 +140,128 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/invites/v2/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** Format: email */
+                        email: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            subId: string;
+                            /** Format: email */
+                            email: string;
+                            /** @enum {string} */
+                            status: "pending" | "accepted";
+                            /** Format: uuid */
+                            invitedByUserId: string;
+                            /** Format: date-time */
+                            sentAt: string;
+                            /** Format: date-time */
+                            resentAt: string | null;
+                            /** Format: date-time */
+                            acceptedAt: string | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/invites/{inviteId}/resend/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    inviteId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            subId: string;
+                            /** Format: email */
+                            email: string;
+                            /** @enum {string} */
+                            status: "pending" | "accepted";
+                            /** Format: uuid */
+                            invitedByUserId: string;
+                            /** Format: date-time */
+                            sentAt: string;
+                            /** Format: date-time */
+                            resentAt: string | null;
+                            /** Format: date-time */
+                            acceptedAt: string | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/invites/{inviteId}/resend/v2/": {
         parameters: {
             query?: never;
             header?: never;
@@ -401,6 +522,69 @@ export interface paths {
                     "application/json": {
                         password: string;
                         username: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            subId: string;
+                            /** @enum {string} */
+                            role: "user" | "admin";
+                            /** Format: email */
+                            email: string;
+                            username: string;
+                            /** Format: date-time */
+                            bannedAt: string | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/accept-invite/v2/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** Format: email */
+                        email: string;
+                        password: string;
+                        username: string;
+                        /** Format: date-time */
+                        expireAt: string;
+                        signature: string;
                     };
                 };
             };

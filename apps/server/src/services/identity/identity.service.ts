@@ -37,6 +37,22 @@ export function getIdentityService(
       });
     },
 
+    async createInvitedUser(email) {
+      const { data, error } = await supabase.auth.admin.createUser({
+        email,
+        email_confirm: true
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return IdentityUserSchema.parse({
+        subId: data.user.id,
+        email: data.user.email
+      });
+    },
+
     async resendInvite(email) {
       const { error } = await supabase.auth.signInWithOtp({
         email,

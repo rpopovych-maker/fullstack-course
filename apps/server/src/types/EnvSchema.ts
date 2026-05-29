@@ -12,7 +12,10 @@ export const EnvSchema = z.object({
   SWAGGER_PWD: z.string().min(10),
   SUPABASE_URL: z.string().url(),
   SUPABASE_SECRET_KEY: z.string(),
-  CLIENT_APP_URL: z.string().url()
+  CLIENT_APP_URL: z.string().url(),
+  RESEND_API_KEY: z.string(),
+  SIGNATURE_SECRET: z.string(),
+  SENDER_EMAIL: z.string().email()
 });
 
 export type Env = z.infer<typeof EnvSchema>;

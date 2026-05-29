@@ -1,7 +1,7 @@
 import { IInviteRepo } from 'src/types/invite/IInviteRepo';
 import { IdentityService } from 'src/types/services/IdentityService';
 
-export async function inviteUser(params: {
+export async function createInvite(params: {
   userId: string
   email: string
   inviteRepo: IInviteRepo

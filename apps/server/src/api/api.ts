@@ -18,6 +18,8 @@ import { setupSwagger } from './plugins/swagger.plugin';
 import { getLoggerOptions } from './plugins/logger.plugin';
 import { getDb, dbHealthCheck, getTransactionManager } from 'src/services/drizzle/drizzle.service';
 import { getIdentityService } from 'src/services/identity/identity.service';
+import { getEmailService } from 'src/services/email/email.service';
+import { getSignatureService } from 'src/services/signature/signature.service';
 
 async function run() {
   const server = fastify({
@@ -67,6 +69,8 @@ async function run() {
     'identityService',
     getIdentityService(process.env.SUPABASE_URL, process.env.SUPABASE_SECRET_KEY)
   );
+  server.decorate('emailService', getEmailService());
+  server.decorate('signatureService', getSignatureService());
   server.decorate(
     'db',
     getDb({

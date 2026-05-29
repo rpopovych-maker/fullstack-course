@@ -64,6 +64,10 @@ class AuthService {
       username
     })
   }
+
+  async acceptInviteV2 (body: TRequestBody<'/api/me/accept-invite/v2/', 'post'>) {
+    return apiClient.post('/api/me/accept-invite/v2/', body)
+  }
 }
 
 export const authService = new AuthService()

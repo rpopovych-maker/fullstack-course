@@ -4,6 +4,7 @@ import { ITransactionManager } from 'src/types/ITransaction';
 import { IdentityService } from 'src/types/services/IdentityService';
 import { SignatureService } from 'src/types/services/SignatureService';
 import { IUserRepo } from 'src/types/user/IUserRepo';
+import { isExpired } from 'src/utils/is-expired';
 
 export async function acceptInviteV2(params: {
   inviteRepo: IInviteRepo
@@ -17,9 +18,7 @@ export async function acceptInviteV2(params: {
   expireAt: string
   signature: string
 }) {
-  const expireAt = new Date(params.expireAt);
-
-  if (Number.isNaN(expireAt.getTime()) || expireAt.getTime() < Date.now()) {
+  if (isExpired(params.expireAt)) {
     throw new HttpError(400, 'Invite is expired');
   }
 

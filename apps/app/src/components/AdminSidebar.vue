@@ -21,6 +21,10 @@ const links = [
   {
     label: 'Invites',
     name: routeNames.adminInvites
+  },
+  {
+    label: 'Tags',
+    name: routeNames.adminTags
   }
 ]
 </script>

@@ -4,19 +4,22 @@ import { TagRespSchema } from 'src/api/routes/schemas/tags/TagRespSchema';
 import { createTag } from 'src/controllers/tag/create-tag';
 import { getTags } from 'src/controllers/tag/get-tags';
 import { UpsertTagReqSchema } from 'src/api/routes/schemas/tags/UpsertTagReqSchema';
+import { GetTagsQuerySchema } from 'src/api/routes/schemas/tags/GetTagsQuerySchema';
 
 const routes: FastifyPluginAsync = async function (f) {
   const fastify = f.withTypeProvider<ZodTypeProvider>();
 
   fastify.get('/', {
     schema: {
+      querystring: GetTagsQuerySchema,
       response: {
         200: TagRespSchema.array()
       }
     }
-  }, async () => {
+  }, async req => {
     const tags = await getTags({
-      tagRepo: fastify.repos.tagsRepo
+      tagRepo: fastify.repos.tagsRepo,
+      search: req.query.search
     });
 
     return tags;

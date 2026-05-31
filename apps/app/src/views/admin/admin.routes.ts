@@ -17,6 +17,11 @@ export const adminRoutes: RouteRecordRaw[] = [
         path: 'invites',
         name: routeNames.adminInvites,
         component: () => import('./Invites.vue')
+      },
+      {
+        path: 'tags',
+        name: routeNames.adminTags,
+        component: () => import('./Tags.vue')
       }
     ]
   }

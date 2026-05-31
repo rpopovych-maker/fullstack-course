@@ -1,0 +1,1 @@
+CREATE INDEX "invites_email_trgm_idx" ON "invites" USING gin ("email" gin_trgm_ops);

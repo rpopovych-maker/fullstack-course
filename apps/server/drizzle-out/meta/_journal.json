@@ -120,6 +120,20 @@
       "when": 1780228109722,
       "tag": "0016_round_junta",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1780230153646,
+      "tag": "0017_flaky_red_wolf",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1780230481806,
+      "tag": "0018_certain_paladin",
+      "breakpoints": true
     }
   ]
 }

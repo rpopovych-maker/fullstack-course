@@ -46,7 +46,13 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query: {
+                    page?: number;
+                    pageSize?: number;
+                    search?: string;
+                    order?: "asc" | "desc";
+                    orderBy?: "id" | "subId" | "email" | "status" | "invitedByUserId" | "sentAt" | "resentAt" | "acceptedAt" | "createdAt" | "updatedAt";
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -60,27 +66,33 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** Format: uuid */
-                            id: string;
-                            /** Format: uuid */
-                            subId: string;
-                            /** Format: email */
-                            email: string;
-                            /** @enum {string} */
-                            status: "pending" | "accepted";
-                            /** Format: uuid */
-                            invitedByUserId: string;
-                            /** Format: date-time */
-                            sentAt: string;
-                            /** Format: date-time */
-                            resentAt: string | null;
-                            /** Format: date-time */
-                            acceptedAt: string | null;
-                            /** Format: date-time */
-                            createdAt: string;
-                            /** Format: date-time */
-                            updatedAt: string;
-                        }[];
+                            data: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                subId: string;
+                                /** Format: email */
+                                email: string;
+                                /** @enum {string} */
+                                status: "pending" | "accepted";
+                                /** Format: uuid */
+                                invitedByUserId: string;
+                                /** Format: date-time */
+                                sentAt: string;
+                                /** Format: date-time */
+                                resentAt: string | null;
+                                /** Format: date-time */
+                                acceptedAt: string | null;
+                                /** Format: date-time */
+                                createdAt: string;
+                                /** Format: date-time */
+                                updatedAt: string;
+                            }[];
+                            page: number;
+                            pageSize: number;
+                            total: number;
+                            totalPages: number;
+                        };
                     };
                 };
             };
@@ -328,10 +340,12 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: {
+                query: {
                     page?: number;
                     pageSize?: number;
                     search?: string;
+                    order?: "asc" | "desc";
+                    orderBy?: "id" | "subId" | "role" | "email" | "username" | "bannedAt" | "createdAt" | "updatedAt";
                 };
                 header?: never;
                 path?: never;

@@ -1,3 +1,5 @@
+import { SortOrder } from 'src/types/SortOrder';
+import { GetInvitesResult } from './GetInvitesResult';
 import { Invite } from './Invite';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
@@ -7,5 +9,11 @@ export interface IInviteRepo {
   getInviteById(id: string): Promise<Invite | null>
   getInviteBySubId(subId: string): Promise<Invite | null>
   getInviteByEmail(email: string): Promise<Invite | null>
-  getInvites(): Promise<Invite[]>
+  getInvites(params: {
+    page: number
+    pageSize: number
+    search?: string
+    order?: SortOrder
+    orderBy?: keyof Invite
+  }): Promise<GetInvitesResult>
 }

@@ -1,6 +1,6 @@
 class InvitesService {
-  async getInvites () {
-    return apiClient.get('/api/admin/invites/')
+  async getInvites (params?: TInviteListQuery) {
+    return apiClient.get('/api/admin/invites/', { params })
   }
 
   async sendInvite (body: TCreateInviteBody, version: TInviteApiVersion) {

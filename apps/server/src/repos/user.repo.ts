@@ -1,7 +1,7 @@
-import { count, desc, eq, ilike, or } from 'drizzle-orm';
+import { asc, count, desc, eq, ilike, or } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { usersTable } from 'src/services/drizzle/schema';
-import { GetUsersResultSchema } from 'src/types/admin/GetUsersResult';
+import { GetUsersResultSchema } from 'src/types/user/GetUsersResult';
 import { IUserRepo } from 'src/types/user/IUserRepo';
 import { UserSchema } from 'src/types/user/User';
 
@@ -54,18 +54,20 @@ export function getUserRepo(db: NodePgDatabase): IUserRepo {
       return UserSchema.parse(result[0]);
     },
 
-    async getUsers({ page, pageSize, search }) {
+    async getUsers({ page, pageSize, search, order, orderBy }) {
       const offset = (page - 1) * pageSize;
 
       const searchCondition = search
         ? or(ilike(usersTable.username, `%${search}%`), ilike(usersTable.email, `%${search}%`))
         : undefined;
       
+      const sortDirection = order === 'asc' ? asc : desc;
+      
       const users = await db
         .select()
         .from(usersTable)
         .where(searchCondition)
-        .orderBy(desc(usersTable.createdAt))
+        .orderBy(sortDirection(orderBy ? usersTable[orderBy] : usersTable.createdAt))
         .limit(pageSize)
         .offset(offset);
       

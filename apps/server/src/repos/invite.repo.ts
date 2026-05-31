@@ -1,6 +1,7 @@
-import { eq } from 'drizzle-orm';
+import { asc, count, desc, eq, ilike } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { invitesTable } from 'src/services/drizzle/schema';
+import { GetInvitesResultSchema } from 'src/types/invite/GetInvitesResult';
 import { IInviteRepo } from 'src/types/invite/IInviteRepo';
 import { InviteSchema } from 'src/types/invite/Invite';
 
@@ -52,12 +53,34 @@ export function getInviteRepo(db: NodePgDatabase): IInviteRepo {
       return invites.length > 0 ? InviteSchema.parse(invites[0]) : null;
     },
 
-    async getInvites() {
+    async getInvites({ page, pageSize, search, order, orderBy }) {
+      const offset = (page - 1) * pageSize;
+
+      const sortDirection = order === 'asc' ? asc : desc;  
+      const searchCondition = search ? ilike(invitesTable.email, `%${search}%`) : undefined;
+
       const invites = await db
         .select()
-        .from(invitesTable);
+        .from(invitesTable)
+        .orderBy(sortDirection(orderBy ? invitesTable[orderBy] : invitesTable.sentAt))
+        .where(searchCondition)
+        .limit(pageSize)
+        .offset(offset);
       
-      return InviteSchema.array().parse(invites);
+      const totalResult = await db
+        .select({ total: count() })
+        .from(invitesTable)
+        .where(searchCondition);
+      
+      const total = totalResult[0]?.total ?? 0;     
+      
+      return GetInvitesResultSchema.parse({
+        data: invites,
+        page,
+        pageSize,
+        total,
+        totalPages: Math.ceil(total / pageSize)
+      });
     }
   };
 }

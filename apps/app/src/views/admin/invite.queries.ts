@@ -2,13 +2,20 @@ import { useMutation, useQuery, useQueryCache } from '@pinia/colada'
 
 export const invitesQueryKeys = {
   all: ['admin-invites'] as const,
-  lists: () => [...invitesQueryKeys.all, 'list'] as const
+  lists: () => [...invitesQueryKeys.all, 'list'] as const,
+  list: (params: TInviteListQuery) => [...invitesQueryKeys.lists(), params] as const
 }
 
-export const useInvitesQuery = () => useQuery({
-  key: invitesQueryKeys.lists(),
-  query: () => invitesService.getInvites(),
-  placeholderData: []
+export const useInvitesQuery = (params: MaybeRefOrGetter<TInviteListQuery>) => useQuery({
+  key: () => invitesQueryKeys.list(toValue(params)),
+  query: () => invitesService.getInvites(toValue(params)),
+  placeholderData: () => ({
+    data: [],
+    page: toValue(params).page ?? 1,
+    pageSize: toValue(params).pageSize ?? 10,
+    total: 0,
+    totalPages: 0
+  }) satisfies TInviteList
 })
 
 export const useSendInviteMutation = () => {
@@ -17,18 +24,6 @@ export const useSendInviteMutation = () => {
   return useMutation({
     mutation: (params: { body: TCreateInviteBody, version: TInviteApiVersion }) => {
       return invitesService.sendInvite(params.body, params.version)
-    },
-    onSuccess: (invite) => {
-      cache.setQueriesData<TInviteList>({ key: invitesQueryKeys.lists() }, (previous) => {
-        if (!previous) {
-          return [invite]
-        }
-
-        return [
-          invite,
-          ...previous.filter(item => item.id !== invite.id)
-        ]
-      })
     },
     onSettled: () => cache.invalidateQueries({ key: invitesQueryKeys.lists() })
   })
@@ -44,10 +39,13 @@ export const useResendInviteMutation = () => {
     onSuccess: (invite) => {
       cache.setQueriesData<TInviteList>({ key: invitesQueryKeys.lists() }, (previous) => {
         if (!previous) {
-          return [invite]
+          return previous as unknown as TInviteList
         }
 
-        return previous.map(item => item.id === invite.id ? invite : item)
+        return {
+          ...previous,
+          data: previous.data.map(item => item.id === invite.id ? invite : item)
+        }
       })
     },
     onSettled: () => cache.invalidateQueries({ key: invitesQueryKeys.lists() })

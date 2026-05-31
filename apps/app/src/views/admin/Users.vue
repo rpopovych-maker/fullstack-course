@@ -20,8 +20,10 @@
       stripe
       class="rounded-md"
       empty-text="No users match your filters"
+      :default-sort="{ prop: sort.orderBy, order: tableSortOrder }"
+      @sort-change="setSort"
     >
-      <el-table-column label="User" min-width="220">
+      <el-table-column prop="username" label="User" min-width="220" sortable="custom">
         <template #default="{ row }: { row: TUserListItem }">
           <div class="flex items-center gap-3">
             <AuthorAvatar :username="row.username" :size="32" />
@@ -30,9 +32,9 @@
         </template>
       </el-table-column>
 
-      <el-table-column prop="email" label="Email" min-width="220" />
+      <el-table-column prop="email" label="Email" min-width="220" sortable="custom" />
 
-      <el-table-column label="Role" width="100">
+      <el-table-column prop="role" label="Role" width="100" sortable="custom">
         <template #default="{ row }: { row: TUserListItem }">
           <el-tag
             :type="row.role === 'admin' ? 'success' : 'info'"
@@ -43,7 +45,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Status" width="110">
+      <el-table-column prop="bannedAt" label="Status" width="110" sortable="custom">
         <template #default="{ row }: { row: TUserListItem }">
           <el-tag
             :type="row.bannedAt ? 'danger' : 'primary'"
@@ -54,7 +56,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="Joined" width="160">
+      <el-table-column prop="createdAt" label="Joined" width="160" sortable="custom">
         <template #default="{ row }: { row: TUserListItem }">
           <span class="t-caption">{{ formatJoined(row.createdAt) }}</span>
         </template>
@@ -106,6 +108,14 @@ const pagination = reactive({
   pageSize: 10
 })
 
+const sort = reactive<{
+  orderBy: TUserListOrderBy
+  order: NonNullable<TUserListQuery['order']>
+}>({
+  orderBy: 'createdAt',
+  order: 'desc'
+})
+
 const searchTerm = ref('')
 const debouncedSearchTerm = refDebounced(searchTerm, 300)
 
@@ -116,6 +126,8 @@ const searchQuery = computed(() => {
 const usersQueryParams = computed<TUserListQuery>(() => ({
   page: pagination.page,
   pageSize: pagination.pageSize,
+  order: sort.order,
+  orderBy: sort.orderBy,
   ...(searchQuery.value ? { search: searchQuery.value } : {})
 }))
 
@@ -136,6 +148,7 @@ const usersPage = computed<TUserList>(() => {
 })
 
 const canBanUsers = computed(() => authStore.hasPermission('ban:users'))
+const tableSortOrder = computed(() => sort.order === 'asc' ? 'ascending' : 'descending')
 
 function canActOn (user: TUserListItem) {
   return user.id !== authStore.user?.id && user.role !== 'admin'
@@ -168,6 +181,22 @@ function setPage (page: number) {
   }
 
   void router.replace({ query })
+}
+
+function setSort ({ prop, order }: { prop: string, order: 'ascending' | 'descending' | null }) {
+  if (!order || !isUserSortField(prop)) {
+    sort.orderBy = 'createdAt'
+    sort.order = 'desc'
+  } else {
+    sort.orderBy = prop
+    sort.order = order === 'ascending' ? 'asc' : 'desc'
+  }
+
+  setPage(1)
+}
+
+function isUserSortField (prop: string): prop is TUserListOrderBy {
+  return ['username', 'email', 'role', 'bannedAt', 'createdAt'].includes(prop)
 }
 
 function readPageQuery () {

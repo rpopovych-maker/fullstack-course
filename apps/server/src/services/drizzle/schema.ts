@@ -26,7 +26,9 @@ export const invitesTable = pgTable('invites', {
   acceptedAt: timestamp(),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().defaultNow().$onUpdate(() => new Date()).notNull()
-});
+}, (t) => [
+  index('users_email_trgm_idx').using('gin', t.email.op('gin_trgm_ops'))
+]);
 
 export const postsTable = pgTable('posts', {
   id: uuid()

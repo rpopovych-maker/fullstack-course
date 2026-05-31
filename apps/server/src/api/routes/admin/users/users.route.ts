@@ -19,6 +19,8 @@ const routes: FastifyPluginAsync = async function (f) {
       page: req.query.page,
       pageSize: req.query.pageSize,
       search: req.query.search,
+      order: req.query.order,
+      orderBy: req.query.orderBy,
       userRepo: fastify.repos.userRepo
     });
 

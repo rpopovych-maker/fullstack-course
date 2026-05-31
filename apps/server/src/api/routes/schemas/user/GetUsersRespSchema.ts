@@ -1,3 +1,3 @@
-import { GetUsersResultSchema } from 'src/types/admin/GetUsersResult';
+import { GetUsersResultSchema } from 'src/types/user/GetUsersResult';
 
 export const GetUsersRespSchema = GetUsersResultSchema;

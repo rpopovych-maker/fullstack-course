@@ -1,11 +1,11 @@
+import { InviteSchema } from 'src/types/invite/Invite';
 import { SortOrderSchema } from 'src/types/SortOrder';
-import { UserSchema } from 'src/types/user/User';
 import { z } from 'zod';
 
-export const GetUsersQuerySchema = z.object({
+export const GetInvitesQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
   pageSize: z.coerce.number().int().positive().max(100).default(10),
   search: z.string().min(3).optional(),
   order: SortOrderSchema.optional(),
-  orderBy: UserSchema.keyof().optional()
+  orderBy: InviteSchema.keyof().optional()
 });

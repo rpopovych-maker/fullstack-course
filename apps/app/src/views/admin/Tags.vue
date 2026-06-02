@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-6">
+  <div class="h-[calc(100dvh-7rem)] min-h-0 flex flex-col gap-6 overflow-hidden">
     <header class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div class="space-y-1">
         <h1>Tags</h1>
@@ -20,52 +20,51 @@
       />
     </div>
 
-    <el-table
-      v-loading="isLoading"
-      :data="tags ?? []"
-      stripe
-      class="rounded-md"
-      empty-text="No tags match your filters"
-    >
-      <el-table-column prop="name" label="Name" min-width="240">
-        <template #default="{ row }: { row: TTag }">
-          <span class="t-body wrap-break-word">{{ row.name }}</span>
-        </template>
-      </el-table-column>
+    <div class="min-h-0 flex-1 overflow-hidden">
+      <el-table
+        v-loading="isLoading"
+        :data="tags ?? []"
+        stripe
+        height="100%"
+        class="h-full rounded-md"
+        empty-text="No tags match your filters"
+      >
+        <el-table-column prop="name" label="Name" min-width="240">
+          <template #default="{ row }: { row: TTag }">
+            <span class="t-body wrap-break-word">{{ row.name }}</span>
+          </template>
+        </el-table-column>
 
-      <el-table-column label="Created" width="160">
-        <template #default="{ row }: { row: TTag }">
-          <span class="t-caption">{{ formatDate(row.createdAt) }}</span>
-        </template>
-      </el-table-column>
+        <el-table-column label="Created" width="160">
+          <template #default="{ row }: { row: TTag }">
+            <span class="t-caption">{{ formatDate(row.createdAt) }}</span>
+          </template>
+        </el-table-column>
 
-      <el-table-column label="Actions" width="160" align="right">
-        <template #default="{ row }: { row: TTag }">
-          <div class="flex justify-end gap-2">
-            <el-tooltip content="Edit tag" placement="top">
-              <el-button
-                size="small"
-                aria-label="Edit tag"
-                @click="openEditDialog(row)"
-              >
-                <Icon name="edit" />
-              </el-button>
-            </el-tooltip>
-            <el-tooltip content="Delete tag" placement="top">
-              <el-button
-                size="small"
-                type="danger"
-                aria-label="Delete tag"
-                :loading="pendingDeleteTagId === row.id"
-                @click="deleteTag(row)"
-              >
-                <Icon name="trash" />
-              </el-button>
-            </el-tooltip>
-          </div>
-        </template>
-      </el-table-column>
-    </el-table>
+        <el-table-column label="Actions" width="160" align="right">
+          <template #default="{ row }: { row: TTag }">
+            <div class="flex justify-end gap-2">
+                <el-button
+                  size="small"
+                  aria-label="Edit tag"
+                  @click="openEditDialog(row)"
+                >
+                  <Icon name="edit" />
+                </el-button>
+                <el-button
+                  size="small"
+                  type="danger"
+                  aria-label="Delete tag"
+                  :loading="pendingDeleteTagId === row.id"
+                  @click="deleteTag(row)"
+                >
+                  <Icon name="trash" />
+                </el-button>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
 
     <el-dialog
       v-model="isDialogOpen"

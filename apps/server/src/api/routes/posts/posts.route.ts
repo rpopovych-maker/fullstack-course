@@ -25,6 +25,8 @@ const routes: FastifyPluginAsync = async function (f) {
     async (req) => {
       const post = await createPost({
         postRepo: fastify.repos.postRepo,
+        postToTagRepo: fastify.repos.postToTagRepo,
+        transactionManager: fastify.transactionManager,
         userId: req.user!.id,
         ...req.body
       });
@@ -54,7 +56,8 @@ const routes: FastifyPluginAsync = async function (f) {
         search: req.query.search,
         orderBy: req.query.orderBy,
         order: req.query.order,
-        minCommentsCount: req.query.minCommentsCount
+        minCommentsCount: req.query.minCommentsCount,
+        tagIds: req.query.tagIds
       });
       return posts;
     }

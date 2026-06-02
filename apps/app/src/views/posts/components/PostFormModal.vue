@@ -31,6 +31,26 @@
           show-word-limit
         />
       </el-form-item>
+      <el-form-item label="Tags" prop="tagIds">
+        <el-select
+          v-model="form.tagIds"
+          multiple
+          filterable
+          clearable
+          default-first-option
+          :reserve-keyword="false"
+          :loading="areTagsLoading"
+          placeholder="Choose tags"
+          class="w-full"
+        >
+          <el-option
+            v-for="tag in tagOptions"
+            :key="tag.id"
+            :label="tag.name"
+            :value="tag.id"
+          />
+        </el-select>
+      </el-form-item>
     </el-form>
 
     <template #footer>
@@ -46,11 +66,13 @@
 
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
+import { usePublicTagsQuery } from '../post.queries'
 
 interface IPostFormPayload {
   id: string
   title: string
   description: string
+  tags: TPostDetail['tags']
 }
 
 const props = defineProps<{
@@ -64,7 +86,8 @@ const isEdit = computed(() => Boolean(props.post))
 const formRef = useElFormRef(null)
 const form = useElFormModel({
   title: props.post?.title ?? '',
-  description: props.post?.description ?? ''
+  description: props.post?.description ?? '',
+  tagIds: props.post?.tags.map(tag => tag.id) ?? []
 })
 const rules = useElFormRules({
   title: [useRequiredRule(), useMaxLenRule(255)],
@@ -73,6 +96,8 @@ const rules = useElFormRules({
 
 const createMutation = useCreatePostMutation()
 const updateMutation = useUpdatePostMutation()
+const { data: tags, isLoading: areTagsLoading } = usePublicTagsQuery({ search: undefined })
+const tagOptions = computed(() => tags.value ?? [])
 
 function close () {
   closeModal('PostFormModal')
@@ -89,7 +114,8 @@ async function submit () {
 
   const body = {
     title: form.title,
-    description: form.description || null
+    description: form.description || undefined,
+    tagIds: form.tagIds
   }
 
   if (isEdit.value && props.post) {

@@ -1,26 +1,26 @@
 import { FastifyPluginAsync } from 'fastify';
 import { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { TagRespSchema } from 'src/api/routes/schemas/tags/TagRespSchema';
-import { createTag } from 'src/controllers/tag/create-tag';
-import { UpsertTagReqSchema } from 'src/api/routes/schemas/tags/UpsertTagReqSchema';
+import { getTags } from 'src/controllers/tag/get-tags';
+import { GetTagsQuerySchema } from 'src/api/routes/schemas/tags/GetTagsQuerySchema';
 
 const routes: FastifyPluginAsync = async function (f) {
   const fastify = f.withTypeProvider<ZodTypeProvider>();
 
-  fastify.post('/', {
+  fastify.get('/', {
     schema: {
+      querystring: GetTagsQuerySchema,
       response: {
-        200: TagRespSchema
-      },
-      body: UpsertTagReqSchema
+        200: TagRespSchema.array()
+      }
     }
   }, async req => {
-    const tag = await createTag({
+    const tags = await getTags({
       tagRepo: fastify.repos.tagsRepo,
-      name: req.body.name
+      search: req.query.search
     });
 
-    return tag;
+    return tags;
   });
 };
 

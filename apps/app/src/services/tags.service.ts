@@ -1,6 +1,6 @@
 class TagsService {
   getTags (params?: TTagListQuery) {
-    return apiClient.get('/api/admin/tags/', { params })
+    return apiClient.get('/api/tags/', { params })
   }
 
   createTag (body: TUpsertTagBody) {

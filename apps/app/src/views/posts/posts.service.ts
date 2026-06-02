@@ -1,6 +1,15 @@
 class PostsService {
+  getTags (params?: TPublicTagListQuery) {
+    return apiClient.get('/api/tags/', { params })
+  }
+
   getPosts (params?: TPostListQuery) {
-    return apiClient.get('/api/posts/', { params })
+    return apiClient.get('/api/posts/', {
+      params,
+      paramsSerializer: {
+        indexes: null
+      }
+    })
   }
 
   getPostById (postId: string) {

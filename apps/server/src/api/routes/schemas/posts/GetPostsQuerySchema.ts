@@ -8,5 +8,9 @@ export const GetPostsQuerySchema = z.object({
   search: z.string().min(3).optional(),
   orderBy: PostOrderBySchema.optional(),
   order: SortOrderSchema.optional(),
-  minCommentsCount: z.coerce.number().int().nonnegative().optional()
+  minCommentsCount: z.coerce.number().int().nonnegative().optional(),
+  tagIds: z.union([
+    z.string().uuid().transform(value => [value]),
+    z.string().uuid().array()
+  ]).optional()
 });

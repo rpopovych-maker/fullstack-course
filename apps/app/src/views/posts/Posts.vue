@@ -16,6 +16,7 @@
     <PostFilters
       v-model:search="searchTerm"
       v-model:min-comments-count="minCommentsCount"
+      v-model:tag-ids="selectedTagIds"
       v-model:sort-query="sortQuery"
     />
 
@@ -77,6 +78,7 @@ const sortQuery = ref<TPostSortQuery>({ orderBy: 'createdAt', order: 'desc' })
 const searchTerm = ref('')
 const debouncedSearchTerm = refDebounced(searchTerm, 300)
 const minCommentsCount = ref<number>()
+const selectedTagIds = ref<string[]>([])
 
 const searchQuery = computed(() => {
   return debouncedSearchTerm.value.length >= 3 ? debouncedSearchTerm.value : undefined
@@ -91,6 +93,7 @@ const postsQueryParams = computed<TPostListQuery>(() => ({
   pageSize: pagination.pageSize,
   ...(searchQuery.value ? { search: searchQuery.value } : {}),
   ...(minCommentsCountQuery.value !== undefined ? { minCommentsCount: minCommentsCountQuery.value } : {}),
+  ...(selectedTagIds.value.length ? { tagIds: selectedTagIds.value } : {}),
   ...sortQuery.value
 }))
 
@@ -107,7 +110,7 @@ const postsPage = computed<TPostList>(() => {
 })
 
 const emptyDescription = computed(() => {
-  return searchQuery.value || minCommentsCountQuery.value !== undefined
+  return searchQuery.value || minCommentsCountQuery.value !== undefined || selectedTagIds.value.length
     ? 'No posts match your filters'
     : 'No posts yet'
 })
@@ -121,6 +124,10 @@ watch(searchTerm, () => {
 })
 
 watch(minCommentsCount, () => {
+  setPage(1)
+})
+
+watch(selectedTagIds, () => {
   setPage(1)
 })
 

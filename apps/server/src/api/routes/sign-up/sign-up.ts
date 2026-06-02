@@ -14,11 +14,11 @@ const routes: FastifyPluginAsync = async function (f) {
       skipAuth: true
     }
   }, async req => signUp({
-      identityService: fastify.identityService,
-      userRepo: fastify.repos.userRepo,
-      email: req.body.email,
-      password: req.body.password,
-      username: req.body.username
+    identityService: fastify.identityService,
+    userRepo: fastify.repos.userRepo,
+    email: req.body.email,
+    password: req.body.password,
+    username: req.body.username
   }));
 };
 

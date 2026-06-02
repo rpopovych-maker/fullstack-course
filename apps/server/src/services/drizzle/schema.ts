@@ -1,4 +1,4 @@
-import { uuid, pgTable, varchar, timestamp, text, index } from 'drizzle-orm/pg-core';
+import { uuid, pgTable, varchar, timestamp, text, index, primaryKey } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
 export const usersTable = pgTable('users', {
@@ -60,4 +60,12 @@ export const tagsTable = pgTable('tags', {
   updatedAt: timestamp().defaultNow().$onUpdate(() => new Date()).notNull()
 }, (t) => [
   index('tags_name_trgm_idx').using('gin', t.name.op('gin_trgm_ops'))
+]);
+
+export const postToTagTable = pgTable('post_tags', {
+  postId: uuid().notNull().references(() => postsTable.id, { onDelete: 'cascade' }),
+  tagId: uuid().notNull().references(() => tagsTable.id, { onDelete: 'cascade' }),
+  createdAt: timestamp().defaultNow().notNull()
+}, (t) => [
+  primaryKey({ columns: [t.postId, t.tagId] })
 ]);

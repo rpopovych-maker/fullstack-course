@@ -4,6 +4,7 @@ import { getCommentRepo } from './comment.repo';
 import { getUserRepo } from './user.repo';
 import { getInviteRepo } from './invite.repo';
 import { getTagsRepo } from './tags.repo';
+import { getPostToTagRepo } from './post-to-tag.repo';
 
 export function getRepos(db: NodePgDatabase) {
   return {
@@ -11,7 +12,8 @@ export function getRepos(db: NodePgDatabase) {
     commentRepo: getCommentRepo(db),
     userRepo: getUserRepo(db),
     inviteRepo: getInviteRepo(db),
-    tagsRepo: getTagsRepo(db)
+    tagsRepo: getTagsRepo(db),
+    postToTagRepo: getPostToTagRepo(db)
   };
 }
 

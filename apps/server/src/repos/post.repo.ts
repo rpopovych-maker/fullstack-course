@@ -1,10 +1,11 @@
-import { asc, count, desc, eq, getTableColumns, gte, ilike, or, sql } from 'drizzle-orm';
+import { and, asc, count, countDistinct, desc, eq, getTableColumns, gte, ilike, inArray, or, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { IPostRepo } from 'src/types/post/IPostRepo';
-import { PostSchema } from 'src/types/post/Post';
-import { commentsTable, postsTable, usersTable } from 'src/services/drizzle/schema';
+import { commentsTable, postsTable, postToTagTable, tagsTable, usersTable } from 'src/services/drizzle/schema';
 import { GetPostsResultSchema } from 'src/types/post/GetPostsResult';
 import { PostWithAuthorSchema } from 'src/types/post/PostWithAuthor';
+import { Tag } from 'src/types/tag/Tag';
+import { PostSchema } from 'src/types/post/Post';
 
 export function getPostRepo(db: NodePgDatabase): IPostRepo {
   return {
@@ -17,23 +18,31 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
       return posts.length > 0 ? posts[0].userId : null;
     },
 
-    async createPost(data) {
-      const posts = await db.insert(postsTable).values(data).returning();
-      return PostSchema.parse(posts[0]);
+    async createPost(data, tx) {
+      const [post] = await (tx ?? db)
+        .insert(postsTable)
+        .values(data)
+        .returning();
+
+      return PostSchema.parse(post);
     },
 
-    async updatePostById(postId, data) {
-      const posts = await db
+    async updatePostById(postId, data, tx) {
+      const [post] = await (tx ?? db)
         .update(postsTable)
         .set(data)
         .where(eq(postsTable.id, postId))
         .returning();
+      
+      if (!post) {
+        return null;
+      }
 
-      return posts.length > 0 ? PostSchema.parse(posts[0]) : null;
+      return PostSchema.parse(post);
     },
 
     async getPostById(id: string) {
-      const posts = await db
+      const [post] = await db
         .select({
           ...getTableColumns(postsTable),
           author: {
@@ -44,13 +53,26 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
         .from(postsTable)
         .innerJoin(usersTable, eq(postsTable.userId, usersTable.id))
         .where(eq(postsTable.id, id));
+      
+      if (!post) {
+        return null;
+      }
+      
+      const tags = await db
+        .select(getTableColumns(tagsTable))
+        .from(postToTagTable)
+        .innerJoin(tagsTable, eq(tagsTable.id, postToTagTable.tagId))
+        .where(eq(postToTagTable.postId, id));
 
-      return posts.length > 0 ? PostWithAuthorSchema.parse(posts[0]) : null;
+      return PostWithAuthorSchema.parse({
+        ...post,
+        tags
+      });
     },
 
-    async getPosts({ page, pageSize, search, orderBy, order, minCommentsCount }) {
+    async getPosts({ page, pageSize, search, orderBy, order, minCommentsCount, tagIds }) {
       const offset = (page - 1) * pageSize;
-      const commentsCount = count(commentsTable.id);
+      const commentsCount = countDistinct(commentsTable.id);
 
       const searchTerm = search?.trim();
 
@@ -85,13 +107,18 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
       const commentsCountCondition = minCommentsCount !== undefined
         ? gte(commentsCount, minCommentsCount)
         : undefined;
+      
+      const tagIdsCondition = tagIds?.length
+        ? inArray(postToTagTable.tagId, tagIds)
+        : undefined;
 
       const matchingPosts = db
         .select({ id: postsTable.id })
         .from(postsTable)
         .innerJoin(usersTable, eq(postsTable.userId, usersTable.id))
         .leftJoin(commentsTable, eq(postsTable.id, commentsTable.postId))
-        .where(searchCondition)
+        .leftJoin(postToTagTable, eq(postToTagTable.postId, postsTable.id))
+        .where(and(searchCondition, tagIdsCondition))
         .groupBy(postsTable.id)
         .having(commentsCountCondition)
         .as('matchingPosts');
@@ -108,7 +135,8 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
         .from(postsTable)
         .innerJoin(usersTable, eq(postsTable.userId, usersTable.id))
         .leftJoin(commentsTable, eq(postsTable.id, commentsTable.postId))
-        .where(searchCondition)
+        .leftJoin(postToTagTable, eq(postToTagTable.postId, postsTable.id))
+        .where(and(searchCondition, tagIdsCondition))
         .groupBy(postsTable.id, usersTable.id)
         .having(commentsCountCondition)
         .orderBy(...sortExpressions)
@@ -122,11 +150,38 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
         .from(matchingPosts);
 
       const [posts, totalResult] = await Promise.all([postsQuery, totalQuery]);
+
+      const postIds = posts.map(p => p.id);
+
+      const postTags = postIds.length
+        ? await db
+          .select({
+            postId: postToTagTable.postId,
+            tag: getTableColumns(tagsTable)
+          })
+          .from(postToTagTable)
+          .innerJoin(tagsTable, eq(postToTagTable.tagId, tagsTable.id))
+          .where(inArray(postToTagTable.postId, postIds))
+        : [];
+      
+      const postTagsMap = new Map<string, Tag[]>();
+      
+      for (const postTag of postTags) {
+        const tags = postTagsMap.get(postTag.postId) ?? [];
+        tags.push(postTag.tag);
+        postTagsMap.set(postTag.postId, tags);
+      }
+
+      const postWithTags = posts.map(p => ({
+        ...p,
+        tags: postTagsMap.get(p.id) ?? []
+      }));
+
       const total = totalResult[0]?.total ?? 0;
       const totalPages = Math.ceil(total / pageSize);
 
       return GetPostsResultSchema.parse({
-        data: posts,
+        data: postWithTags,
         page,
         pageSize,
         total,

@@ -50,6 +50,15 @@
         <p v-if="post.description" class="t-body whitespace-pre-line wrap-break-word">
           {{ post.description }}
         </p>
+
+        <div v-if="post.tags.length" class="flex flex-wrap gap-2">
+          <el-tag
+            v-for="tag in post.tags"
+            :key="tag.id"
+          >
+            {{ tag.name }}
+          </el-tag>
+        </div>
       </article>
 
       <el-divider />
@@ -169,7 +178,8 @@ function openEditModal () {
     post: {
       id: post.value.id,
       title: post.value.title,
-      description: post.value.description ?? ''
+      description: post.value.description ?? '',
+      tags: post.value.tags
     }
   })
 }

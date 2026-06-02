@@ -2,7 +2,7 @@ import { FastifyPluginAsync } from 'fastify';
 import { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import { GetPostByIdRespSchema } from 'src/api/routes/schemas/posts/GetPostByIdRespSchema';
-import { UpdatePostByIdReqSchema } from 'src/api/routes/schemas/posts/UpdatePostByIdReqSchema';
+import { UpdatePostReqSchema } from 'src/api/routes/schemas/posts/UpdatePostReqSchema';
 import { updatePostById } from 'src/controllers/post/update-post-by-id';
 import { getPostById } from 'src/controllers/post/get-post-by-id';
 import { PostRespSchema } from 'src/api/routes/schemas/posts/PostRespSchema';
@@ -46,7 +46,7 @@ const routes: FastifyPluginAsync = async function (f) {
         response: {
           200: PostRespSchema
         },
-        body: UpdatePostByIdReqSchema
+        body: UpdatePostReqSchema
       },
       preHandler: [
         hasPermission('update:posts', req =>
@@ -61,8 +61,12 @@ const routes: FastifyPluginAsync = async function (f) {
     async (req) => {
       const post = await updatePostById({
         postRepo: fastify.repos.postRepo,
+        postToTagRepo: fastify.repos.postToTagRepo,
+        transactionManager: fastify.transactionManager,
         postId: req.params.postId,
-        data: req.body
+        title: req.body.title,
+        description: req.body.description,
+        tagIds: req.body.tagIds
       });
       return post;
     }

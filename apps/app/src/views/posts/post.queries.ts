@@ -2,11 +2,18 @@ import { useMutation, useQuery, useQueryCache } from '@pinia/colada'
 
 export const postsQueryKeys = {
   all: ['posts'] as const,
+  tags: (params: TPublicTagListQuery) => [...postsQueryKeys.all, 'tags', params] as const,
   lists: () => [...postsQueryKeys.all, 'list'] as const,
   list: (params: TPostListQuery) => [...postsQueryKeys.lists(), params] as const,
   details: () => [...postsQueryKeys.all, 'detail'] as const,
   detail: (id: string) => [...postsQueryKeys.details(), id] as const
 }
+
+export const usePublicTagsQuery = (params: MaybeRefOrGetter<TPublicTagListQuery>) => useQuery({
+  key: () => postsQueryKeys.tags(toValue(params)),
+  query: () => postsService.getTags(toValue(params)),
+  placeholderData: () => [] satisfies TPublicTagList
+})
 
 export const usePostsQuery = (params: MaybeRefOrGetter<TPostListQuery>) => useQuery({
   key: () => postsQueryKeys.list(toValue(params)),
@@ -41,6 +48,11 @@ export const useUpdatePostMutation = () => {
     mutation: ({ id, body }: { id: string; body: TUpdatePostBody }) => postsService.updatePost(id, body),
     onMutate: ({ id, body }) => {
       const detailKey = postsQueryKeys.detail(id)
+      const optimisticPostPatch = {
+        ...(body.title !== undefined ? { title: body.title } : {}),
+        ...(body.description !== undefined ? { description: body.description } : {})
+      }
+
       cache.cancelQueries({ key: postsQueryKeys.lists() })
       cache.cancelQueries({ key: detailKey, exact: true })
 
@@ -52,12 +64,12 @@ export const useUpdatePostMutation = () => {
         }
         return {
           ...previous,
-          data: previous.data.map(p => p.id === id ? { ...p, ...body } : p)
+          data: previous.data.map(p => p.id === id ? { ...p, ...optimisticPostPatch } : p)
         }
       })
 
       if (prevDetail) {
-        cache.setQueryData<TPostDetail>(detailKey, { ...prevDetail, ...body })
+        cache.setQueryData<TPostDetail>(detailKey, { ...prevDetail, ...optimisticPostPatch })
       }
 
       return { prevDetail, detailKey }

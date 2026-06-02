@@ -13,7 +13,7 @@ const routes: FastifyPluginAsync = async function (f) {
       })
     }
   }, async req => {
-   await unbanUser({
+    await unbanUser({
       userId: req.params.userId,
       userRepo: fastify.repos.userRepo,
       identityService: fastify.identityService

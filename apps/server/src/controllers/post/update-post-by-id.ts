@@ -1,17 +1,31 @@
 import { HttpError } from 'src/api/errors/HttpError';
+import { IPostToTagRepo } from 'src/types/IPostTagsRepo';
+import { ITransactionManager } from 'src/types/ITransaction';
 import { IPostRepo } from 'src/types/post/IPostRepo';
-import { Post } from 'src/types/post/Post';
 
 export async function updatePostById(params: {
   postRepo: IPostRepo;
+  postToTagRepo: IPostToTagRepo
+  transactionManager: ITransactionManager
   postId: string;
-  data: Partial<Pick<Post, 'title' | 'description'>>;
+  title?: string;
+  description?: string;
+  tagIds?: string[]
 }) {
-  const post = await params.postRepo.updatePostById(params.postId, params.data);
+  return params.transactionManager.execute(async ({ tx }) => {
+    const post = await params.postRepo.updatePostById(params.postId, {
+      title: params.title,
+      description: params.description
+    }, tx);
 
-  if (!post) {
-    throw new HttpError(404, 'Post not found');
-  }
+    if (!post) {
+      throw new HttpError(404, 'Post not found');
+    }
 
-  return post;
+    if (params.tagIds) {
+      await params.postToTagRepo.updatePostTags(post.id, params.tagIds, tx);
+    }
+
+    return post;
+  });
 }

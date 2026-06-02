@@ -134,6 +134,13 @@
       "when": 1780230481806,
       "tag": "0018_certain_paladin",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1780321397984,
+      "tag": "0019_furry_ego",
+      "breakpoints": true
     }
   ]
 }

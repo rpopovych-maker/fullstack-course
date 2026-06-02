@@ -338,36 +338,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: {
-            parameters: {
-                query?: {
-                    search?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Default Response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** Format: uuid */
-                            id: string;
-                            name: string;
-                            /** Format: date-time */
-                            createdAt: string;
-                            /** Format: date-time */
-                            updatedAt: string;
-                        }[];
-                    };
-                };
-            };
-        };
+        get?: never;
         put?: never;
         post: {
             parameters: {
@@ -810,6 +781,7 @@ export interface paths {
                     orderBy?: "title" | "createdAt" | "commentsCount";
                     order?: "asc" | "desc";
                     minCommentsCount?: number;
+                    tagIds?: string | string[];
                 };
                 header?: never;
                 path?: never;
@@ -840,6 +812,15 @@ export interface paths {
                                     id: string;
                                     username: string;
                                 };
+                                tags: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    name: string;
+                                    /** Format: date-time */
+                                    createdAt: string;
+                                    /** Format: date-time */
+                                    updatedAt: string;
+                                }[];
                                 commentsCount: number;
                             }[];
                             page: number;
@@ -863,7 +844,8 @@ export interface paths {
                 content: {
                     "application/json": {
                         title: string;
-                        description?: string | null;
+                        description?: string;
+                        tagIds?: string[];
                     };
                 };
             };
@@ -936,6 +918,15 @@ export interface paths {
                                 id: string;
                                 username: string;
                             };
+                            tags: {
+                                /** Format: uuid */
+                                id: string;
+                                name: string;
+                                /** Format: date-time */
+                                createdAt: string;
+                                /** Format: date-time */
+                                updatedAt: string;
+                            }[];
                         };
                     };
                 };
@@ -958,8 +949,9 @@ export interface paths {
             requestBody: {
                 content: {
                     "application/json": {
-                        title: string;
-                        description?: string | null;
+                        title?: string;
+                        description?: string;
+                        tagIds?: string[];
                     };
                 };
             };
@@ -1185,6 +1177,51 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tags/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    search?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            name: string;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;

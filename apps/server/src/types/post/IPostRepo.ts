@@ -3,12 +3,16 @@ import { Post } from './Post';
 import { GetPostsResult } from './GetPostsResult';
 import { PostOrderBy } from './PostOrderBy';
 import { PostWithAuthor } from './PostWithAuthor';
-
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 export interface IPostRepo {
-  createPost(data: Pick<Post, 'userId' | 'title' | 'description'>): Promise<Post>;
+  createPost(
+    data: Pick<Post, 'userId' | 'title' | 'description'>,
+    tx?: NodePgDatabase
+  ): Promise<Post>;
   updatePostById(
     postId: string,
-    data: Partial<Pick<Post, 'title' | 'description'>>
+    data: Partial<Pick<Post, 'title' | 'description'>>,
+    tx?: NodePgDatabase
   ): Promise<Post | null>;
   getPostById(id: string): Promise<PostWithAuthor | null>;
   getPosts(params: {
@@ -17,6 +21,7 @@ export interface IPostRepo {
     search?: string,
     orderBy?: PostOrderBy,
     order?: SortOrder,
+    tagIds?: string[],
     minCommentsCount?: number
   }): Promise<GetPostsResult>;
   getPostOwner(postId: string): Promise<string | null>;

@@ -10,6 +10,7 @@ export async function getPosts(params: {
   orderBy?: PostOrderBy
   order?: SortOrder
   minCommentsCount?: number
+  tagIds?: string[]
 }) {
   const posts = await params.postRepo.getPosts({
     page: params.page,
@@ -17,7 +18,8 @@ export async function getPosts(params: {
     search: params.search,
     orderBy: params.orderBy,
     order: params.order,
-    minCommentsCount: params.minCommentsCount
+    minCommentsCount: params.minCommentsCount,
+    tagIds: params.tagIds
   });
 
   return posts;

@@ -8,13 +8,13 @@ export async function signUp(params: {
   password: string;
   username: string;
 }) {
-    const { subId, email } = await params.identityService.createUser(params.email, params.password);
-    const user = await params.userRepo.createUser({
-      subId,
-      email,
-      username: params.username,
-      role: 'user'
-    });
+  const { subId, email } = await params.identityService.createUser(params.email, params.password);
+  const user = await params.userRepo.createUser({
+    subId,
+    email,
+    username: params.username,
+    role: 'user'
+  });
 
-    return user;
+  return user;
 }

@@ -1,7 +1,7 @@
 import z from 'zod';
 
-export const CreatePostReqSchema = z.object({
-  title: z.string().min(1).max(255),
+export const UpdatePostReqSchema = z.object({
+  title: z.string().min(1).max(255).optional(),
   description: z.string().optional(),
   tagIds: z.string().uuid().array().optional()
 });

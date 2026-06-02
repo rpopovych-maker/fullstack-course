@@ -12,6 +12,16 @@
       {{ post.description }}
     </p>
 
+    <div v-if="post.tags.length" class="flex flex-wrap gap-1.5">
+      <el-tag
+        v-for="tag in post.tags"
+        :key="tag.id"
+        size="small"
+      >
+        {{ tag.name }}
+      </el-tag>
+    </div>
+
     <span class="t-caption">{{ createdAgo }}</span>
 
     <div class="mt-auto flex items-center justify-between gap-3 pt-2">

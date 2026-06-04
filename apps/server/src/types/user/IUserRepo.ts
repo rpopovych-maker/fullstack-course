@@ -5,7 +5,7 @@ import { SortOrder } from 'src/types/SortOrder';
 
 export interface IUserRepo {
   getUserBySubId(subId: string): Promise<User | null>;
-  getUserById(id: string): Promise<User | null>;
+  getUserById(id: string, returnDeleted?: boolean): Promise<User | null>;
   createUser(data: Pick<User, 'subId' | 'email' | 'username' | 'role'>, tx?: NodePgDatabase): Promise<User>;
   getUsers(params: {
     page: number
@@ -17,4 +17,5 @@ export interface IUserRepo {
   banUser(id: string): Promise<User | null>;
   unbanUser(id: string): Promise<User | null>;
   softDeleteUser(id: string, deletedAt: Date, tx?: NodePgDatabase): Promise<User | null>
+  restoreSoftDeletedUser(id: string, tx?: NodePgDatabase): Promise<User | null>
 }

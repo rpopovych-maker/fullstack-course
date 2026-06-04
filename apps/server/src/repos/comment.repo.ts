@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gt, or, lt, getTableColumns, isNull, inArray } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, or, lt, getTableColumns, isNull, inArray, isNotNull } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { ICommentRepo } from 'src/types/comment/ICommentRepo';
 import { CommentSchema } from 'src/types/comment/Comment';
@@ -7,6 +7,56 @@ import { GetPostCommentsResultSchema } from 'src/types/comment/GetPostCommentsRe
 
 export function getCommentRepo(db: NodePgDatabase): ICommentRepo {
   return {
+    async restoreSoftDeletedComment(commentId, postId) {
+      const comments = await db
+        .update(commentsTable)
+        .set({ deletedAt: null })
+        .where(and(
+          eq(commentsTable.id, commentId),
+          eq(commentsTable.postId, postId),
+          isNotNull(commentsTable.deletedAt)
+        ))
+        .returning();
+      
+      return comments.length > 0 ? CommentSchema.parse(comments[0]) : null;
+    },
+
+    async restoreSoftDeletedCommentsByPostId(postId, deletedAt, tx) {
+      return (tx ?? db)
+        .update(commentsTable)
+        .set({ deletedAt: null })
+        .where(
+          and(
+            eq(commentsTable.deletedAt, deletedAt),
+            inArray(
+              commentsTable.postId,
+              db
+                .select({ id: postsTable.id })
+                .from(postsTable)
+                .where(eq(postsTable.id, postId))
+            )
+          )
+        );
+    },
+
+    async restoreSoftDeletedCommentsByPostOwnerId(userId, deletedAt, tx) {
+      return (tx ?? db)
+        .update(commentsTable)
+        .set({ deletedAt: null })
+        .where(
+          and(
+            eq(commentsTable.deletedAt, deletedAt),
+            inArray(
+              commentsTable.postId,
+              db
+                .select({ id: postsTable.id })
+                .from(postsTable)
+                .where(eq(postsTable.userId, userId))
+            )
+          )
+        );
+    },
+
     async softDeleteCommentsByPostOwnerId(userId, deletedAt, tx) {
       return (tx ?? db)
         .update(commentsTable)
@@ -43,6 +93,19 @@ export function getCommentRepo(db: NodePgDatabase): ICommentRepo {
         ))
         .returning();
       
+      return comments.length > 0 ? CommentSchema.parse(comments[0]) : null;
+    },
+
+    async getCommentById({ commentId, postId, returnDeleted }) {
+      const comments = await db
+        .select(getTableColumns(commentsTable))
+        .from(commentsTable)
+        .where(and(
+          eq(commentsTable.id, commentId),
+          eq(commentsTable.postId, postId),
+          returnDeleted ? undefined : isNull(commentsTable.deletedAt)
+        ));
+
       return comments.length > 0 ? CommentSchema.parse(comments[0]) : null;
     },
 

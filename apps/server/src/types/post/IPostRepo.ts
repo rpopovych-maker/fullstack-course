@@ -14,7 +14,7 @@ export interface IPostRepo {
     data: Partial<Pick<Post, 'title' | 'description'>>,
     tx?: NodePgDatabase
   ): Promise<Post | null>;
-  getPostById(id: string): Promise<PostWithAuthor | null>;
+  getPostById(id: string, returnDeleted?: boolean): Promise<PostWithAuthor | null>;
   getPosts(params: {
     page: number,
     pageSize: number,
@@ -27,4 +27,13 @@ export interface IPostRepo {
   getPostOwner(postId: string): Promise<string | null>;
   softDeletePostsByUserId(userId: string, deletedAt: Date, tx?: NodePgDatabase): Promise<void>
   softDeletePost(postId: string, deletedAt: Date, tx?: NodePgDatabase): Promise<Post | null>
+  restoreSoftDeletedPostsByUserId(
+    userId: string,
+    deletedAt: Date,
+    tx?: NodePgDatabase
+  ): Promise<void>
+  restoreSoftDeletedPost(
+    postId: string,
+    tx?: NodePgDatabase
+  ): Promise<Post | null>
 }

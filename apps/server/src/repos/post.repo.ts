@@ -1,4 +1,4 @@
-import { and, asc, count, countDistinct, desc, eq, getTableColumns, gte, ilike, inArray, isNull, or, sql } from 'drizzle-orm';
+import { and, asc, count, countDistinct, desc, eq, getTableColumns, gte, ilike, inArray, isNotNull, isNull, or, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { IPostRepo } from 'src/types/post/IPostRepo';
 import { commentsTable, postsTable, postToTagTable, tagsTable, usersTable } from 'src/services/drizzle/schema';
@@ -9,6 +9,29 @@ import { PostSchema } from 'src/types/post/Post';
 
 export function getPostRepo(db: NodePgDatabase): IPostRepo {
   return {
+    async restoreSoftDeletedPost(postId, tx) {
+      const posts = await (tx ?? db)
+        .update(postsTable)
+        .set({ deletedAt: null })
+        .where(and(
+          eq(postsTable.id, postId),
+          isNotNull(postsTable.deletedAt)
+        ))
+        .returning();
+      
+      return posts.length > 0 ? PostSchema.parse(posts[0]) : null;
+    },
+
+    async restoreSoftDeletedPostsByUserId(userId, deletedAt, tx) {
+      return (tx ?? db)
+        .update(postsTable)
+        .set({ deletedAt: null })
+        .where(and(
+          eq(postsTable.deletedAt, deletedAt),
+          eq(postsTable.userId, userId)
+        ));
+    },
+
     async softDeletePostsByUserId(userId, deletedAt, tx) {
       return (tx ?? db)
         .update(postsTable)
@@ -61,7 +84,7 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
       return PostSchema.parse(post);
     },
 
-    async getPostById(id: string) {
+    async getPostById(id, returnDeleted) {
       const [post] = await db
         .select({
           ...getTableColumns(postsTable),
@@ -72,7 +95,12 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
         })
         .from(postsTable)
         .innerJoin(usersTable, eq(postsTable.userId, usersTable.id))
-        .where(and(eq(postsTable.id, id), isNull(postsTable.deletedAt)));
+        .where(
+          and(
+            eq(postsTable.id, id),
+            returnDeleted ? undefined : isNull(postsTable.deletedAt)
+          )
+        );
       
       if (!post) {
         return null;

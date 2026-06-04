@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, ilike, isNull, or } from 'drizzle-orm';
+import { and, asc, count, desc, eq, ilike, isNotNull, isNull, or } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { usersTable } from 'src/services/drizzle/schema';
 import { GetUsersResultSchema } from 'src/types/user/GetUsersResult';
@@ -7,6 +7,19 @@ import { UserSchema } from 'src/types/user/User';
 
 export function getUserRepo(db: NodePgDatabase): IUserRepo {
   return {
+    async restoreSoftDeletedUser(id, tx) {
+      const users = await (tx ?? db)
+        .update(usersTable)
+        .set({ deletedAt: null })
+        .where(and(
+          isNotNull(usersTable.deletedAt),
+          eq(usersTable.id, id)
+        ))
+        .returning();
+      
+      return users.length > 0 ? UserSchema.parse(users[0]) : null;
+    },
+
     async softDeleteUser(id, deletedAt, tx) {
       const users = await (tx ?? db)
         .update(usersTable)
@@ -52,12 +65,12 @@ export function getUserRepo(db: NodePgDatabase): IUserRepo {
       return users.length > 0 ? UserSchema.parse(users[0]) : null;
     },
 
-    async getUserById(id) {
+    async getUserById(id, returnDeleted) {
       const users = await db
         .select()
         .from(usersTable)
         .where(and(
-          isNull(usersTable.deletedAt),
+          returnDeleted ? undefined : isNull(usersTable.deletedAt),
           eq(usersTable.id, id)
         ));
 

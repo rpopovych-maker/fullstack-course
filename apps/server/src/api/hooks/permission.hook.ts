@@ -8,7 +8,9 @@ const _actions = [
   'create:comments',
   'update:comments',
   'delete:posts',
-  'delete:comments'
+  'delete:comments',
+  'restore:posts',
+  'restore:comments'
 ] as const;
 
 type Action = (typeof _actions)[number];
@@ -33,7 +35,9 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     { action: 'create:comments' },
     { action: 'update:comments', requireOwnership: true },
     { action: 'delete:posts' },
-    { action: 'delete:comments' }
+    { action: 'delete:comments' },
+    { action: 'restore:posts' },
+    { action: 'restore:comments' }
   ]
 };
 

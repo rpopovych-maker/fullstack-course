@@ -13,6 +13,9 @@ const routes: FastifyPluginAsync = async function (f) {
       response: {
         200: TagRespSchema.array()
       }
+    },
+    config: {
+      skipAuth: true
     }
   }, async req => {
     const tags = await getTags({

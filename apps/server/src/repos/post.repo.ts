@@ -1,4 +1,4 @@
-import { and, asc, count, countDistinct, desc, eq, getTableColumns, gte, ilike, inArray, or, sql } from 'drizzle-orm';
+import { and, asc, count, countDistinct, desc, eq, getTableColumns, gte, ilike, inArray, isNull, or, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { IPostRepo } from 'src/types/post/IPostRepo';
 import { commentsTable, postsTable, postToTagTable, tagsTable, usersTable } from 'src/services/drizzle/schema';
@@ -9,11 +9,31 @@ import { PostSchema } from 'src/types/post/Post';
 
 export function getPostRepo(db: NodePgDatabase): IPostRepo {
   return {
+    async softDeletePostsByUserId(userId, deletedAt, tx) {
+      return (tx ?? db)
+        .update(postsTable)
+        .set({ deletedAt })
+        .where(and(
+          isNull(postsTable.deletedAt),
+          eq(postsTable.userId, userId)
+        ));
+    },
+
+    async softDeletePost(postId, deletedAt, tx) {
+      const posts = await (tx ?? db)
+        .update(postsTable)
+        .set({ deletedAt })
+        .where(and(eq(postsTable.id, postId), isNull(postsTable.deletedAt)))
+        .returning();
+      
+      return posts.length > 0 ? PostSchema.parse(posts[0]) : null;
+    },
+
     async getPostOwner(postId) {
       const posts = await db
         .select({ userId: postsTable.userId })
         .from(postsTable)
-        .where(eq(postsTable.id, postId));
+        .where(and(eq(postsTable.id, postId), isNull(postsTable.deletedAt)));
 
       return posts.length > 0 ? posts[0].userId : null;
     },
@@ -31,7 +51,7 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
       const [post] = await (tx ?? db)
         .update(postsTable)
         .set(data)
-        .where(eq(postsTable.id, postId))
+        .where(and(eq(postsTable.id, postId), isNull(postsTable.deletedAt)))
         .returning();
       
       if (!post) {
@@ -52,7 +72,7 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
         })
         .from(postsTable)
         .innerJoin(usersTable, eq(postsTable.userId, usersTable.id))
-        .where(eq(postsTable.id, id));
+        .where(and(eq(postsTable.id, id), isNull(postsTable.deletedAt)));
       
       if (!post) {
         return null;
@@ -116,9 +136,15 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
         .select({ id: postsTable.id })
         .from(postsTable)
         .innerJoin(usersTable, eq(postsTable.userId, usersTable.id))
-        .leftJoin(commentsTable, eq(postsTable.id, commentsTable.postId))
+        .leftJoin(
+          commentsTable,
+          and(
+            eq(postsTable.id, commentsTable.postId),
+            isNull(commentsTable.deletedAt)
+          )
+        )
         .leftJoin(postToTagTable, eq(postToTagTable.postId, postsTable.id))
-        .where(and(searchCondition, tagIdsCondition))
+        .where(and(searchCondition, tagIdsCondition, isNull(postsTable.deletedAt)))
         .groupBy(postsTable.id)
         .having(commentsCountCondition)
         .as('matchingPosts');
@@ -134,9 +160,15 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
         })
         .from(postsTable)
         .innerJoin(usersTable, eq(postsTable.userId, usersTable.id))
-        .leftJoin(commentsTable, eq(postsTable.id, commentsTable.postId))
+        .leftJoin(
+          commentsTable,
+          and(
+            eq(postsTable.id, commentsTable.postId),
+            isNull(commentsTable.deletedAt)
+          )
+        )
         .leftJoin(postToTagTable, eq(postToTagTable.postId, postsTable.id))
-        .where(and(searchCondition, tagIdsCondition))
+        .where(and(searchCondition, tagIdsCondition, isNull(postsTable.deletedAt)))
         .groupBy(postsTable.id, usersTable.id)
         .having(commentsCountCondition)
         .orderBy(...sortExpressions)

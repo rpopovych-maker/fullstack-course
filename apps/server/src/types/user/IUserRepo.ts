@@ -16,4 +16,5 @@ export interface IUserRepo {
   }): Promise<GetUsersResult>;
   banUser(id: string): Promise<User | null>;
   unbanUser(id: string): Promise<User | null>;
+  softDeleteUser(id: string, deletedAt: Date, tx?: NodePgDatabase): Promise<User | null>
 }

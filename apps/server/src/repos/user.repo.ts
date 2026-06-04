@@ -1,4 +1,4 @@
-import { asc, count, desc, eq, ilike, or } from 'drizzle-orm';
+import { and, asc, count, desc, eq, ilike, isNull, or } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { usersTable } from 'src/services/drizzle/schema';
 import { GetUsersResultSchema } from 'src/types/user/GetUsersResult';
@@ -7,6 +7,19 @@ import { UserSchema } from 'src/types/user/User';
 
 export function getUserRepo(db: NodePgDatabase): IUserRepo {
   return {
+    async softDeleteUser(id, deletedAt, tx) {
+      const users = await (tx ?? db)
+        .update(usersTable)
+        .set({ deletedAt })
+        .where(and(
+          isNull(usersTable.deletedAt),
+          eq(usersTable.id, id)
+        ))
+        .returning();
+      
+      return users.length > 0 ? UserSchema.parse(users[0]) : null;
+    },
+  
     async banUser(id) {
       const users = await db
         .update(usersTable)
@@ -31,7 +44,10 @@ export function getUserRepo(db: NodePgDatabase): IUserRepo {
       const users = await db
         .select()
         .from(usersTable)
-        .where(eq(usersTable.subId, subId));
+        .where(and(
+          isNull(usersTable.deletedAt),
+          eq(usersTable.subId, subId)
+        ));
 
       return users.length > 0 ? UserSchema.parse(users[0]) : null;
     },
@@ -40,7 +56,10 @@ export function getUserRepo(db: NodePgDatabase): IUserRepo {
       const users = await db
         .select()
         .from(usersTable)
-        .where(eq(usersTable.id, id));
+        .where(and(
+          isNull(usersTable.deletedAt),
+          eq(usersTable.id, id)
+        ));
 
       return users.length > 0 ? UserSchema.parse(users[0]) : null;
     },
@@ -66,7 +85,7 @@ export function getUserRepo(db: NodePgDatabase): IUserRepo {
       const users = await db
         .select()
         .from(usersTable)
-        .where(searchCondition)
+        .where(and(isNull(usersTable.deletedAt), searchCondition))
         .orderBy(sortDirection(orderBy ? usersTable[orderBy] : usersTable.createdAt))
         .limit(pageSize)
         .offset(offset);
@@ -74,7 +93,7 @@ export function getUserRepo(db: NodePgDatabase): IUserRepo {
       const totalResult = await db
         .select({ total: count() })
         .from(usersTable)
-        .where(searchCondition);
+        .where(and(isNull(usersTable.deletedAt), searchCondition));
       
       const total = totalResult[0]?.total ?? 0;   
 

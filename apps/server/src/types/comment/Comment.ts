@@ -5,6 +5,7 @@ export const CommentSchema = z.object({
   userId: z.string().uuid(),
   postId: z.string().uuid(),
   text: z.string(),
+  deletedAt: z.date().nullable(),
   updatedAt: z.date(),
   createdAt: z.date()
 });

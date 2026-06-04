@@ -25,4 +25,6 @@ export interface IPostRepo {
     minCommentsCount?: number
   }): Promise<GetPostsResult>;
   getPostOwner(postId: string): Promise<string | null>;
+  softDeletePostsByUserId(userId: string, deletedAt: Date, tx?: NodePgDatabase): Promise<void>
+  softDeletePost(postId: string, deletedAt: Date, tx?: NodePgDatabase): Promise<Post | null>
 }

@@ -2,14 +2,16 @@ import type { FastifyRequest, preHandlerAsyncHookHandler } from 'fastify';
 import { HttpError } from 'src/api/errors/HttpError';
 import { UserRole } from 'src/types/user/UserRole';
 
-const actions = [
+const _actions = [
   'create:posts',
   'update:posts',
   'create:comments',
-  'update:comments'
+  'update:comments',
+  'delete:posts',
+  'delete:comments'
 ] as const;
 
-type Action = (typeof actions)[number];
+type Action = (typeof _actions)[number];
 
 interface Permission {
   action: Action;
@@ -21,9 +23,18 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     { action: 'create:posts' },
     { action: 'update:posts', requireOwnership: true },
     { action: 'create:comments' },
-    { action: 'update:comments', requireOwnership: true }
+    { action: 'update:comments', requireOwnership: true },
+    { action: 'delete:posts', requireOwnership: true },
+    { action: 'delete:comments', requireOwnership: true }
   ],
-  admin: actions.map(e => ({ action: e }))
+  admin: [
+    { action: 'create:posts' },
+    { action: 'update:posts', requireOwnership: true },
+    { action: 'create:comments' },
+    { action: 'update:comments', requireOwnership: true },
+    { action: 'delete:posts' },
+    { action: 'delete:comments' }
+  ]
 };
 
 export function hasPermission(

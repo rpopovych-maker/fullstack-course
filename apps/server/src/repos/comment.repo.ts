@@ -1,23 +1,66 @@
-import { and, asc, desc, eq, gt, or, lt, getTableColumns } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, or, lt, getTableColumns, isNull, inArray } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { ICommentRepo } from 'src/types/comment/ICommentRepo';
 import { CommentSchema } from 'src/types/comment/Comment';
-import { commentsTable, usersTable } from 'src/services/drizzle/schema';
+import { commentsTable, postsTable, usersTable } from 'src/services/drizzle/schema';
 import { GetPostCommentsResultSchema } from 'src/types/comment/GetPostCommentsResult';
 
 export function getCommentRepo(db: NodePgDatabase): ICommentRepo {
   return {
+    async softDeleteCommentsByPostOwnerId(userId, deletedAt, tx) {
+      return (tx ?? db)
+        .update(commentsTable)
+        .set({ deletedAt })
+        .where(
+          and(
+            isNull(commentsTable.deletedAt),
+            inArray(
+              commentsTable.postId,
+              db
+                .select({ id: postsTable.id })
+                .from(postsTable)
+                .where(eq(postsTable.userId, userId))
+            )
+          )
+        );
+    },
+
+    async softDeleteCommentsByPostId(postId, deletedAt, tx) {
+      return (tx ?? db)
+        .update(commentsTable)
+        .set({ deletedAt })
+        .where(and(eq(commentsTable.postId, postId), isNull(commentsTable.deletedAt)));
+    },
+
+    async softDeleteComment({ commentId, postId, deletedAt }) {
+      const comments = await db
+        .update(commentsTable)
+        .set({ deletedAt })
+        .where(and(
+          eq(commentsTable.id, commentId),
+          eq(commentsTable.postId, postId),
+          isNull(commentsTable.deletedAt)
+        ))
+        .returning();
+      
+      return comments.length > 0 ? CommentSchema.parse(comments[0]) : null;
+    },
+
     async getCommentOwner(commentId) { 
       const comments = await db
         .select({ userId: commentsTable.userId })
         .from(commentsTable)
-        .where(eq(commentsTable.id, commentId));
+        .where(and(eq(commentsTable.id, commentId), isNull(commentsTable.deletedAt)));
 
       return comments.length > 0 ? comments[0].userId : null;
     },
     
     async createComment(data) {
-      const comments = await db.insert(commentsTable).values(data).returning();
+      const comments = await db
+        .insert(commentsTable)
+        .values(data)
+        .returning();
+      
       return CommentSchema.parse(comments[0]);
     },
 
@@ -27,7 +70,8 @@ export function getCommentRepo(db: NodePgDatabase): ICommentRepo {
         .set(data)
         .where(and(
           eq(commentsTable.id, commentId),
-          eq(commentsTable.postId, postId)
+          eq(commentsTable.postId, postId),
+          isNull(commentsTable.deletedAt)
         ))
         .returning();
 
@@ -48,6 +92,7 @@ export function getCommentRepo(db: NodePgDatabase): ICommentRepo {
         .where(
           and(
             eq(commentsTable.postId, postId),
+            isNull(commentsTable.deletedAt),
             cursor
               ? or(
                 lt(commentsTable.createdAt, cursor.createdAt),

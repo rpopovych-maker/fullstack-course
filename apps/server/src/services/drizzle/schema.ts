@@ -8,6 +8,7 @@ export const usersTable = pgTable('users', {
   email: text().notNull().unique(),
   username: varchar({ length: 255 }).notNull().unique(),
   bannedAt: timestamp(),
+  deletedAt: timestamp(),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().defaultNow().$onUpdate(() => new Date()).notNull()
 }, (t) => [
@@ -35,6 +36,7 @@ export const postsTable = pgTable('posts', {
   userId: uuid().notNull().references(() => usersTable.id, { onDelete: 'cascade' }),
   title: varchar({ length: 255 }).notNull(),
   description: text(),
+  deletedAt: timestamp(),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().defaultNow().$onUpdate(() => new Date()).notNull()
 }, (t) => [
@@ -47,6 +49,7 @@ export const commentsTable = pgTable('comments', {
   userId: uuid().notNull().references(() => usersTable.id, { onDelete: 'cascade' }),
   postId: uuid().notNull().references(() => postsTable.id, { onDelete: 'cascade' }),
   text: varchar({ length: 1000 }).notNull(),
+  deletedAt: timestamp(),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().defaultNow().$onUpdate(() => new Date()).notNull()
 }, (t) => [

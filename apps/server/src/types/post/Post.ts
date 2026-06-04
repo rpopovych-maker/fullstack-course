@@ -5,6 +5,7 @@ export const PostSchema = z.object({
   userId: z.string().uuid(),
   title: z.string(),
   description: z.string().optional().nullable(),
+  deletedAt: z.date().nullable(),
   updatedAt: z.date(),
   createdAt: z.date()
 });

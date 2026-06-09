@@ -2,43 +2,43 @@
   <div class="flex flex-col gap-6">
     <header class="space-y-1">
       <h1>Archive</h1>
-      <p class="t-muted">Restore users that were temporarily or permanently deleted.</p>
+      <p class="t-muted">Review and restore deleted users, posts, and comments.</p>
     </header>
 
     <el-tabs v-model="activeTab">
       <el-tab-pane label="Soft delete" name="soft">
         <div class="flex flex-col gap-4">
+          <el-segmented v-model="softEntity" :options="entityOptions" />
+
           <el-table
-            v-loading="isSoftDeletedUsersLoading"
-            :data="softDeletedUsersPage.data"
+            v-loading="isSoftLoading"
+            :data="softRows"
             stripe
             class="rounded-md"
-            empty-text="No soft-deleted users"
+            :empty-text="`No soft-deleted ${entityLabels[softEntity]}`"
           >
-            <el-table-column prop="username" label="User" min-width="220">
-              <template #default="{ row }: { row: TSoftDeletedUser }">
-                <div class="flex items-center gap-3">
-                  <AuthorAvatar :username="row.username" :size="32" />
-                  <span class="t-body wrap-break-word">{{ row.username }}</span>
+            <el-table-column label="Entity" min-width="260">
+              <template #default="{ row }: { row: IArchiveDisplayRow }">
+                <div class="space-y-1">
+                  <div class="t-body wrap-break-word">{{ row.title }}</div>
+                  <div class="t-caption wrap-break-word">{{ row.subtitle }}</div>
                 </div>
               </template>
             </el-table-column>
 
-            <el-table-column prop="email" label="Email" min-width="240" />
-
-            <el-table-column label="Deleted" width="160">
-              <template #default="{ row }: { row: TSoftDeletedUser }">
-                <span class="t-caption">{{ formatNullableDate(row.deletedAt) }}</span>
+            <el-table-column label="Deleted" width="170">
+              <template #default="{ row }: { row: IArchiveDisplayRow }">
+                <span class="t-caption">{{ formatNullableDate(row.date) }}</span>
               </template>
             </el-table-column>
 
             <el-table-column label="Actions" width="140" align="right">
-              <template #default="{ row }: { row: TSoftDeletedUser }">
+              <template #default="{ row }: { row: IArchiveDisplayRow }">
                 <el-button
                   size="small"
                   type="primary"
-                  :loading="pendingRestoreId === row.id"
-                  @click="restoreSoftDeletedUser(row)"
+                  :loading="pendingRestoreKey === row.key"
+                  @click="restoreSoftDeletedEntity(row)"
                 >
                   Restore
                 </el-button>
@@ -46,13 +46,13 @@
             </el-table-column>
           </el-table>
 
-          <div v-if="softDeletedUsersPage.totalPages > 1" class="flex justify-center">
+          <div v-if="softPage.totalPages > 1" class="flex justify-center">
             <el-pagination
               background
-              :current-page="softPagination.page"
+              :current-page="softPagination[softEntity]"
               layout="prev, pager, next, total"
-              :page-size="softPagination.pageSize"
-              :total="softDeletedUsersPage.total"
+              :page-size="pageSize"
+              :total="softPage.total"
               @current-change="setSoftPage"
             />
           </div>
@@ -61,56 +61,37 @@
 
       <el-tab-pane label="Hard delete" name="hard">
         <div class="flex flex-col gap-4">
+          <el-segmented v-model="hardEntity" :options="entityOptions" />
+
           <el-table
-            v-loading="isHardDeletedUsersLoading"
-            :data="hardDeletedUsersPage.data"
+            v-loading="isHardLoading"
+            :data="hardRows"
             stripe
             class="rounded-md"
-            empty-text="No hard-deleted users"
+            :empty-text="`No hard-deleted ${entityLabels[hardEntity]}`"
           >
-            <el-table-column label="User" min-width="220">
-              <template #default="{ row }: { row: THardDeletedUserArchive }">
-                <div class="flex items-center gap-3">
-                  <AuthorAvatar :username="getArchivedUser(row).username ?? 'Deleted user'" :size="32" />
-                  <div>
-                    <div class="t-body wrap-break-word">
-                      {{ getArchivedUser(row).username ?? 'Deleted user' }}
-                    </div>
-                    <div class="t-caption">
-                      {{ row.originalEntityId }}
-                    </div>
-                  </div>
+            <el-table-column label="Entity" min-width="260">
+              <template #default="{ row }: { row: IArchiveDisplayRow }">
+                <div class="space-y-1">
+                  <div class="t-body wrap-break-word">{{ row.title }}</div>
+                  <div class="t-caption wrap-break-word">{{ row.subtitle }}</div>
                 </div>
               </template>
             </el-table-column>
 
-            <el-table-column label="Email" min-width="240">
-              <template #default="{ row }: { row: THardDeletedUserArchive }">
-                {{ getArchivedUser(row).email ?? 'Unknown' }}
-              </template>
-            </el-table-column>
-
-            <el-table-column label="Archived" width="160">
-              <template #default="{ row }: { row: THardDeletedUserArchive }">
-                <span class="t-caption">{{ formatDate(row.archivedAt) }}</span>
-              </template>
-            </el-table-column>
-
-            <el-table-column label="Snapshot" width="170">
-              <template #default="{ row }: { row: THardDeletedUserArchive }">
-                <span class="t-caption">
-                  {{ getArchiveSummary(row) }}
-                </span>
+            <el-table-column label="Archived" width="170">
+              <template #default="{ row }: { row: IArchiveDisplayRow }">
+                <span class="t-caption">{{ formatNullableDate(row.date) }}</span>
               </template>
             </el-table-column>
 
             <el-table-column label="Actions" width="140" align="right">
-              <template #default="{ row }: { row: THardDeletedUserArchive }">
+              <template #default="{ row }: { row: IArchiveDisplayRow }">
                 <el-button
                   size="small"
                   type="primary"
-                  :loading="pendingRestoreId === row.id"
-                  @click="restoreHardDeletedUser(row)"
+                  :loading="pendingRestoreKey === row.key"
+                  @click="restoreHardDeletedEntity(row)"
                 >
                   Restore
                 </el-button>
@@ -118,13 +99,13 @@
             </el-table-column>
           </el-table>
 
-          <div v-if="hardDeletedUsersPage.totalPages > 1" class="flex justify-center">
+          <div v-if="hardPage.totalPages > 1" class="flex justify-center">
             <el-pagination
               background
-              :current-page="hardPagination.page"
+              :current-page="hardPagination[hardEntity]"
               layout="prev, pager, next, total"
-              :page-size="hardPagination.pageSize"
-              :total="hardDeletedUsersPage.total"
+              :page-size="pageSize"
+              :total="hardPage.total"
               @current-change="setHardPage"
             />
           </div>
@@ -139,68 +120,187 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 
 type TArchiveTab = 'soft' | 'hard'
 
+const pageSize = 10
+const entityOptions = [
+  { label: 'Users', value: 'user' },
+  { label: 'Posts', value: 'post' },
+  { label: 'Comments', value: 'comment' }
+] satisfies { label: string; value: TArchiveEntity }[]
+const entityLabels: Record<TArchiveEntity, string> = {
+  user: 'users',
+  post: 'posts',
+  comment: 'comments'
+}
+
 const activeTab = ref<TArchiveTab>('soft')
-const pendingRestoreId = ref<string | null>(null)
+const softEntity = ref<TArchiveEntity>('user')
+const hardEntity = ref<TArchiveEntity>('user')
+const pendingRestoreKey = ref<string | null>(null)
+const softPagination = reactive<Record<TArchiveEntity, number>>({
+  user: 1,
+  post: 1,
+  comment: 1
+})
+const hardPagination = reactive<Record<TArchiveEntity, number>>({
+  user: 1,
+  post: 1,
+  comment: 1
+})
 
-const softPagination = reactive({
+const softUserParams = computed(() => ({ page: softPagination.user, pageSize }))
+const softPostParams = computed(() => ({ page: softPagination.post, pageSize }))
+const softCommentParams = computed(() => ({ page: softPagination.comment, pageSize }))
+const hardUserParams = computed(() => ({ page: hardPagination.user, pageSize }))
+const hardPostParams = computed(() => ({ page: hardPagination.post, pageSize }))
+const hardCommentParams = computed(() => ({ page: hardPagination.comment, pageSize }))
+
+const softUsersQuery = useSoftDeletedUsersQuery(softUserParams)
+const softPostsQuery = useSoftDeletedPostsQuery(softPostParams)
+const softCommentsQuery = useSoftDeletedCommentsQuery(softCommentParams)
+const hardUsersQuery = useHardDeletedArchivesQuery('user', hardUserParams)
+const hardPostsQuery = useHardDeletedArchivesQuery('post', hardPostParams)
+const hardCommentsQuery = useHardDeletedArchivesQuery('comment', hardCommentParams)
+const restoreSoftMutation = useRestoreSoftDeletedEntityMutation()
+const restoreHardMutation = useRestoreHardDeletedEntityMutation()
+
+const emptyPage = {
+  data: [],
   page: 1,
-  pageSize: 10
-})
+  pageSize,
+  total: 0,
+  totalPages: 0
+}
 
-const hardPagination = reactive({
-  page: 1,
-  pageSize: 10
-})
-
-const softQueryParams = computed<TSoftDeletedUserListQuery>(() => ({
-  page: softPagination.page,
-  pageSize: softPagination.pageSize,
-  order: 'desc',
-  orderBy: 'deletedAt'
-}))
-
-const hardQueryParams = computed<THardDeletedUserArchiveQuery>(() => ({
-  page: hardPagination.page,
-  pageSize: hardPagination.pageSize
-}))
-
-const { data: softDeletedUsers, isLoading: isSoftDeletedUsersLoading } =
-  useSoftDeletedUsersQuery(softQueryParams)
-const { data: hardDeletedUsers, isLoading: isHardDeletedUsersLoading } =
-  useHardDeletedUserArchivesQuery(hardQueryParams)
-
-const restoreSoftDeletedUserMutation = useRestoreSoftDeletedUserMutation()
-const restoreHardDeletedUserMutation = useRestoreHardDeletedUserMutation()
-
-const softDeletedUsersPage = computed<TSoftDeletedUserList>(() => {
-  return softDeletedUsers.value ?? {
-    data: [],
-    page: softPagination.page,
-    pageSize: softPagination.pageSize,
-    total: 0,
-    totalPages: 0
+const softPage = computed(() => {
+  if (softEntity.value === 'post') {
+    return softPostsQuery.data.value ?? emptyPage
   }
+  if (softEntity.value === 'comment') {
+    return softCommentsQuery.data.value ?? emptyPage
+  }
+  return softUsersQuery.data.value ?? emptyPage
 })
 
-const hardDeletedUsersPage = computed<THardDeletedUserArchiveList>(() => {
-  return hardDeletedUsers.value ?? {
-    data: [],
-    page: hardPagination.page,
-    pageSize: hardPagination.pageSize,
-    total: 0,
-    totalPages: 0
+const hardPage = computed<THardDeletedArchiveList>(() => {
+  if (hardEntity.value === 'post') {
+    return hardPostsQuery.data.value ?? emptyPage
   }
+  if (hardEntity.value === 'comment') {
+    return hardCommentsQuery.data.value ?? emptyPage
+  }
+  return hardUsersQuery.data.value ?? emptyPage
 })
+
+const isSoftLoading = computed(() => {
+  if (softEntity.value === 'post') {
+    return softPostsQuery.isLoading.value
+  }
+  if (softEntity.value === 'comment') {
+    return softCommentsQuery.isLoading.value
+  }
+  return softUsersQuery.isLoading.value
+})
+
+const isHardLoading = computed(() => {
+  if (hardEntity.value === 'post') {
+    return hardPostsQuery.isLoading.value
+  }
+  if (hardEntity.value === 'comment') {
+    return hardCommentsQuery.isLoading.value
+  }
+  return hardUsersQuery.isLoading.value
+})
+
+const softRows = computed<IArchiveDisplayRow[]>(() => {
+  if (softEntity.value === 'post') {
+    const page = softPostsQuery.data.value
+    return (page?.data ?? []).map(post => ({
+      key: post.id,
+      entityType: 'post',
+      title: post.title,
+      subtitle: `Post ID: ${post.id}`,
+      date: post.deletedAt,
+      entityId: post.id
+    }))
+  }
+
+  if (softEntity.value === 'comment') {
+    const page = softCommentsQuery.data.value
+    return (page?.data ?? []).map(comment => ({
+      key: comment.id,
+      entityType: 'comment',
+      title: comment.text,
+      subtitle: `Post ID: ${comment.postId}`,
+      date: comment.deletedAt,
+      entityId: comment.id,
+      postId: comment.postId
+    }))
+  }
+
+  const page = softUsersQuery.data.value
+  return (page?.data ?? []).map(user => ({
+    key: user.id,
+    entityType: 'user',
+    title: user.username,
+    subtitle: user.email,
+    date: user.deletedAt,
+    entityId: user.id
+  }))
+})
+
+const hardRows = computed<IArchiveDisplayRow[]>(() => {
+  return hardPage.value.data.map(archive => toHardArchiveRow(archive))
+})
+
+function toHardArchiveRow (archive: THardDeletedArchive): IArchiveDisplayRow {
+  if (archive.entityType === 'post') {
+    const data = archive.data as IArchivedPostData
+    return {
+      key: archive.id,
+      entityType: 'post',
+      title: data.post?.title ?? 'Archived post',
+      subtitle: `${data.comments?.length ?? 0} comments`,
+      date: archive.archivedAt,
+      archiveId: archive.id
+    }
+  }
+
+  if (archive.entityType === 'comment') {
+    const data = archive.data as IArchivedCommentData
+    return {
+      key: archive.id,
+      entityType: 'comment',
+      title: data.text ?? 'Archived comment',
+      subtitle: data.postId ? `Post ID: ${data.postId}` : archive.originalEntityId,
+      date: archive.archivedAt,
+      archiveId: archive.id
+    }
+  }
+
+  const data = archive.data as IArchivedUserData
+  return {
+    key: archive.id,
+    entityType: 'user',
+    title: data.username ?? 'Archived user',
+    subtitle: data.email ?? archive.originalEntityId,
+    date: archive.archivedAt,
+    archiveId: archive.id
+  }
+}
 
 function setSoftPage (page: number) {
-  softPagination.page = page
+  softPagination[softEntity.value] = page
 }
 
 function setHardPage (page: number) {
-  hardPagination.page = page
+  hardPagination[hardEntity.value] = page
 }
 
-function formatDate (iso: string) {
+function formatNullableDate (iso: string | null) {
+  if (!iso) {
+    return 'Unknown'
+  }
+
   return new Date(iso).toLocaleDateString(undefined, {
     year: 'numeric',
     month: 'short',
@@ -208,76 +308,52 @@ function formatDate (iso: string) {
   })
 }
 
-function formatNullableDate (iso: string | null) {
-  return iso ? formatDate(iso) : 'Unknown'
-}
-
-function getArchivedUser (archive: THardDeletedUserArchive): IArchivedUserData {
-  return archive.data as IArchivedUserData
-}
-
-function getArchiveSummary (archive: THardDeletedUserArchive) {
-  const data = getArchivedUser(archive)
-  const postsCount = data.posts?.length ?? 0
-  const commentsCount = data.commentsOnOtherUsersPosts?.length ?? 0
-
-  return `${postsCount} posts, ${commentsCount} other comments`
-}
-
-async function restoreSoftDeletedUser (user: TSoftDeletedUser) {
+async function confirmRestore (row: IArchiveDisplayRow, mode: TArchiveTab) {
   try {
     await ElMessageBox.confirm(
-      `Restore ${user.username}?`,
-      'Restore user',
+      `Restore "${row.title}"?`,
+      mode === 'hard' ? 'Restore archived entity' : 'Restore entity',
       {
         confirmButtonText: 'Restore',
         cancelButtonText: 'Cancel',
         type: 'info'
       }
     )
+    return true
   } catch {
-    return
-  }
-
-  pendingRestoreId.value = user.id
-
-  try {
-    await restoreSoftDeletedUserMutation.mutateAsync(user.id)
-    ElMessage.success(`${user.username} has been restored`)
-  } catch {
-    ElMessage.error('Failed to restore user')
-  } finally {
-    pendingRestoreId.value = null
+    return false
   }
 }
 
-async function restoreHardDeletedUser (archive: THardDeletedUserArchive) {
-  const user = getArchivedUser(archive)
-  const label = user.username ?? 'this user'
-
-  try {
-    await ElMessageBox.confirm(
-      `Restore ${label} from archive?`,
-      'Restore archived user',
-      {
-        confirmButtonText: 'Restore',
-        cancelButtonText: 'Cancel',
-        type: 'info'
-      }
-    )
-  } catch {
+async function restoreSoftDeletedEntity (row: IArchiveDisplayRow) {
+  if (!await confirmRestore(row, 'soft')) {
     return
   }
 
-  pendingRestoreId.value = archive.id
-
+  pendingRestoreKey.value = row.key
   try {
-    await restoreHardDeletedUserMutation.mutateAsync(archive.id)
-    ElMessage.success(`${label} has been restored`)
+    await restoreSoftMutation.mutateAsync(row)
+    ElMessage.success('Entity restored')
   } catch {
-    ElMessage.error('Failed to restore archived user')
+    ElMessage.error('Failed to restore entity')
   } finally {
-    pendingRestoreId.value = null
+    pendingRestoreKey.value = null
+  }
+}
+
+async function restoreHardDeletedEntity (row: IArchiveDisplayRow) {
+  if (!await confirmRestore(row, 'hard')) {
+    return
+  }
+
+  pendingRestoreKey.value = row.key
+  try {
+    await restoreHardMutation.mutateAsync(row)
+    ElMessage.success('Archived entity restored')
+  } catch {
+    ElMessage.error('Failed to restore archived entity')
+  } finally {
+    pendingRestoreKey.value = null
   }
 }
 </script>

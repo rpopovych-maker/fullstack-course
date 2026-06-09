@@ -6,6 +6,7 @@ import { SortOrder } from 'src/types/SortOrder';
 export interface IUserRepo {
   getUserBySubId(subId: string): Promise<User | null>;
   getUserById(id: string, returnDeleted?: boolean): Promise<User | null>;
+  getExistingUserIds(ids: string[]): Promise<string[]>;
   createUser(
     data: Pick<User, 'subId' | 'email' | 'username' | 'role'> &
       Partial<Pick<User, 'id' | 'deletedAt' | 'bannedAt' | 'createdAt' | 'updatedAt'>>,

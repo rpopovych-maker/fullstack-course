@@ -216,12 +216,14 @@ export const useUpdateCommentMutation = () => {
   })
 }
 
-export const useDeleteCommentMutation = () => {
+const useDeleteCommentMutation = (
+  mutation: (postId: string, commentId: string) => Promise<unknown>
+) => {
   const cache = useQueryCache()
 
   return useMutation({
     mutation: ({ postId, commentId }: { postId: string; commentId: string }) => {
-      return commentsService.deleteComment(postId, commentId)
+      return mutation(postId, commentId)
     },
     onMutate: ({ postId, commentId }) => {
       const commentsKey = commentsQueryKeys.post(postId)
@@ -267,4 +269,14 @@ export const useDeleteCommentMutation = () => {
       cache.invalidateQueries({ key: postsQueryKeys.lists() })
     }
   })
+}
+
+export const useSoftDeleteCommentMutation = () => {
+  return useDeleteCommentMutation((postId, commentId) => commentsService.softDeleteComment(postId, commentId)
+  )
+}
+
+export const useHardDeleteCommentMutation = () => {
+  return useDeleteCommentMutation((postId, commentId) => commentsService.hardDeleteComment(postId, commentId)
+  )
 }

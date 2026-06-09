@@ -22,8 +22,14 @@ class CommentsService {
     )
   }
 
-  deleteComment (postId: string, commentId: string) {
+  softDeleteComment (postId: string, commentId: string) {
     return apiClient.delete('/api/posts/{postId}/comments/{commentId}/', {
+      dynamicKeys: { postId, commentId }
+    })
+  }
+
+  hardDeleteComment (postId: string, commentId: string) {
+    return apiClient.delete('/api/posts/{postId}/comments/{commentId}/permanent/', {
       dynamicKeys: { postId, commentId }
     })
   }

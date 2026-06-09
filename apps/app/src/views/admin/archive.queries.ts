@@ -2,66 +2,86 @@ import { useMutation, useQuery, useQueryCache } from '@pinia/colada'
 
 export const archiveQueryKeys = {
   all: ['admin-archive'] as const,
-  softDeletedUsers: () => [...archiveQueryKeys.all, 'soft-deleted-users'] as const,
-  softDeletedUsersList: (params: TSoftDeletedUserListQuery) => [
-    ...archiveQueryKeys.softDeletedUsers(),
+  soft: (entityType: TArchiveEntity) => [...archiveQueryKeys.all, 'soft', entityType] as const,
+  softList: (entityType: TArchiveEntity, params: IArchiveListQuery) => [
+    ...archiveQueryKeys.soft(entityType),
     params
   ] as const,
-  hardDeletedUsers: () => [...archiveQueryKeys.all, 'hard-deleted-users'] as const,
-  hardDeletedUsersList: (params: THardDeletedUserArchiveQuery) => [
-    ...archiveQueryKeys.hardDeletedUsers(),
+  hard: (entityType: TArchiveEntity) => [...archiveQueryKeys.all, 'hard', entityType] as const,
+  hardList: (entityType: TArchiveEntity, params: IArchiveListQuery) => [
+    ...archiveQueryKeys.hard(entityType),
     params
   ] as const
 }
 
-export const useSoftDeletedUsersQuery = (
-  params: MaybeRefOrGetter<TSoftDeletedUserListQuery>
-) => useQuery({
-  key: () => archiveQueryKeys.softDeletedUsersList(toValue(params)),
-  query: () => archiveService.getSoftDeletedUsers(toValue(params)),
-  placeholderData: () => ({
-    data: [],
-    page: toValue(params).page ?? 1,
-    pageSize: toValue(params).pageSize ?? 10,
-    total: 0,
-    totalPages: 0
-  }) satisfies TSoftDeletedUserList
+export const useSoftDeletedUsersQuery = (params: MaybeRefOrGetter<IArchiveListQuery>) => useQuery({
+  key: () => archiveQueryKeys.softList('user', toValue(params)),
+  query: () => archiveService.getSoftDeletedUsers(toValue(params))
 })
 
-export const useHardDeletedUserArchivesQuery = (
-  params: MaybeRefOrGetter<THardDeletedUserArchiveQuery>
-) => useQuery({
-  key: () => archiveQueryKeys.hardDeletedUsersList(toValue(params)),
-  query: () => archiveService.getHardDeletedUserArchives(toValue(params)),
-  placeholderData: () => ({
-    data: [],
-    page: toValue(params).page ?? 1,
-    pageSize: toValue(params).pageSize ?? 10,
-    total: 0,
-    totalPages: 0
-  }) satisfies THardDeletedUserArchiveList
+export const useSoftDeletedPostsQuery = (params: MaybeRefOrGetter<IArchiveListQuery>) => useQuery({
+  key: () => archiveQueryKeys.softList('post', toValue(params)),
+  query: () => archiveService.getSoftDeletedPosts(toValue(params))
 })
 
-export const useRestoreSoftDeletedUserMutation = () => {
+export const useSoftDeletedCommentsQuery = (params: MaybeRefOrGetter<IArchiveListQuery>) => useQuery({
+  key: () => archiveQueryKeys.softList('comment', toValue(params)),
+  query: () => archiveService.getSoftDeletedComments(toValue(params))
+})
+
+export const useHardDeletedArchivesQuery = (
+  entityType: TArchiveEntity,
+  params: MaybeRefOrGetter<IArchiveListQuery>
+) => useQuery({
+  key: () => archiveQueryKeys.hardList(entityType, toValue(params)),
+  query: () => archiveService.getHardDeletedArchives(entityType, toValue(params))
+})
+
+const invalidateRestoredEntities = (cache: ReturnType<typeof useQueryCache>) => {
+  cache.invalidateQueries({ key: usersQueryKeys.lists() })
+  cache.invalidateQueries({ key: postsQueryKeys.all })
+  cache.invalidateQueries({ key: commentsQueryKeys.all })
+}
+
+export const useRestoreSoftDeletedEntityMutation = () => {
   const cache = useQueryCache()
 
   return useMutation({
-    mutation: (userId: string) => archiveService.restoreSoftDeletedUser(userId),
-    onSettled: () => {
-      cache.invalidateQueries({ key: archiveQueryKeys.softDeletedUsers() })
-      cache.invalidateQueries({ key: usersQueryKeys.lists() })
+    mutation: async (row: IArchiveDisplayRow) => {
+      if (row.entityType === 'user' && row.entityId) {
+        await archiveService.restoreSoftDeletedUser(row.entityId)
+        return
+      }
+      if (row.entityType === 'post' && row.entityId) {
+        await archiveService.restoreSoftDeletedPost(row.entityId)
+        return
+      }
+      if (row.entityType === 'comment' && row.entityId && row.postId) {
+        await archiveService.restoreSoftDeletedComment(row.postId, row.entityId)
+        return
+      }
+      throw new Error('Invalid soft-delete archive row')
+    },
+    onSettled: (_data, _error, row) => {
+      cache.invalidateQueries({ key: archiveQueryKeys.soft(row.entityType) })
+      invalidateRestoredEntities(cache)
     }
   })
 }
 
-export const useRestoreHardDeletedUserMutation = () => {
+export const useRestoreHardDeletedEntityMutation = () => {
   const cache = useQueryCache()
 
   return useMutation({
-    mutation: (archiveId: string) => archiveService.restoreHardDeletedUser(archiveId),
-    onSettled: () => {
-      cache.invalidateQueries({ key: archiveQueryKeys.hardDeletedUsers() })
-      cache.invalidateQueries({ key: usersQueryKeys.lists() })
+    mutation: async (row: IArchiveDisplayRow) => {
+      if (!row.archiveId) {
+        throw new Error('Archive ID is required')
+      }
+      await archiveService.restoreHardDeletedArchive(row.entityType, row.archiveId)
+    },
+    onSettled: (_data, _error, row) => {
+      cache.invalidateQueries({ key: archiveQueryKeys.hard(row.entityType) })
+      invalidateRestoredEntities(cache)
     }
   })
 }

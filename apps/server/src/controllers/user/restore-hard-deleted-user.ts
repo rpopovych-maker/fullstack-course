@@ -1,6 +1,6 @@
 import { HttpError } from 'src/api/errors/HttpError';
 import { IArchiveRepo } from 'src/types/archive/IArchiveRepo';
-import { CommentSchema } from 'src/types/comment/Comment';
+import { Comment, CommentSchema } from 'src/types/comment/Comment';
 import { ICommentRepo } from 'src/types/comment/ICommentRepo';
 import { IPostToTagRepo } from 'src/types/IPostTagsRepo';
 import { ITransactionManager } from 'src/types/ITransaction';
@@ -38,16 +38,19 @@ export async function restoreHardDeletedUser(params: {
   const posts = PostWithCommentsAndTagsSchema.array().parse(archivedPosts);
   const commentsOnOtherUsersPosts = CommentSchema.array().parse(archivedComments);
 
-  for (const comment of commentsOnOtherUsersPosts) {
-    const post = await params.postRepo.getPostById(comment.postId);
-
-    if (!post) {
-      throw new HttpError(409, 'Cannot restore user while a commented post is deleted');
-    }
-  }
+  const commentedPostIds = [
+    ...new Set(commentsOnOtherUsersPosts.map(comment => comment.postId))
+  ];
+  const existingPostIds = new Set(
+    await params.postRepo.getExistingPostIds(commentedPostIds)
+  );
+  const restorableCommentsOnOtherUsersPosts = commentsOnOtherUsersPosts.filter(comment =>
+    existingPostIds.has(comment.postId)
+  );
 
   return params.transactionManager.execute(async ({ tx }) => {
     const restoredUser = await params.userRepo.createUser(user, tx);
+    const commentsOnRestoredPosts: Comment[] = [];
 
     for (const post of posts) {
       const { comments, tags, ...postData } = post;
@@ -59,14 +62,13 @@ export async function restoreHardDeletedUser(params: {
         tx
       );
 
-      for (const comment of comments) {
-        await params.commentRepo.createComment(comment, tx);
-      }
+      commentsOnRestoredPosts.push(...comments);
     }
 
-    for (const comment of commentsOnOtherUsersPosts) {
-      await params.commentRepo.createComment(comment, tx);
-    }
+    await params.commentRepo.createComments([
+      ...commentsOnRestoredPosts,
+      ...restorableCommentsOnOtherUsersPosts
+    ], tx);
 
     await params.archiveRepo.deleteArchiveById(params.archiveId, tx);
 

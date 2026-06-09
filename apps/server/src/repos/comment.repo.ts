@@ -1,12 +1,36 @@
-import { and, asc, desc, eq, gt, or, lt, getTableColumns, isNull, inArray, isNotNull } from 'drizzle-orm';
+import { and, asc, count, desc, eq, gt, or, lt, getTableColumns, isNull, inArray, isNotNull } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { ICommentRepo } from 'src/types/comment/ICommentRepo';
 import { CommentSchema } from 'src/types/comment/Comment';
 import { commentsTable, postsTable, usersTable } from 'src/services/drizzle/schema';
 import { GetPostCommentsResultSchema } from 'src/types/comment/GetPostCommentsResult';
+import { GetSoftDeletedCommentsResultSchema } from 'src/types/comment/GetSoftDeletedCommentsResult';
 
 export function getCommentRepo(db: NodePgDatabase): ICommentRepo {
   return {
+    async getSoftDeletedComments({ page, pageSize }) {
+      const offset = (page - 1) * pageSize;
+      const comments = await db
+        .select()
+        .from(commentsTable)
+        .where(isNotNull(commentsTable.deletedAt))
+        .orderBy(desc(commentsTable.deletedAt))
+        .limit(pageSize)
+        .offset(offset);
+      const [{ total = 0 } = {}] = await db
+        .select({ total: count() })
+        .from(commentsTable)
+        .where(isNotNull(commentsTable.deletedAt));
+
+      return GetSoftDeletedCommentsResultSchema.parse({
+        data: comments,
+        page,
+        pageSize,
+        total,
+        totalPages: Math.ceil(total / pageSize)
+      });
+    },
+
     async getCommentsByUserId(userId, returnDeleted) {
       const comments = await db
         .select(getTableColumns(commentsTable))
@@ -164,6 +188,19 @@ export function getCommentRepo(db: NodePgDatabase): ICommentRepo {
         .returning();
       
       return CommentSchema.parse(comments[0]);
+    },
+
+    async createComments(data, tx) {
+      if (!data.length) {
+        return [];
+      }
+
+      const comments = await (tx ?? db)
+        .insert(commentsTable)
+        .values(data)
+        .returning();
+
+      return CommentSchema.array().parse(comments);
     },
 
     async updateCommentById({ commentId, postId, data }) {

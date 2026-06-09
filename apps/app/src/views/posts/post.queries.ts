@@ -87,11 +87,13 @@ export const useUpdatePostMutation = () => {
   })
 }
 
-export const useDeletePostMutation = () => {
+const useDeletePostMutation = (
+  mutation: (postId: string) => Promise<TResponse<'/api/posts/{postId}/', 'delete'>>
+) => {
   const cache = useQueryCache()
 
   return useMutation({
-    mutation: (postId: string) => postsService.deletePost(postId),
+    mutation,
     onSuccess: (deletedPost) => {
       cache.setQueriesData<TPostList>({ key: postsQueryKeys.lists() }, (previous) => {
         if (!previous) {
@@ -110,4 +112,12 @@ export const useDeletePostMutation = () => {
       cache.invalidateQueries({ key: postsQueryKeys.detail(postId), exact: true })
     }
   })
+}
+
+export const useSoftDeletePostMutation = () => {
+  return useDeletePostMutation(postId => postsService.softDeletePost(postId))
+}
+
+export const useHardDeletePostMutation = () => {
+  return useDeletePostMutation(postId => postsService.hardDeletePost(postId))
 }

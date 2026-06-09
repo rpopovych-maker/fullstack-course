@@ -5,10 +5,8 @@ import { IPostToTagRepo } from 'src/types/IPostTagsRepo';
 import { ITransactionManager } from 'src/types/ITransaction';
 import { IPostRepo } from 'src/types/post/IPostRepo';
 import { CommentSchema } from 'src/types/comment/Comment';
-import { PostSchema } from 'src/types/post/Post';
-import { TagSchema } from 'src/types/tag/Tag';
+import { PostWithTagsSchema } from 'src/types/post/PostWithTags';
 import { IUserRepo } from 'src/types/user/IUserRepo';
-import { z } from 'zod';
 
 export async function restoreHardDeletedPost(params: {
   archiveId: string
@@ -29,10 +27,7 @@ export async function restoreHardDeletedPost(params: {
     throw new HttpError(400, 'Archive entry is not a post');
   }
 
-  const archivedPostData = z.record(z.string(), z.unknown()).parse(archivedPost.data.post);
-  const { tags: archivedTags, ...postData } = archivedPostData;
-  const post = PostSchema.parse(postData);
-  const tags = TagSchema.array().parse(archivedTags);
+  const { tags, ...post } = PostWithTagsSchema.parse(archivedPost.data.post);
   const comments = CommentSchema.array().parse(archivedPost.data.comments);
 
   const postOwner = await params.userRepo.getUserById(post.userId);
@@ -42,14 +37,12 @@ export async function restoreHardDeletedPost(params: {
   }
 
   const commentOwnerIds = [...new Set(comments.map(comment => comment.userId))];
-
-  for (const commentOwnerId of commentOwnerIds) {
-    const commentOwner = await params.userRepo.getUserById(commentOwnerId);
-
-    if (!commentOwner) {
-      throw new HttpError(409, 'Cannot restore post while a comment owner is deleted');
-    }
-  }
+  const existingCommentOwnerIds = new Set(
+    await params.userRepo.getExistingUserIds(commentOwnerIds)
+  );
+  const restorableComments = comments.filter(comment =>
+    existingCommentOwnerIds.has(comment.userId)
+  );
 
   return params.transactionManager.execute(async ({ tx }) => {
     const restoredPost = await params.postRepo.createPost(post, tx);
@@ -60,9 +53,7 @@ export async function restoreHardDeletedPost(params: {
       tx
     );
 
-    for (const comment of comments) {
-      await params.commentRepo.createComment(comment, tx);
-    }
+    await params.commentRepo.createComments(restorableComments, tx);
 
     await params.archiveRepo.deleteArchiveById(params.archiveId, tx);
 

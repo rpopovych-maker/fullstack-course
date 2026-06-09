@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, ilike, isNotNull, isNull, or } from 'drizzle-orm';
+import { and, asc, count, desc, eq, ilike, inArray, isNotNull, isNull, or } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { usersTable } from 'src/services/drizzle/schema';
 import { GetUsersResultSchema } from 'src/types/user/GetUsersResult';
@@ -81,6 +81,22 @@ export function getUserRepo(db: NodePgDatabase): IUserRepo {
         ));
 
       return users.length > 0 ? UserSchema.parse(users[0]) : null;
+    },
+
+    async getExistingUserIds(ids) {
+      if (!ids.length) {
+        return [];
+      }
+
+      const users = await db
+        .select({ id: usersTable.id })
+        .from(usersTable)
+        .where(and(
+          inArray(usersTable.id, ids),
+          isNull(usersTable.deletedAt)
+        ));
+
+      return users.map(user => user.id);
     },
 
     async createUser(data, tx) {

@@ -31,5 +31,7 @@ export async function hardDeleteComment(params: {
       commentId: params.commentId,
       postId: params.postId
     }, tx);
+
+    return comment;
   });
 }

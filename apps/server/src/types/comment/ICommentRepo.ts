@@ -2,6 +2,11 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Comment } from './Comment';
 import { CommentCursor } from './CommentCursor';
 import { GetPostCommentsResult } from './GetPostCommentsResult';
+import { GetSoftDeletedCommentsResult } from './GetSoftDeletedCommentsResult';
+
+type CreateCommentData =
+  Pick<Comment, 'userId' | 'postId' | 'text'> &
+  Partial<Pick<Comment, 'id' | 'deletedAt' | 'createdAt' | 'updatedAt'>>;
 
 export interface ICommentRepo {
   getCommentById(params: {
@@ -10,10 +15,13 @@ export interface ICommentRepo {
     returnDeleted?: boolean
   }): Promise<Comment | null>;
   createComment(
-    data: Pick<Comment, 'userId' | 'postId' | 'text'> &
-      Partial<Pick<Comment, 'id' | 'deletedAt' | 'createdAt' | 'updatedAt'>>,
+    data: CreateCommentData,
     tx?: NodePgDatabase
   ): Promise<Comment>;
+  createComments(
+    data: CreateCommentData[],
+    tx?: NodePgDatabase
+  ): Promise<Comment[]>;
   updateCommentById(params: {
     commentId: string;
     postId: string;
@@ -32,6 +40,10 @@ export interface ICommentRepo {
     userId: string,
     returnDeleted?: boolean
   ): Promise<Comment[]>;
+  getSoftDeletedComments(params: {
+    page: number
+    pageSize: number
+  }): Promise<GetSoftDeletedCommentsResult>;
   getCommentOwner(commentId: string): Promise<string | null>;
   softDeleteCommentsByPostOwnerId(
     userId: string,

@@ -19,18 +19,38 @@
               </span>
             </el-button>
             <el-button
-              v-if="canDeleteComment"
+              v-if="canDeleteComment && !isAdmin"
               text
               size="small"
               type="danger"
-              :loading="deleteMutation.isLoading.value"
-              @click="deleteComment"
+              :loading="softDeleteMutation.isLoading.value"
+              @click="deleteComment('soft')"
             >
               <span class="inline-flex items-center gap-1">
                 <Icon name="trash" />
                 Delete
               </span>
             </el-button>
+            <template v-if="canDeleteComment && isAdmin">
+              <el-button
+                text
+                size="small"
+                type="warning"
+                :loading="softDeleteMutation.isLoading.value"
+                @click="deleteComment('soft')"
+              >
+                Soft delete
+              </el-button>
+              <el-button
+                text
+                size="small"
+                type="danger"
+                :loading="hardDeleteMutation.isLoading.value"
+                @click="deleteComment('hard')"
+              >
+                Hard delete
+              </el-button>
+            </template>
           </div>
         </div>
 
@@ -75,11 +95,13 @@ const authStore = useAuthStore()
 const isEditing = ref(false)
 const draft = ref(props.comment.text)
 const updateMutation = useUpdateCommentMutation()
-const deleteMutation = useDeleteCommentMutation()
+const softDeleteMutation = useSoftDeleteCommentMutation()
+const hardDeleteMutation = useHardDeleteCommentMutation()
 
 const createdAgo = useTimeAgo(() => props.comment.createdAt)
 const canEditComment = computed(() => authStore.hasPermission('update:comments', props.comment))
 const canDeleteComment = computed(() => authStore.hasPermission('delete:comments', props.comment))
+const isAdmin = computed(() => authStore.user?.role === 'admin')
 
 function startEdit () {
   if (!canEditComment.value) {
@@ -116,17 +138,19 @@ function save () {
   })
 }
 
-async function deleteComment () {
+async function deleteComment (mode: 'soft' | 'hard') {
   if (!canDeleteComment.value) {
     return
   }
 
   try {
     await ElMessageBox.confirm(
-      'Delete this comment?',
-      'Delete comment',
+      mode === 'hard'
+        ? 'Hard delete this comment? It will be moved to the archive.'
+        : 'Delete this comment?',
+      mode === 'hard' ? 'Hard delete comment' : 'Delete comment',
       {
-        confirmButtonText: 'Delete',
+        confirmButtonText: mode === 'hard' ? 'Hard delete' : 'Delete',
         cancelButtonText: 'Cancel',
         type: 'warning',
         confirmButtonClass: 'el-button--danger'
@@ -137,11 +161,12 @@ async function deleteComment () {
   }
 
   try {
-    await deleteMutation.mutateAsync({
+    const mutation = mode === 'hard' ? hardDeleteMutation : softDeleteMutation
+    await mutation.mutateAsync({
       postId: props.postId,
       commentId: props.comment.id
     })
-    ElMessage.success('Comment deleted')
+    ElMessage.success(mode === 'hard' ? 'Comment hard deleted' : 'Comment deleted')
   } catch {
     ElMessage.error('Failed to delete comment')
   }

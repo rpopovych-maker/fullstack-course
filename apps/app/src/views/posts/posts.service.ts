@@ -24,8 +24,14 @@ class PostsService {
     return apiClient.patch('/api/posts/{postId}/', body, { dynamicKeys: { postId } })
   }
 
-  deletePost (postId: string) {
+  softDeletePost (postId: string) {
     return apiClient.delete('/api/posts/{postId}/', {
+      dynamicKeys: { postId }
+    })
+  }
+
+  hardDeletePost (postId: string) {
+    return apiClient.delete('/api/posts/{postId}/permanent/', {
       dynamicKeys: { postId }
     })
   }

@@ -47,17 +47,35 @@
               </span>
             </el-button>
             <el-button
-              v-if="canDeletePost"
+              v-if="canDeletePost && !isAdmin"
               text
               type="danger"
-              :loading="deletePostMutation.isLoading.value"
-              @click="deletePost"
+              :loading="softDeletePostMutation.isLoading.value"
+              @click="deletePost('soft')"
             >
               <span class="inline-flex items-center gap-1">
                 <Icon name="trash" />
                 Delete
               </span>
             </el-button>
+            <template v-if="canDeletePost && isAdmin">
+              <el-button
+                text
+                type="warning"
+                :loading="softDeletePostMutation.isLoading.value"
+                @click="deletePost('soft')"
+              >
+                Soft delete
+              </el-button>
+              <el-button
+                text
+                type="danger"
+                :loading="hardDeletePostMutation.isLoading.value"
+                @click="deletePost('hard')"
+              >
+                Hard delete
+              </el-button>
+            </template>
           </div>
         </div>
 
@@ -150,7 +168,8 @@ const {
   loadNextPage: loadNextCommentsPage
 } = usePostCommentsQuery(postId)
 const { openModal } = useModals()
-const deletePostMutation = useDeletePostMutation()
+const softDeletePostMutation = useSoftDeletePostMutation()
+const hardDeletePostMutation = useHardDeletePostMutation()
 const commentsLoadMoreTarget = ref<HTMLElement | null>(null)
 const areMoreCommentsLoading = ref(false)
 
@@ -166,6 +185,7 @@ const canEditPost = computed(() => post.value ? authStore.hasPermission('update:
 const canDeletePost = computed(() => {
   return post.value ? authStore.hasPermission('delete:posts', post.value) : false
 })
+const isAdmin = computed(() => authStore.user?.role === 'admin')
 
 useIntersectionObserver(
   commentsLoadMoreTarget,
@@ -204,17 +224,19 @@ function openEditModal () {
   })
 }
 
-async function deletePost () {
+async function deletePost (mode: 'soft' | 'hard') {
   if (!post.value || !canDeletePost.value) {
     return
   }
 
   try {
     await ElMessageBox.confirm(
-      `Delete "${post.value.title}"?`,
-      'Delete post',
+      mode === 'hard'
+        ? `Hard delete "${post.value.title}"? It will be moved to the archive.`
+        : `Delete "${post.value.title}"?`,
+      mode === 'hard' ? 'Hard delete post' : 'Delete post',
       {
-        confirmButtonText: 'Delete',
+        confirmButtonText: mode === 'hard' ? 'Hard delete' : 'Delete',
         cancelButtonText: 'Cancel',
         type: 'warning',
         confirmButtonClass: 'el-button--danger'
@@ -225,8 +247,9 @@ async function deletePost () {
   }
 
   try {
-    await deletePostMutation.mutateAsync(post.value.id)
-    ElMessage.success('Post deleted')
+    const mutation = mode === 'hard' ? hardDeletePostMutation : softDeletePostMutation
+    await mutation.mutateAsync(post.value.id)
+    ElMessage.success(mode === 'hard' ? 'Post hard deleted' : 'Post deleted')
     await router.push({ name: routeNames.posts })
   } catch {
     ElMessage.error('Failed to delete post')

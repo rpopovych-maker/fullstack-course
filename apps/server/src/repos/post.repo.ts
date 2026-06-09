@@ -9,9 +9,49 @@ import { PostSchema } from 'src/types/post/Post';
 import { jsonAggBuildObject } from 'src/utils/json-agg-build-object';
 import { PostWithCommentsAndTagsSchema } from 'src/types/post/PostWithCommentsAndTags';
 import { PostWithTagsSchema } from 'src/types/post/PostWithTags';
+import { GetSoftDeletedPostsResultSchema } from 'src/types/post/GetSoftDeletedPostsResult';
 
 export function getPostRepo(db: NodePgDatabase): IPostRepo {
   return {
+    async getSoftDeletedPosts({ page, pageSize }) {
+      const offset = (page - 1) * pageSize;
+      const posts = await db
+        .select()
+        .from(postsTable)
+        .where(isNotNull(postsTable.deletedAt))
+        .orderBy(desc(postsTable.deletedAt))
+        .limit(pageSize)
+        .offset(offset);
+      const [{ total = 0 } = {}] = await db
+        .select({ total: count() })
+        .from(postsTable)
+        .where(isNotNull(postsTable.deletedAt));
+
+      return GetSoftDeletedPostsResultSchema.parse({
+        data: posts,
+        page,
+        pageSize,
+        total,
+        totalPages: Math.ceil(total / pageSize)
+      });
+    },
+
+    async getExistingPostIds(ids) {
+      if (!ids.length) {
+        return [];
+      }
+
+      const posts = await db
+        .select({ id: postsTable.id })
+        .from(postsTable)
+        .where(and(
+          inArray(postsTable.id, ids),
+          isNull(postsTable.deletedAt)
+        ));
+
+      return posts.map(post => post.id);
+    },
+
     async getPostWithTagsById(id, returnDeleted) {
       const [post] = await db
         .select({

@@ -6,6 +6,7 @@ import { PostWithAuthor } from './PostWithAuthor';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { PostWithCommentsAndTags } from './PostWithCommentsAndTags';
 import { PostWithTags } from './PostWithTags';
+import { GetSoftDeletedPostsResult } from './GetSoftDeletedPostsResult';
 export interface IPostRepo {
   createPost(
     data: Pick<Post, 'userId' | 'title' | 'description'> &
@@ -21,6 +22,7 @@ export interface IPostRepo {
     id: string,
     returnDeleted?: boolean
   ): Promise<PostWithAuthor | null>;
+  getExistingPostIds(ids: string[]): Promise<string[]>;
   getPostWithTagsById(
     id: string,
     returnDeleted?: boolean
@@ -39,6 +41,10 @@ export interface IPostRepo {
     userId: string,
     returnDeleted?: boolean
   ): Promise<PostWithCommentsAndTags[]>;
+  getSoftDeletedPosts(params: {
+    page: number
+    pageSize: number
+  }): Promise<GetSoftDeletedPostsResult>;
   softDeletePostsByUserId(userId: string, deletedAt: Date, tx?: NodePgDatabase): Promise<void>
   softDeletePost(postId: string, deletedAt: Date, tx?: NodePgDatabase): Promise<Post | null>
   restoreSoftDeletedPostsByUserId(

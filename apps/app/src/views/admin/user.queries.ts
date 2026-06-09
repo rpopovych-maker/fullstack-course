@@ -78,3 +78,35 @@ export const useUnbanUserMutation = () => {
     () => null
   )
 }
+
+const useRemoveUserMutation = (
+  mutation: (userId: string) => Promise<TUserListItem>
+) => {
+  const cache = useQueryCache()
+
+  return useMutation({
+    mutation,
+    onSuccess: (deletedUser) => {
+      cache.setQueriesData<TUserList>({ key: usersQueryKeys.lists() }, (previous) => {
+        if (!previous) {
+          return previous as unknown as TUserList
+        }
+
+        return {
+          ...previous,
+          data: previous.data.filter(user => user.id !== deletedUser.id),
+          total: Math.max(0, previous.total - 1)
+        }
+      })
+    },
+    onSettled: () => cache.invalidateQueries({ key: usersQueryKeys.lists() })
+  })
+}
+
+export const useSoftDeleteUserMutation = () => {
+  return useRemoveUserMutation(userId => usersService.softDeleteUser(userId))
+}
+
+export const useHardDeleteUserMutation = () => {
+  return useRemoveUserMutation(userId => usersService.hardDeleteUser(userId))
+}

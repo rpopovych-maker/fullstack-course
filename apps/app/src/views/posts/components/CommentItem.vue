@@ -6,17 +6,32 @@
       <div class="min-w-0 flex-1 space-y-2">
         <div class="flex items-center justify-between gap-2">
           <span class="t-caption">{{ comment.author.username }} · {{ createdAgo }}</span>
-          <el-button
-            v-if="canEditComment && !isEditing"
-            text
-            size="small"
-            @click="startEdit"
-          >
-            <span class="inline-flex items-center gap-1">
-              <Icon name="edit" />
-              Edit
-            </span>
-          </el-button>
+          <div v-if="!isEditing" class="flex items-center gap-1">
+            <el-button
+              v-if="canEditComment"
+              text
+              size="small"
+              @click="startEdit"
+            >
+              <span class="inline-flex items-center gap-1">
+                <Icon name="edit" />
+                Edit
+              </span>
+            </el-button>
+            <el-button
+              v-if="canDeleteComment"
+              text
+              size="small"
+              type="danger"
+              :loading="deleteMutation.isLoading.value"
+              @click="deleteComment"
+            >
+              <span class="inline-flex items-center gap-1">
+                <Icon name="trash" />
+                Delete
+              </span>
+            </el-button>
+          </div>
         </div>
 
         <p v-if="!isEditing" class="t-body whitespace-pre-line wrap-break-word">
@@ -48,7 +63,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useAuthStore } from '@/views/auth/auth.store'
 
 const props = defineProps<{
@@ -60,9 +75,11 @@ const authStore = useAuthStore()
 const isEditing = ref(false)
 const draft = ref(props.comment.text)
 const updateMutation = useUpdateCommentMutation()
+const deleteMutation = useDeleteCommentMutation()
 
 const createdAgo = useTimeAgo(() => props.comment.createdAt)
 const canEditComment = computed(() => authStore.hasPermission('update:comments', props.comment))
+const canDeleteComment = computed(() => authStore.hasPermission('delete:comments', props.comment))
 
 function startEdit () {
   if (!canEditComment.value) {
@@ -97,5 +114,36 @@ function save () {
   }).catch(() => {
     ElMessage.error('Failed to update comment')
   })
+}
+
+async function deleteComment () {
+  if (!canDeleteComment.value) {
+    return
+  }
+
+  try {
+    await ElMessageBox.confirm(
+      'Delete this comment?',
+      'Delete comment',
+      {
+        confirmButtonText: 'Delete',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+        confirmButtonClass: 'el-button--danger'
+      }
+    )
+  } catch {
+    return
+  }
+
+  try {
+    await deleteMutation.mutateAsync({
+      postId: props.postId,
+      commentId: props.comment.id
+    })
+    ElMessage.success('Comment deleted')
+  } catch {
+    ElMessage.error('Failed to delete comment')
+  }
 }
 </script>

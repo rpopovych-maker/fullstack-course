@@ -6,7 +6,7 @@ export const InviteSchema = z.object({
   subId: z.string().uuid(),
   email: z.string().email(),
   status: InviteStatusSchema,
-  invitedByUserId: z.string().uuid(),
+  invitedByUserId: z.string().uuid().nullable(),
   sentAt: z.date(),
   resentAt: z.date().nullable(),
   acceptedAt: z.date().nullable(),

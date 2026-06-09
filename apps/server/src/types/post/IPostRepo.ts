@@ -4,9 +4,12 @@ import { GetPostsResult } from './GetPostsResult';
 import { PostOrderBy } from './PostOrderBy';
 import { PostWithAuthor } from './PostWithAuthor';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { PostWithCommentsAndTags } from './PostWithCommentsAndTags';
+import { PostWithTags } from './PostWithTags';
 export interface IPostRepo {
   createPost(
-    data: Pick<Post, 'userId' | 'title' | 'description'>,
+    data: Pick<Post, 'userId' | 'title' | 'description'> &
+      Partial<Pick<Post, 'id' | 'deletedAt' | 'createdAt' | 'updatedAt'>>,
     tx?: NodePgDatabase
   ): Promise<Post>;
   updatePostById(
@@ -14,7 +17,14 @@ export interface IPostRepo {
     data: Partial<Pick<Post, 'title' | 'description'>>,
     tx?: NodePgDatabase
   ): Promise<Post | null>;
-  getPostById(id: string, returnDeleted?: boolean): Promise<PostWithAuthor | null>;
+  getPostById(
+    id: string,
+    returnDeleted?: boolean
+  ): Promise<PostWithAuthor | null>;
+  getPostWithTagsById(
+    id: string,
+    returnDeleted?: boolean
+  ): Promise<PostWithTags | null>;
   getPosts(params: {
     page: number,
     pageSize: number,
@@ -25,6 +35,10 @@ export interface IPostRepo {
     minCommentsCount?: number
   }): Promise<GetPostsResult>;
   getPostOwner(postId: string): Promise<string | null>;
+  getPostsWithCommentsAndTagsByUserId(
+    userId: string,
+    returnDeleted?: boolean
+  ): Promise<PostWithCommentsAndTags[]>;
   softDeletePostsByUserId(userId: string, deletedAt: Date, tx?: NodePgDatabase): Promise<void>
   softDeletePost(postId: string, deletedAt: Date, tx?: NodePgDatabase): Promise<Post | null>
   restoreSoftDeletedPostsByUserId(
@@ -36,4 +50,5 @@ export interface IPostRepo {
     postId: string,
     tx?: NodePgDatabase
   ): Promise<Post | null>
+  deletePost(postId: string, tx?: NodePgDatabase): Promise<void>
 }

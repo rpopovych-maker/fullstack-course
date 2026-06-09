@@ -21,6 +21,12 @@ class CommentsService {
       { dynamicKeys: { postId, commentId } }
     )
   }
+
+  deleteComment (postId: string, commentId: string) {
+    return apiClient.delete('/api/posts/{postId}/comments/{commentId}/', {
+      dynamicKeys: { postId, commentId }
+    })
+  }
 }
 
 export const commentsService = new CommentsService()

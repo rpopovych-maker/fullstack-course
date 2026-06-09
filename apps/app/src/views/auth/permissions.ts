@@ -1,10 +1,15 @@
 export const actions = [
   'view:admin',
   'ban:users',
+  'delete:users',
   'create:posts',
   'update:posts',
+  'delete:posts',
+  'restore:posts',
   'create:comments',
-  'update:comments'
+  'update:comments',
+  'delete:comments',
+  'restore:comments'
 ] as const
 
 export type TAction = typeof actions[number]
@@ -15,16 +20,23 @@ const rolePermissions: Record<TUserRole, TRolePermissions> = {
   user: {
     'create:posts': {},
     'update:posts': { requireOwnership: true },
+    'delete:posts': { requireOwnership: true },
     'create:comments': {},
-    'update:comments': { requireOwnership: true }
+    'update:comments': { requireOwnership: true },
+    'delete:comments': { requireOwnership: true }
   },
   admin: {
     'view:admin': {},
     'ban:users': {},
+    'delete:users': {},
     'create:posts': {},
-    'update:posts': {},
+    'update:posts': { requireOwnership: true },
+    'delete:posts': {},
+    'restore:posts': {},
     'create:comments': {},
-    'update:comments': {}
+    'update:comments': { requireOwnership: true },
+    'delete:comments': {},
+    'restore:comments': {}
   }
 }
 

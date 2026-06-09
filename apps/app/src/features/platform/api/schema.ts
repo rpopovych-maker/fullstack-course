@@ -37,6 +37,338 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/archive/hard-deleted-comments/{archiveId}/restore/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    archiveId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            userId: string;
+                            /** Format: uuid */
+                            postId: string;
+                            text: string;
+                            /** Format: date-time */
+                            deletedAt: string | null;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            /** Format: date-time */
+                            createdAt: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/archive/hard-deleted-posts/{archiveId}/restore/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    archiveId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            userId: string;
+                            title: string;
+                            description?: string | null;
+                            /** Format: date-time */
+                            deletedAt: string | null;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            /** Format: date-time */
+                            createdAt: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/archive/hard-deleted-users/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                    pageSize?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                /** Format: uuid */
+                                id: string;
+                                /** @enum {string} */
+                                entityType: "user" | "post" | "comment";
+                                /** Format: uuid */
+                                originalEntityId: string;
+                                data: {
+                                    [key: string]: unknown;
+                                };
+                                /** Format: date-time */
+                                archivedAt: string;
+                            }[];
+                            page: number;
+                            pageSize: number;
+                            total: number;
+                            totalPages: number;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/archive/hard-deleted-users/{archiveId}/restore/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    archiveId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            subId: string;
+                            /** @enum {string} */
+                            role: "user" | "admin";
+                            /** Format: email */
+                            email: string;
+                            username: string;
+                            /** Format: date-time */
+                            deletedAt: string | null;
+                            /** Format: date-time */
+                            bannedAt: string | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/archive/soft-deleted-users/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                    pageSize?: number;
+                    search?: string;
+                    order?: "asc" | "desc";
+                    orderBy?: "id" | "subId" | "role" | "email" | "username" | "deletedAt" | "bannedAt" | "createdAt" | "updatedAt";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                subId: string;
+                                /** @enum {string} */
+                                role: "user" | "admin";
+                                /** Format: email */
+                                email: string;
+                                username: string;
+                                /** Format: date-time */
+                                deletedAt: string | null;
+                                /** Format: date-time */
+                                bannedAt: string | null;
+                                /** Format: date-time */
+                                createdAt: string;
+                                /** Format: date-time */
+                                updatedAt: string;
+                            }[];
+                            page: number;
+                            pageSize: number;
+                            total: number;
+                            totalPages: number;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/archive/soft-deleted-users/{userId}/restore/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    userId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            subId: string;
+                            /** @enum {string} */
+                            role: "user" | "admin";
+                            /** Format: email */
+                            email: string;
+                            username: string;
+                            /** Format: date-time */
+                            deletedAt: string | null;
+                            /** Format: date-time */
+                            bannedAt: string | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/invites/": {
         parameters: {
             query?: never;
@@ -76,7 +408,7 @@ export interface paths {
                                 /** @enum {string} */
                                 status: "pending" | "accepted";
                                 /** Format: uuid */
-                                invitedByUserId: string;
+                                invitedByUserId: string | null;
                                 /** Format: date-time */
                                 sentAt: string;
                                 /** Format: date-time */
@@ -130,7 +462,7 @@ export interface paths {
                             /** @enum {string} */
                             status: "pending" | "accepted";
                             /** Format: uuid */
-                            invitedByUserId: string;
+                            invitedByUserId: string | null;
                             /** Format: date-time */
                             sentAt: string;
                             /** Format: date-time */
@@ -193,7 +525,7 @@ export interface paths {
                             /** @enum {string} */
                             status: "pending" | "accepted";
                             /** Format: uuid */
-                            invitedByUserId: string;
+                            invitedByUserId: string | null;
                             /** Format: date-time */
                             sentAt: string;
                             /** Format: date-time */
@@ -251,7 +583,7 @@ export interface paths {
                             /** @enum {string} */
                             status: "pending" | "accepted";
                             /** Format: uuid */
-                            invitedByUserId: string;
+                            invitedByUserId: string | null;
                             /** Format: date-time */
                             sentAt: string;
                             /** Format: date-time */
@@ -309,7 +641,7 @@ export interface paths {
                             /** @enum {string} */
                             status: "pending" | "accepted";
                             /** Format: uuid */
-                            invitedByUserId: string;
+                            invitedByUserId: string | null;
                             /** Format: date-time */
                             sentAt: string;
                             /** Format: date-time */
@@ -474,7 +806,7 @@ export interface paths {
                     pageSize?: number;
                     search?: string;
                     order?: "asc" | "desc";
-                    orderBy?: "id" | "subId" | "role" | "email" | "username" | "bannedAt" | "createdAt" | "updatedAt";
+                    orderBy?: "id" | "subId" | "role" | "email" | "username" | "deletedAt" | "bannedAt" | "createdAt" | "updatedAt";
                 };
                 header?: never;
                 path?: never;
@@ -500,6 +832,8 @@ export interface paths {
                                 email: string;
                                 username: string;
                                 /** Format: date-time */
+                                deletedAt: string | null;
+                                /** Format: date-time */
                                 bannedAt: string | null;
                                 /** Format: date-time */
                                 createdAt: string;
@@ -523,7 +857,62 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin/users/{userId}/ban-user/": {
+    "/api/admin/users/{userId}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    userId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            subId: string;
+                            /** @enum {string} */
+                            role: "user" | "admin";
+                            /** Format: email */
+                            email: string;
+                            username: string;
+                            /** Format: date-time */
+                            deletedAt: string | null;
+                            /** Format: date-time */
+                            bannedAt: string | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/users/{userId}/ban/": {
         parameters: {
             query?: never;
             header?: never;
@@ -558,7 +947,117 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin/users/{userId}/unban-user/": {
+    "/api/admin/users/{userId}/permanent/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    userId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            subId: string;
+                            /** @enum {string} */
+                            role: "user" | "admin";
+                            /** Format: email */
+                            email: string;
+                            username: string;
+                            /** Format: date-time */
+                            deletedAt: string | null;
+                            /** Format: date-time */
+                            bannedAt: string | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/users/{userId}/restore/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    userId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            subId: string;
+                            /** @enum {string} */
+                            role: "user" | "admin";
+                            /** Format: email */
+                            email: string;
+                            username: string;
+                            /** Format: date-time */
+                            deletedAt: string | null;
+                            /** Format: date-time */
+                            bannedAt: string | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/users/{userId}/unban/": {
         parameters: {
             query?: never;
             header?: never;
@@ -626,6 +1125,8 @@ export interface paths {
                             email: string;
                             username: string;
                             /** Format: date-time */
+                            deletedAt: string | null;
+                            /** Format: date-time */
                             bannedAt: string | null;
                             /** Format: date-time */
                             createdAt: string;
@@ -685,6 +1186,8 @@ export interface paths {
                             /** Format: email */
                             email: string;
                             username: string;
+                            /** Format: date-time */
+                            deletedAt: string | null;
                             /** Format: date-time */
                             bannedAt: string | null;
                             /** Format: date-time */
@@ -749,6 +1252,8 @@ export interface paths {
                             email: string;
                             username: string;
                             /** Format: date-time */
+                            deletedAt: string | null;
+                            /** Format: date-time */
                             bannedAt: string | null;
                             /** Format: date-time */
                             createdAt: string;
@@ -803,6 +1308,8 @@ export interface paths {
                                 userId: string;
                                 title: string;
                                 description?: string | null;
+                                /** Format: date-time */
+                                deletedAt: string | null;
                                 /** Format: date-time */
                                 updatedAt: string;
                                 /** Format: date-time */
@@ -864,6 +1371,8 @@ export interface paths {
                             title: string;
                             description?: string | null;
                             /** Format: date-time */
+                            deletedAt: string | null;
+                            /** Format: date-time */
                             updatedAt: string;
                             /** Format: date-time */
                             createdAt: string;
@@ -910,6 +1419,8 @@ export interface paths {
                             title: string;
                             description?: string | null;
                             /** Format: date-time */
+                            deletedAt: string | null;
+                            /** Format: date-time */
                             updatedAt: string;
                             /** Format: date-time */
                             createdAt: string;
@@ -934,7 +1445,41 @@ export interface paths {
         };
         put?: never;
         post?: never;
-        delete?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    postId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            userId: string;
+                            title: string;
+                            description?: string | null;
+                            /** Format: date-time */
+                            deletedAt: string | null;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            /** Format: date-time */
+                            createdAt: string;
+                        };
+                    };
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch: {
@@ -969,6 +1514,8 @@ export interface paths {
                             userId: string;
                             title: string;
                             description?: string | null;
+                            /** Format: date-time */
+                            deletedAt: string | null;
                             /** Format: date-time */
                             updatedAt: string;
                             /** Format: date-time */
@@ -1017,6 +1564,8 @@ export interface paths {
                                 /** Format: uuid */
                                 postId: string;
                                 text: string;
+                                /** Format: date-time */
+                                deletedAt: string | null;
                                 /** Format: date-time */
                                 updatedAt: string;
                                 /** Format: date-time */
@@ -1071,6 +1620,8 @@ export interface paths {
                             postId: string;
                             text: string;
                             /** Format: date-time */
+                            deletedAt: string | null;
+                            /** Format: date-time */
                             updatedAt: string;
                             /** Format: date-time */
                             createdAt: string;
@@ -1095,7 +1646,43 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    postId: string;
+                    commentId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            userId: string;
+                            /** Format: uuid */
+                            postId: string;
+                            text: string;
+                            /** Format: date-time */
+                            deletedAt: string | null;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            /** Format: date-time */
+                            createdAt: string;
+                        };
+                    };
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch: {
@@ -1131,6 +1718,8 @@ export interface paths {
                             postId: string;
                             text: string;
                             /** Format: date-time */
+                            deletedAt: string | null;
+                            /** Format: date-time */
                             updatedAt: string;
                             /** Format: date-time */
                             createdAt: string;
@@ -1139,6 +1728,210 @@ export interface paths {
                 };
             };
         };
+        trace?: never;
+    };
+    "/api/posts/{postId}/comments/{commentId}/permanent/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    postId: string;
+                    commentId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            userId: string;
+                            /** Format: uuid */
+                            postId: string;
+                            text: string;
+                            /** Format: date-time */
+                            deletedAt: string | null;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            /** Format: date-time */
+                            createdAt: string;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/posts/{postId}/comments/{commentId}/restore/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    postId: string;
+                    commentId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            userId: string;
+                            /** Format: uuid */
+                            postId: string;
+                            text: string;
+                            /** Format: date-time */
+                            deletedAt: string | null;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            /** Format: date-time */
+                            createdAt: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/posts/{postId}/permanent/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    postId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            userId: string;
+                            title: string;
+                            description?: string | null;
+                            /** Format: date-time */
+                            deletedAt: string | null;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            /** Format: date-time */
+                            createdAt: string;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/posts/{postId}/restore/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    postId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            userId: string;
+                            title: string;
+                            description?: string | null;
+                            /** Format: date-time */
+                            deletedAt: string | null;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            /** Format: date-time */
+                            createdAt: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/sign-up/": {

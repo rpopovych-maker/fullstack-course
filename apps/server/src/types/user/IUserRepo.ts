@@ -6,8 +6,19 @@ import { SortOrder } from 'src/types/SortOrder';
 export interface IUserRepo {
   getUserBySubId(subId: string): Promise<User | null>;
   getUserById(id: string, returnDeleted?: boolean): Promise<User | null>;
-  createUser(data: Pick<User, 'subId' | 'email' | 'username' | 'role'>, tx?: NodePgDatabase): Promise<User>;
+  createUser(
+    data: Pick<User, 'subId' | 'email' | 'username' | 'role'> &
+      Partial<Pick<User, 'id' | 'deletedAt' | 'bannedAt' | 'createdAt' | 'updatedAt'>>,
+    tx?: NodePgDatabase
+  ): Promise<User>;
   getUsers(params: {
+    page: number
+    pageSize: number
+    search?: string
+    order?: SortOrder
+    orderBy?: keyof User
+  }): Promise<GetUsersResult>;
+  getSoftDeletedUsers(params: {
     page: number
     pageSize: number
     search?: string
@@ -18,4 +29,5 @@ export interface IUserRepo {
   unbanUser(id: string): Promise<User | null>;
   softDeleteUser(id: string, deletedAt: Date, tx?: NodePgDatabase): Promise<User | null>
   restoreSoftDeletedUser(id: string, tx?: NodePgDatabase): Promise<User | null>
+  deleteUser(id: string, tx?: NodePgDatabase): Promise<void>
 }

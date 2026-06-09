@@ -23,6 +23,12 @@ class PostsService {
   updatePost (postId: string, body: TRequestBody<'/api/posts/{postId}/', 'patch'>) {
     return apiClient.patch('/api/posts/{postId}/', body, { dynamicKeys: { postId } })
   }
+
+  deletePost (postId: string) {
+    return apiClient.delete('/api/posts/{postId}/', {
+      dynamicKeys: { postId }
+    })
+  }
 }
 
 export const postsService = new PostsService()

@@ -5,9 +5,9 @@ export const PostSchema = z.object({
   userId: z.string().uuid(),
   title: z.string(),
   description: z.string().optional().nullable(),
-  deletedAt: z.date().nullable(),
-  updatedAt: z.date(),
-  createdAt: z.date()
+  deletedAt: z.coerce.date().nullable(),
+  updatedAt: z.coerce.date(),
+  createdAt: z.coerce.date()
 });
 
 export type Post = z.infer<typeof PostSchema>;

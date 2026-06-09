@@ -7,6 +7,45 @@ import { GetPostCommentsResultSchema } from 'src/types/comment/GetPostCommentsRe
 
 export function getCommentRepo(db: NodePgDatabase): ICommentRepo {
   return {
+    async getCommentsByUserId(userId, returnDeleted) {
+      const comments = await db
+        .select(getTableColumns(commentsTable))
+        .from(commentsTable)
+        .where(
+          and(
+            eq(commentsTable.userId, userId),
+            returnDeleted ? undefined : isNull(commentsTable.deletedAt)
+          )
+        );
+
+      return CommentSchema.array().parse(comments);
+    },
+
+    async getCommentsByPostId(postId, returnDeleted) {
+      const comments = await db
+        .select(getTableColumns(commentsTable))
+        .from(commentsTable)
+        .where(
+          and(
+            eq(commentsTable.postId, postId),
+            returnDeleted ? undefined : isNull(commentsTable.deletedAt)
+          )
+        );
+
+      return CommentSchema.array().parse(comments);
+    },
+
+    async deleteComment({ commentId, postId }, tx) {
+      await (tx ?? db)
+        .delete(commentsTable)
+        .where(
+          and(
+            eq(commentsTable.id, commentId),
+            eq(commentsTable.postId, postId)
+          )
+        ); 
+    },
+    
     async restoreSoftDeletedComment(commentId, postId) {
       const comments = await db
         .update(commentsTable)
@@ -118,8 +157,8 @@ export function getCommentRepo(db: NodePgDatabase): ICommentRepo {
       return comments.length > 0 ? comments[0].userId : null;
     },
     
-    async createComment(data) {
-      const comments = await db
+    async createComment(data, tx) {
+      const comments = await (tx ?? db)
         .insert(commentsTable)
         .values(data)
         .returning();
@@ -141,7 +180,7 @@ export function getCommentRepo(db: NodePgDatabase): ICommentRepo {
       return comments.length > 0 ? CommentSchema.parse(comments[0]) : null;
     },
 
-    async getPostComments({ postId, cursor, pageSize }) {
+    async getPostCommentsPaginated({ postId, cursor, pageSize }) {
       const comments = await db
         .select({
           ...getTableColumns(commentsTable),

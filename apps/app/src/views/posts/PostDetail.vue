@@ -35,16 +35,30 @@
               <p class="t-caption">{{ post.author.username }} · {{ createdAgo }}</p>
             </div>
           </div>
-          <el-button
-            v-if="canEditPost"
-            text
-            @click="openEditModal"
-          >
-            <span class="inline-flex items-center gap-1">
-              <Icon name="edit" />
-              Edit
-            </span>
-          </el-button>
+          <div v-if="canEditPost || canDeletePost" class="flex items-center gap-2">
+            <el-button
+              v-if="canEditPost"
+              text
+              @click="openEditModal"
+            >
+              <span class="inline-flex items-center gap-1">
+                <Icon name="edit" />
+                Edit
+              </span>
+            </el-button>
+            <el-button
+              v-if="canDeletePost"
+              text
+              type="danger"
+              :loading="deletePostMutation.isLoading.value"
+              @click="deletePost"
+            >
+              <span class="inline-flex items-center gap-1">
+                <Icon name="trash" />
+                Delete
+              </span>
+            </el-button>
+          </div>
         </div>
 
         <p v-if="post.description" class="t-body whitespace-pre-line wrap-break-word">
@@ -119,9 +133,11 @@
 <script lang="ts" setup>
 import type { AxiosError } from 'axios'
 import pluralize from 'pluralize'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useAuthStore } from '@/views/auth/auth.store'
 
 const route = useRoute()
+const router = useRouter()
 const authStore = useAuthStore()
 const postId = computed(() => route.params.postId as string)
 
@@ -134,6 +150,7 @@ const {
   loadNextPage: loadNextCommentsPage
 } = usePostCommentsQuery(postId)
 const { openModal } = useModals()
+const deletePostMutation = useDeletePostMutation()
 const commentsLoadMoreTarget = ref<HTMLElement | null>(null)
 const areMoreCommentsLoading = ref(false)
 
@@ -146,6 +163,9 @@ const createdAgo = useTimeAgo(() => post.value?.createdAt ?? '')
 const flatComments = computed(() => comments.value?.pages.flatMap(page => page.data) ?? [])
 const commentsHeading = computed(() => pluralize('Comment', flatComments.value.length, true))
 const canEditPost = computed(() => post.value ? authStore.hasPermission('update:posts', post.value) : false)
+const canDeletePost = computed(() => {
+  return post.value ? authStore.hasPermission('delete:posts', post.value) : false
+})
 
 useIntersectionObserver(
   commentsLoadMoreTarget,
@@ -182,5 +202,34 @@ function openEditModal () {
       tags: post.value.tags
     }
   })
+}
+
+async function deletePost () {
+  if (!post.value || !canDeletePost.value) {
+    return
+  }
+
+  try {
+    await ElMessageBox.confirm(
+      `Delete "${post.value.title}"?`,
+      'Delete post',
+      {
+        confirmButtonText: 'Delete',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+        confirmButtonClass: 'el-button--danger'
+      }
+    )
+  } catch {
+    return
+  }
+
+  try {
+    await deletePostMutation.mutateAsync(post.value.id)
+    ElMessage.success('Post deleted')
+    await router.push({ name: routeNames.posts })
+  } catch {
+    ElMessage.error('Failed to delete post')
+  }
 }
 </script>

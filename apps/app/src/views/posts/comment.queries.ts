@@ -58,6 +58,7 @@ export const useCreateCommentMutation = () => {
         userId: authStore.user?.id ?? '',
         postId,
         text: body.text,
+        deletedAt: null,
         createdAt: now,
         updatedAt: now,
         author: {
@@ -211,6 +212,59 @@ export const useUpdateCommentMutation = () => {
     },
     onSettled: (_d, _e, vars) => {
       cache.invalidateQueries({ key: commentsQueryKeys.post(vars.postId), exact: true })
+    }
+  })
+}
+
+export const useDeleteCommentMutation = () => {
+  const cache = useQueryCache()
+
+  return useMutation({
+    mutation: ({ postId, commentId }: { postId: string; commentId: string }) => {
+      return commentsService.deleteComment(postId, commentId)
+    },
+    onMutate: ({ postId, commentId }) => {
+      const commentsKey = commentsQueryKeys.post(postId)
+      cache.cancelQueries({ key: commentsKey, exact: true })
+
+      const prevComments = cache.getQueryData<TPostCommentsInfiniteData>(commentsKey)
+
+      setInfiniteQueryData<TPostComments, Error, TPostCommentsPageParam>(
+        cache,
+        commentsKey,
+        (previous) => {
+          const comments = previous ?? {
+            pages: [{ data: [], nextCursor: null }],
+            pageParams: [{ pageSize: COMMENTS_PAGE_SIZE }]
+          }
+
+          return {
+            ...comments,
+            pages: comments.pages.map(page => ({
+              ...page,
+              data: page.data.filter(comment => comment.id !== commentId)
+            }))
+          }
+        }
+      )
+
+      return { commentsKey, prevComments }
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.commentsKey && context.prevComments) {
+        setInfiniteQueryData<TPostComments, Error, TPostCommentsPageParam>(
+          cache,
+          context.commentsKey,
+          context.prevComments
+        )
+      }
+    },
+    onSettled: (_data, _error, variables) => {
+      cache.invalidateQueries({
+        key: commentsQueryKeys.post(variables.postId),
+        exact: true
+      })
+      cache.invalidateQueries({ key: postsQueryKeys.lists() })
     }
   })
 }

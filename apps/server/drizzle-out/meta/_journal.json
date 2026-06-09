@@ -148,6 +148,27 @@
       "when": 1780565260379,
       "tag": "0020_burly_steel_serpent",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1780577222367,
+      "tag": "0021_superb_shriek",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1780644661231,
+      "tag": "0022_petite_nomad",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1780995619039,
+      "tag": "0023_common_hairball",
+      "breakpoints": true
     }
   ]
 }

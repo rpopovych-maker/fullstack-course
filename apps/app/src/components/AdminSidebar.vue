@@ -19,6 +19,10 @@ const links = [
     name: routeNames.adminUsers
   },
   {
+    label: 'Archive',
+    name: routeNames.adminArchive
+  },
+  {
     label: 'Invites',
     name: routeNames.adminInvites
   },

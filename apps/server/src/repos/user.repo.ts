@@ -7,6 +7,12 @@ import { UserSchema } from 'src/types/user/User';
 
 export function getUserRepo(db: NodePgDatabase): IUserRepo {
   return {
+    async deleteUser(id, tx) {
+      await (tx ?? db)
+        .delete(usersTable)
+        .where(eq(usersTable.id, id));
+    },
+    
     async restoreSoftDeletedUser(id, tx) {
       const users = await (tx ?? db)
         .update(usersTable)
@@ -107,6 +113,39 @@ export function getUserRepo(db: NodePgDatabase): IUserRepo {
         .select({ total: count() })
         .from(usersTable)
         .where(and(isNull(usersTable.deletedAt), searchCondition));
+      
+      const total = totalResult[0]?.total ?? 0;   
+
+      return GetUsersResultSchema.parse({
+        data: users,
+        page,
+        pageSize,
+        total,
+        totalPages: Math.ceil(total / pageSize)
+      });
+    },
+
+    async getSoftDeletedUsers({ page, pageSize, search, order, orderBy }) {
+      const offset = (page - 1) * pageSize;
+
+      const searchCondition = search
+        ? or(ilike(usersTable.username, `%${search}%`), ilike(usersTable.email, `%${search}%`))
+        : undefined;
+      
+      const sortDirection = order === 'asc' ? asc : desc;
+      
+      const users = await db
+        .select()
+        .from(usersTable)
+        .where(and(isNotNull(usersTable.deletedAt), searchCondition))
+        .orderBy(sortDirection(orderBy ? usersTable[orderBy] : usersTable.deletedAt))
+        .limit(pageSize)
+        .offset(offset);
+      
+      const totalResult = await db
+        .select({ total: count() })
+        .from(usersTable)
+        .where(and(isNotNull(usersTable.deletedAt), searchCondition));
       
       const total = totalResult[0]?.total ?? 0;   
 

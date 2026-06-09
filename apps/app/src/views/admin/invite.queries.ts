@@ -22,7 +22,7 @@ export const useSendInviteMutation = () => {
   const cache = useQueryCache()
 
   return useMutation({
-    mutation: (params: { body: TCreateInviteBody, version: TInviteApiVersion }) => {
+    mutation: (params: { body: TCreateInviteBody; version: TInviteApiVersion }) => {
       return invitesService.sendInvite(params.body, params.version)
     },
     onSettled: () => cache.invalidateQueries({ key: invitesQueryKeys.lists() })
@@ -33,7 +33,7 @@ export const useResendInviteMutation = () => {
   const cache = useQueryCache()
 
   return useMutation({
-    mutation: (params: { inviteId: string, version: TInviteApiVersion }) => {
+    mutation: (params: { inviteId: string; version: TInviteApiVersion }) => {
       return invitesService.resendInvite(params.inviteId, params.version)
     },
     onSuccess: (invite) => {

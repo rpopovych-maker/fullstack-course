@@ -30,7 +30,7 @@ export const useUpdateTagMutation = () => {
   const cache = useQueryCache()
 
   return useMutation({
-    mutation: (params: { tagId: string, body: TUpsertTagBody }) => {
+    mutation: (params: { tagId: string; body: TUpsertTagBody }) => {
       return tagsService.updateTag(params.tagId, params.body)
     },
     onSuccess: (tag) => {

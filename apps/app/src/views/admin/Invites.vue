@@ -191,7 +191,7 @@ function setPage (page: number) {
   void router.replace({ query })
 }
 
-function setSort ({ prop, order }: { prop: string, order: 'ascending' | 'descending' | null }) {
+function setSort ({ prop, order }: { prop: string; order: 'ascending' | 'descending' | null }) {
   if (!order || !isInviteSortField(prop)) {
     sort.orderBy = 'sentAt'
     sort.order = 'desc'

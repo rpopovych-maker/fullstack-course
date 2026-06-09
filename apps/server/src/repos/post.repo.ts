@@ -6,9 +6,60 @@ import { GetPostsResultSchema } from 'src/types/post/GetPostsResult';
 import { PostWithAuthorSchema } from 'src/types/post/PostWithAuthor';
 import { Tag } from 'src/types/tag/Tag';
 import { PostSchema } from 'src/types/post/Post';
+import { jsonAggBuildObject } from 'src/utils/json-agg-build-object';
+import { PostWithCommentsAndTagsSchema } from 'src/types/post/PostWithCommentsAndTags';
+import { PostWithTagsSchema } from 'src/types/post/PostWithTags';
 
 export function getPostRepo(db: NodePgDatabase): IPostRepo {
   return {
+    async getPostWithTagsById(id, returnDeleted) {
+      const [post] = await db
+        .select({
+          ...getTableColumns(postsTable),
+          tags: jsonAggBuildObject(getTableColumns(tagsTable))
+        })
+        .from(postsTable)
+        .leftJoin(postToTagTable, eq(postToTagTable.postId, postsTable.id))
+        .leftJoin(tagsTable, eq(tagsTable.id, postToTagTable.tagId))
+        .where(
+          and(
+            eq(postsTable.id, id),
+            returnDeleted ? undefined : isNull(postsTable.deletedAt)
+          )
+        )
+        .groupBy(postsTable.id);
+
+      return post ? PostWithTagsSchema.parse(post) : null;
+    },
+
+    async getPostsWithCommentsAndTagsByUserId(userId, returnDeleted) {
+      const posts = await db
+        .select({
+          ...getTableColumns(postsTable),
+          comments: jsonAggBuildObject(getTableColumns(commentsTable)),
+          tags: jsonAggBuildObject(getTableColumns(tagsTable))
+        })
+        .from(postsTable)
+        .leftJoin(commentsTable, eq(commentsTable.postId, postsTable.id))
+        .leftJoin(postToTagTable, eq(postToTagTable.postId, postsTable.id))
+        .leftJoin(tagsTable, eq(tagsTable.id, postToTagTable.tagId))
+        .where(
+          and(
+            eq(postsTable.userId, userId),
+            returnDeleted ? undefined : isNull(postsTable.deletedAt)
+          )
+        )
+        .groupBy(postsTable.id);
+
+      return PostWithCommentsAndTagsSchema.array().parse(posts);
+    },
+
+    async deletePost(postId, tx) {
+      await (tx ?? db)
+        .delete(postsTable)
+        .where(eq(postsTable.id, postId));
+    },
+
     async restoreSoftDeletedPost(postId, tx) {
       const posts = await (tx ?? db)
         .update(postsTable)

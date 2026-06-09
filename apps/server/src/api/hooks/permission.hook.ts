@@ -3,14 +3,8 @@ import { HttpError } from 'src/api/errors/HttpError';
 import { UserRole } from 'src/types/user/UserRole';
 
 const _actions = [
-  'create:posts',
-  'update:posts',
-  'create:comments',
-  'update:comments',
-  'delete:posts',
-  'delete:comments',
-  'restore:posts',
-  'restore:comments'
+  'create:posts', 'update:posts', 'delete:posts', 'restore:posts',
+  'create:comments', 'update:comments', 'delete:comments', 'restore:comments'
 ] as const;
 
 type Action = (typeof _actions)[number];

@@ -9,17 +9,29 @@ export interface ICommentRepo {
     postId: string,
     returnDeleted?: boolean
   }): Promise<Comment | null>;
-  createComment(data: Pick<Comment, 'userId' | 'postId' | 'text'>): Promise<Comment>;
+  createComment(
+    data: Pick<Comment, 'userId' | 'postId' | 'text'> &
+      Partial<Pick<Comment, 'id' | 'deletedAt' | 'createdAt' | 'updatedAt'>>,
+    tx?: NodePgDatabase
+  ): Promise<Comment>;
   updateCommentById(params: {
     commentId: string;
     postId: string;
     data: Partial<Pick<Comment, 'text'>>
   }): Promise<Comment | null>;
-  getPostComments(params: {
+  getPostCommentsPaginated(params: {
     postId: string;
     cursor?: CommentCursor;
     pageSize: number
   }): Promise<GetPostCommentsResult>;
+  getCommentsByPostId(
+    postId: string,
+    returnDeleted?: boolean
+  ): Promise<Comment[]>;
+  getCommentsByUserId(
+    userId: string,
+    returnDeleted?: boolean
+  ): Promise<Comment[]>;
   getCommentOwner(commentId: string): Promise<string | null>;
   softDeleteCommentsByPostOwnerId(
     userId: string,
@@ -50,4 +62,8 @@ export interface ICommentRepo {
     commentId: string,
     postId: string
   ): Promise<Comment | null>;
+  deleteComment(params: {
+    commentId: string,
+    postId: string,
+  }, tx?: NodePgDatabase): Promise<void>;
 }

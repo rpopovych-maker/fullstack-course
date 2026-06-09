@@ -16,7 +16,7 @@ export async function getPostComments(params: {
     throw new HttpError(404, 'Post not found');
   }
   
-  const comments = await params.commentRepo.getPostComments({
+  const comments = await params.commentRepo.getPostCommentsPaginated({
     postId: params.postId,
     cursor: params.cursor,
     pageSize: params.pageSize

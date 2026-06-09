@@ -44,22 +44,22 @@
         <el-table-column label="Actions" width="160" align="right">
           <template #default="{ row }: { row: TTag }">
             <div class="flex justify-end gap-2">
-                <el-button
-                  size="small"
-                  aria-label="Edit tag"
-                  @click="openEditDialog(row)"
-                >
-                  <Icon name="edit" />
-                </el-button>
-                <el-button
-                  size="small"
-                  type="danger"
-                  aria-label="Delete tag"
-                  :loading="pendingDeleteTagId === row.id"
-                  @click="deleteTag(row)"
-                >
-                  <Icon name="trash" />
-                </el-button>
+              <el-button
+                size="small"
+                aria-label="Edit tag"
+                @click="openEditDialog(row)"
+              >
+                <Icon name="edit" />
+              </el-button>
+              <el-button
+                size="small"
+                type="danger"
+                aria-label="Delete tag"
+                :loading="pendingDeleteTagId === row.id"
+                @click="deleteTag(row)"
+              >
+                <Icon name="trash" />
+              </el-button>
             </div>
           </template>
         </el-table-column>

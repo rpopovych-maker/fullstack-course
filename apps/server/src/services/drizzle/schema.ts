@@ -1,4 +1,4 @@
-import { uuid, pgTable, varchar, timestamp, text, index, primaryKey } from 'drizzle-orm/pg-core';
+import { uuid, pgTable, varchar, timestamp, text, index, primaryKey, jsonb } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
 export const usersTable = pgTable('users', {
@@ -21,7 +21,7 @@ export const invitesTable = pgTable('invites', {
   subId: uuid().notNull().unique(),
   email: text().notNull().unique(),
   status: varchar({ length: 20 }).notNull(),
-  invitedByUserId: uuid().notNull().references(() => usersTable.id),
+  invitedByUserId: uuid().references(() => usersTable.id, { onDelete: 'set null' }),
   sentAt: timestamp().notNull(),
   resentAt: timestamp(),
   acceptedAt: timestamp(),
@@ -71,4 +71,14 @@ export const postToTagTable = pgTable('post_tags', {
   createdAt: timestamp().defaultNow().notNull()
 }, (t) => [
   primaryKey({ columns: [t.postId, t.tagId] })
+]);
+
+export const archivesTable = pgTable('archives', {
+  id: uuid().primaryKey().default(sql`uuid_generate_v4()`),
+  entityType: varchar({ length: 20 }).notNull(),
+  originalEntityId: uuid().notNull().unique(),
+  data: jsonb().notNull(),
+  archivedAt: timestamp().defaultNow().notNull()
+}, (t) => [
+  index('archives_entity_idx').on(t.entityType, t.originalEntityId)
 ]);

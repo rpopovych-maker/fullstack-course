@@ -7,9 +7,12 @@ const plugin: FastifyPluginAsync = async function (fastify) {
       return;
     }
 
-    const tag = routeOptions.url.startsWith('/api/admin')
-      ? 'admin'
-      : routeOptions.url.match(/^\/api\/([^/]+)/)?.[1] ?? 'default';
+    const [, apiSegment, resourceSegment, adminResourceSegment] =
+      routeOptions.url.split('/');
+
+    const tag = apiSegment === 'api' && resourceSegment === 'admin'
+      ? `admin/${adminResourceSegment ?? 'default'}`
+      : resourceSegment ?? 'default';
 
     routeOptions.schema ??= {};
 

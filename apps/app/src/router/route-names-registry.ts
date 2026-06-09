@@ -1,5 +1,6 @@
 /* Auto-generated route names registry - do not edit manually */
 export const routeNames = {
+  adminArchive: 'adminArchive',
   adminInvites: 'adminInvites',
   adminTags: 'adminTags',
   adminUsers: 'adminUsers',

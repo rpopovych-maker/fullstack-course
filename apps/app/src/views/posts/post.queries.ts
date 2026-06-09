@@ -86,3 +86,28 @@ export const useUpdatePostMutation = () => {
     }
   })
 }
+
+export const useDeletePostMutation = () => {
+  const cache = useQueryCache()
+
+  return useMutation({
+    mutation: (postId: string) => postsService.deletePost(postId),
+    onSuccess: (deletedPost) => {
+      cache.setQueriesData<TPostList>({ key: postsQueryKeys.lists() }, (previous) => {
+        if (!previous) {
+          return previous as unknown as TPostList
+        }
+
+        return {
+          ...previous,
+          data: previous.data.filter(post => post.id !== deletedPost.id),
+          total: Math.max(0, previous.total - 1)
+        }
+      })
+    },
+    onSettled: (_data, _error, postId) => {
+      cache.invalidateQueries({ key: postsQueryKeys.lists() })
+      cache.invalidateQueries({ key: postsQueryKeys.detail(postId), exact: true })
+    }
+  })
+}

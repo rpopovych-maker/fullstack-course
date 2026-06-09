@@ -63,21 +63,42 @@
       </el-table-column>
 
       <el-table-column
-        v-if="canBanUsers"
+        v-if="canManageUsers"
         label="Actions"
-        width="130"
+        width="300"
         align="right"
       >
         <template #default="{ row }: { row: TUserListItem }">
-          <el-button
-            v-if="canActOn(row)"
-            size="small"
-            :type="row.bannedAt ? 'success' : 'danger'"
-            :loading="pendingUserId === row.id"
-            @click="toggleBan(row)"
-          >
-            {{ row.bannedAt ? 'Unban' : 'Ban' }}
-          </el-button>
+          <div v-if="canActOn(row)" class="flex justify-end gap-2">
+            <el-button
+              v-if="canBanUsers"
+              size="small"
+              :type="row.bannedAt ? 'success' : 'warning'"
+              :loading="pendingUserId === row.id && pendingAction === 'ban'"
+              @click="toggleBan(row)"
+            >
+              {{ row.bannedAt ? 'Unban' : 'Ban' }}
+            </el-button>
+            <el-button
+              v-if="canDeleteUsers"
+              size="small"
+              type="warning"
+              plain
+              :loading="pendingUserId === row.id && pendingAction === 'soft-delete'"
+              @click="softDeleteUser(row)"
+            >
+              Soft delete
+            </el-button>
+            <el-button
+              v-if="canDeleteUsers"
+              size="small"
+              type="danger"
+              :loading="pendingUserId === row.id && pendingAction === 'hard-delete'"
+              @click="hardDeleteUser(row)"
+            >
+              Hard delete
+            </el-button>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -134,8 +155,11 @@ const usersQueryParams = computed<TUserListQuery>(() => ({
 const { data: users, isLoading } = useUsersQuery(usersQueryParams)
 const banMutation = useBanUserMutation()
 const unbanMutation = useUnbanUserMutation()
+const softDeleteMutation = useSoftDeleteUserMutation()
+const hardDeleteMutation = useHardDeleteUserMutation()
 
 const pendingUserId = ref<string | null>(null)
+const pendingAction = ref<'ban' | 'soft-delete' | 'hard-delete' | null>(null)
 
 const usersPage = computed<TUserList>(() => {
   return users.value ?? {
@@ -148,6 +172,8 @@ const usersPage = computed<TUserList>(() => {
 })
 
 const canBanUsers = computed(() => authStore.hasPermission('ban:users'))
+const canDeleteUsers = computed(() => authStore.hasPermission('delete:users'))
+const canManageUsers = computed(() => canBanUsers.value || canDeleteUsers.value)
 const tableSortOrder = computed(() => sort.order === 'asc' ? 'ascending' : 'descending')
 
 function canActOn (user: TUserListItem) {
@@ -183,7 +209,7 @@ function setPage (page: number) {
   void router.replace({ query })
 }
 
-function setSort ({ prop, order }: { prop: string, order: 'ascending' | 'descending' | null }) {
+function setSort ({ prop, order }: { prop: string; order: 'ascending' | 'descending' | null }) {
   if (!order || !isUserSortField(prop)) {
     sort.orderBy = 'createdAt'
     sort.order = 'desc'
@@ -235,6 +261,7 @@ async function toggleBan (user: TUserListItem) {
   }
 
   pendingUserId.value = user.id
+  pendingAction.value = 'ban'
   const mutation = isBanned ? unbanMutation : banMutation
   try {
     await mutation.mutateAsync(user.id)
@@ -243,6 +270,67 @@ async function toggleBan (user: TUserListItem) {
     ElMessage.error(isBanned ? 'Failed to unban user' : 'Failed to ban user')
   } finally {
     pendingUserId.value = null
+    pendingAction.value = null
+  }
+}
+
+async function softDeleteUser (user: TUserListItem) {
+  try {
+    await ElMessageBox.confirm(
+      `Soft delete ${user.username}? Their posts and comments will be temporarily removed and can be restored.`,
+      'Soft delete user',
+      {
+        confirmButtonText: 'Soft delete',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+        confirmButtonClass: 'el-button--danger'
+      }
+    )
+  } catch {
+    return
+  }
+
+  pendingUserId.value = user.id
+  pendingAction.value = 'soft-delete'
+
+  try {
+    await softDeleteMutation.mutateAsync(user.id)
+    ElMessage.success(`${user.username} has been soft deleted`)
+  } catch {
+    ElMessage.error('Failed to soft delete user')
+  } finally {
+    pendingUserId.value = null
+    pendingAction.value = null
+  }
+}
+
+async function hardDeleteUser (user: TUserListItem) {
+  try {
+    await ElMessageBox.confirm(
+      `Hard delete ${user.username}? Their user record, posts, comments, and post-tag links will be removed. Recovery will only be possible from the hard-delete archive.`,
+      'Hard delete user',
+      {
+        confirmButtonText: 'Hard delete',
+        cancelButtonText: 'Cancel',
+        type: 'error',
+        confirmButtonClass: 'el-button--danger'
+      }
+    )
+  } catch {
+    return
+  }
+
+  pendingUserId.value = user.id
+  pendingAction.value = 'hard-delete'
+
+  try {
+    await hardDeleteMutation.mutateAsync(user.id)
+    ElMessage.success(`${user.username} has been hard deleted and archived`)
+  } catch {
+    ElMessage.error('Failed to hard delete user')
+  } finally {
+    pendingUserId.value = null
+    pendingAction.value = null
   }
 }
 </script>

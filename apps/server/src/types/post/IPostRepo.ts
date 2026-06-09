@@ -13,6 +13,13 @@ export interface IPostRepo {
       Partial<Pick<Post, 'id' | 'deletedAt' | 'createdAt' | 'updatedAt'>>,
     tx?: NodePgDatabase
   ): Promise<Post>;
+  createPosts(
+    data: Array<
+      Pick<Post, 'userId' | 'title' | 'description'> &
+        Partial<Pick<Post, 'id' | 'deletedAt' | 'createdAt' | 'updatedAt'>>
+    >,
+    tx?: NodePgDatabase
+  ): Promise<Post[]>;
   updatePostById(
     postId: string,
     data: Partial<Pick<Post, 'title' | 'description'>>,

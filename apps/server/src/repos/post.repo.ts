@@ -161,6 +161,19 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
       return PostSchema.parse(post);
     },
 
+    async createPosts(data, tx) {
+      if (!data.length) {
+        return [];
+      }
+
+      const posts = await (tx ?? db)
+        .insert(postsTable)
+        .values(data)
+        .returning();
+
+      return PostSchema.array().parse(posts);
+    },
+
     async updatePostById(postId, data, tx) {
       const [post] = await (tx ?? db)
         .update(postsTable)

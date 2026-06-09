@@ -18,6 +18,23 @@ export function getPostToTagRepo(db: NodePgDatabase): IPostToTagRepo {
         })));
     },
 
+    async createPostTagsForPosts(data, tx) {
+      const postTags = data.flatMap(({ postId, tagIds }) =>
+        tagIds.map(tagId => ({
+          postId,
+          tagId
+        }))
+      );
+
+      if (!postTags.length) {
+        return;
+      }
+
+      await (tx ?? db)
+        .insert(postToTagTable)
+        .values(postTags);
+    },
+
     async updatePostTags(postId, tagIds, tx) {
       await (tx ?? db)
         .delete(postToTagTable)

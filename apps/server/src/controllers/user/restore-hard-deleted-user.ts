@@ -50,20 +50,15 @@ export async function restoreHardDeletedUser(params: {
 
   return params.transactionManager.execute(async ({ tx }) => {
     const restoredUser = await params.userRepo.createUser(user, tx);
-    const commentsOnRestoredPosts: Comment[] = [];
+    const postData = posts.map(({ comments, tags, ...post }) => post);
+    const postTags = posts.map(post => ({
+      postId: post.id,
+      tagIds: post.tags.map(tag => tag.id)
+    }));
+    const commentsOnRestoredPosts: Comment[] = posts.flatMap(post => post.comments);
 
-    for (const post of posts) {
-      const { comments, tags, ...postData } = post;
-      const restoredPost = await params.postRepo.createPost(postData, tx);
-
-      await params.postToTagRepo.createPostTags(
-        restoredPost.id,
-        tags.map(tag => tag.id),
-        tx
-      );
-
-      commentsOnRestoredPosts.push(...comments);
-    }
+    await params.postRepo.createPosts(postData, tx);
+    await params.postToTagRepo.createPostTagsForPosts(postTags, tx);
 
     await params.commentRepo.createComments([
       ...commentsOnRestoredPosts,

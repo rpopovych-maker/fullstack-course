@@ -62,8 +62,6 @@
 </template>
 
 <script lang="ts" setup>
-import { useAuthStore } from '@/views/auth/auth.store'
-
 const { openModal } = useModals()
 const route = useRoute()
 const router = useRouter()
@@ -115,19 +113,7 @@ const emptyDescription = computed(() => {
     : 'No posts yet'
 })
 
-watch(sortQuery, () => {
-  setPage(1)
-})
-
-watch(searchTerm, () => {
-  setPage(1)
-})
-
-watch(minCommentsCount, () => {
-  setPage(1)
-})
-
-watch(selectedTagIds, () => {
+watch([sortQuery, searchTerm, minCommentsCount, selectedTagIds], () => {
   setPage(1)
 })
 

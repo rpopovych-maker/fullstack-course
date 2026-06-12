@@ -4,10 +4,9 @@ import 'vue-router'
 
 declare module 'vue-router' {
   interface RouteMeta {
-    // todo: this is just an example. Please setup your own route meta params.
-    label?: string
     requireAuth?: boolean
     layout?: string
+    allowedRoles?: TUserRole[]
   }
 }
 

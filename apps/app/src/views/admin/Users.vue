@@ -14,115 +14,32 @@
       />
     </div>
 
-    <el-table
-      v-loading="isLoading"
-      :data="usersPage.data"
-      stripe
-      class="rounded-md"
-      empty-text="No users match your filters"
-      :default-sort="{ prop: sort.orderBy, order: tableSortOrder }"
+    <UsersTable
+      :users="usersPage"
+      :loading="isLoading"
+      :page="pagination.page"
+      :sort="sort"
+      :current-user-id="authStore.user?.id"
+      :can-ban-users="canBanUsers"
+      :can-delete-users="canDeleteUsers"
+      :pending-user-id="pendingUserId"
+      :pending-action="pendingAction"
+      @toggle-ban="toggleBan"
+      @soft-delete="softDeleteUser"
+      @hard-delete="hardDeleteUser"
+      @page-change="setPage"
       @sort-change="setSort"
-    >
-      <el-table-column prop="username" label="User" min-width="220" sortable="custom">
-        <template #default="{ row }: { row: TUserListItem }">
-          <div class="flex items-center gap-3">
-            <AuthorAvatar :username="row.username" :size="32" />
-            <span class="t-body wrap-break-word">{{ row.username }}</span>
-          </div>
-        </template>
-      </el-table-column>
-
-      <el-table-column prop="email" label="Email" min-width="220" sortable="custom" />
-
-      <el-table-column prop="role" label="Role" width="100" sortable="custom">
-        <template #default="{ row }: { row: TUserListItem }">
-          <el-tag
-            :type="row.role === 'admin' ? 'success' : 'info'"
-            disable-transitions
-          >
-            {{ row.role }}
-          </el-tag>
-        </template>
-      </el-table-column>
-
-      <el-table-column prop="bannedAt" label="Status" width="110" sortable="custom">
-        <template #default="{ row }: { row: TUserListItem }">
-          <el-tag
-            :type="row.bannedAt ? 'danger' : 'primary'"
-            disable-transitions
-          >
-            {{ row.bannedAt ? 'Banned' : 'Active' }}
-          </el-tag>
-        </template>
-      </el-table-column>
-
-      <el-table-column prop="createdAt" label="Joined" width="160" sortable="custom">
-        <template #default="{ row }: { row: TUserListItem }">
-          <span class="t-caption">{{ formatJoined(row.createdAt) }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column
-        v-if="canManageUsers"
-        label="Actions"
-        width="300"
-        align="right"
-      >
-        <template #default="{ row }: { row: TUserListItem }">
-          <div v-if="canActOn(row)" class="flex justify-end gap-2">
-            <el-button
-              v-if="canBanUsers"
-              size="small"
-              :type="row.bannedAt ? 'success' : 'warning'"
-              :loading="pendingUserId === row.id && pendingAction === 'ban'"
-              @click="toggleBan(row)"
-            >
-              {{ row.bannedAt ? 'Unban' : 'Ban' }}
-            </el-button>
-            <el-button
-              v-if="canDeleteUsers"
-              size="small"
-              type="warning"
-              plain
-              :loading="pendingUserId === row.id && pendingAction === 'soft-delete'"
-              @click="softDeleteUser(row)"
-            >
-              Soft delete
-            </el-button>
-            <el-button
-              v-if="canDeleteUsers"
-              size="small"
-              type="danger"
-              :loading="pendingUserId === row.id && pendingAction === 'hard-delete'"
-              @click="hardDeleteUser(row)"
-            >
-              Hard delete
-            </el-button>
-          </div>
-        </template>
-      </el-table-column>
-    </el-table>
-
-    <div v-if="usersPage.totalPages > 1" class="flex justify-center">
-      <el-pagination
-        background
-        :current-page="pagination.page"
-        layout="prev, pager, next, total"
-        :page-size="pagination.pageSize"
-        :total="usersPage.total"
-        @current-change="setPage"
-      />
-    </div>
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { useAuthStore } from '@/views/auth/auth.store'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const { hasPermission } = usePermissions()
 
 const pagination = reactive({
   page: readPageQuery(),
@@ -171,14 +88,8 @@ const usersPage = computed<TUserList>(() => {
   }
 })
 
-const canBanUsers = computed(() => authStore.hasPermission('ban:users'))
-const canDeleteUsers = computed(() => authStore.hasPermission('delete:users'))
-const canManageUsers = computed(() => canBanUsers.value || canDeleteUsers.value)
-const tableSortOrder = computed(() => sort.order === 'asc' ? 'ascending' : 'descending')
-
-function canActOn (user: TUserListItem) {
-  return user.id !== authStore.user?.id && user.role !== 'admin'
-}
+const canBanUsers = computed(() => hasPermission('ban:users'))
+const canDeleteUsers = computed(() => hasPermission('delete:users'))
 
 watch(searchTerm, () => {
   setPage(1)
@@ -230,14 +141,6 @@ function readPageQuery () {
   const page = Number(rawPage)
 
   return Number.isInteger(page) && page > 0 ? page : 1
-}
-
-function formatJoined (iso: string) {
-  return new Date(iso).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  })
 }
 
 async function toggleBan (user: TUserListItem) {

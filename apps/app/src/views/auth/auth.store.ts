@@ -1,15 +1,9 @@
 import { defineStore } from 'pinia'
-import { authService } from './auth.service'
-import { checkPermission, type TAction } from './permissions'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<TUser | null>(null)
 
   const isAuthenticated = computed(() => user.value !== null)
-
-  const hasPermission = (action: TAction, resource?: { userId: string }) => {
-    return checkPermission(user.value?.role, user.value?.id, action, resource)
-  }
 
   const loadCurrentUser = async () => {
     user.value = await authService.getUser()
@@ -30,7 +24,6 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     user,
     isAuthenticated,
-    hasPermission,
     loadCurrentUser,
     signIn,
     signOut

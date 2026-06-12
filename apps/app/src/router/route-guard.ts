@@ -1,5 +1,4 @@
-import { useAuthStore } from '@/views/auth/auth.store'
-import { getAuthInitPromise } from '@/views/auth/auth.init'
+import { initializeAuth } from '@/views/auth/auth.init'
 import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
 
 export const routeGuard = async (
@@ -7,7 +6,7 @@ export const routeGuard = async (
   from: RouteLocationNormalized,
   next: NavigationGuardNext
 ) => {
-  await getAuthInitPromise()
+  await initializeAuth()
 
   const authStore = useAuthStore()
 
@@ -21,7 +20,10 @@ export const routeGuard = async (
     return
   }
 
-  if (to.meta.requirePermission && !authStore.hasPermission(to.meta.requirePermission)) {
+  if (
+    to.meta.allowedRoles?.length &&
+    (!authStore.user?.role || !to.meta.allowedRoles.includes(authStore.user.role))
+  ) {
     next({ name: routeNames.posts })
     return
   }

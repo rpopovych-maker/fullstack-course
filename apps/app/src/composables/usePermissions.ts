@@ -40,36 +40,35 @@ const rolePermissions: Record<TUserRole, TRolePermissions> = {
   }
 }
 
-export function checkPermission (
-  role: TUserRole | undefined,
-  currentUserId: string | undefined,
-  action: TAction,
-  resource?: { userId: string }
-): boolean {
-  if (!role) {
-    return false
+export function usePermissions () {
+  const authStore = useAuthStore()
+
+  const hasPermission = (
+    action: TAction,
+    resource?: { userId: string }
+  ) => {
+    const role = authStore.user?.role
+    const currentUserId = authStore.user?.id
+
+    if (!role) {
+      return false
+    }
+
+    const permission = rolePermissions[role]?.[action]
+    if (!permission) {
+      return false
+    }
+
+    if (!permission.requireOwnership) {
+      return true
+    }
+
+    return resource != null &&
+      currentUserId != null &&
+      resource.userId === currentUserId
   }
 
-  const permission = rolePermissions[role]?.[action]
-  if (!permission) {
-    return false
-  }
-
-  if (!permission.requireOwnership) {
-    return true
-  }
-
-  return resource != null &&
-    currentUserId != null &&
-    resource.userId === currentUserId
-}
-
-declare module 'vue-router' {
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  interface RouteMeta {
-    requireAuth?: boolean
-    layout?: string
-    requirePermission?: TAction
-    allowAuthenticated?: boolean
+  return {
+    hasPermission
   }
 }

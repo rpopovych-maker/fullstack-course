@@ -21,49 +21,13 @@
     </div>
 
     <div class="min-h-0 flex-1 overflow-hidden">
-      <el-table
-        v-loading="isLoading"
-        :data="tags ?? []"
-        stripe
-        height="100%"
-        class="h-full rounded-md"
-        empty-text="No tags match your filters"
-      >
-        <el-table-column prop="name" label="Name" min-width="240">
-          <template #default="{ row }: { row: TTag }">
-            <span class="t-body wrap-break-word">{{ row.name }}</span>
-          </template>
-        </el-table-column>
-
-        <el-table-column label="Created" width="160">
-          <template #default="{ row }: { row: TTag }">
-            <span class="t-caption">{{ formatDate(row.createdAt) }}</span>
-          </template>
-        </el-table-column>
-
-        <el-table-column label="Actions" width="160" align="right">
-          <template #default="{ row }: { row: TTag }">
-            <div class="flex justify-end gap-2">
-              <el-button
-                size="small"
-                aria-label="Edit tag"
-                @click="openEditDialog(row)"
-              >
-                <Icon name="edit" />
-              </el-button>
-              <el-button
-                size="small"
-                type="danger"
-                aria-label="Delete tag"
-                :loading="pendingDeleteTagId === row.id"
-                @click="deleteTag(row)"
-              >
-                <Icon name="trash" />
-              </el-button>
-            </div>
-          </template>
-        </el-table-column>
-      </el-table>
+      <TagsTable
+        :tags="tags ?? []"
+        :loading="isLoading"
+        :pending-delete-tag-id="pendingDeleteTagId"
+        @edit="openEditDialog"
+        @delete="deleteTag"
+      />
     </div>
 
     <el-dialog
@@ -134,7 +98,10 @@ const rules = useElFormRules({
 })
 
 const isSaving = computed(() => {
-  return createTagMutation.isLoading.value || updateTagMutation.isLoading.value
+  return [
+    createTagMutation.isLoading.value,
+    updateTagMutation.isLoading.value
+  ].some(Boolean)
 })
 
 function openCreateDialog () {
@@ -218,11 +185,4 @@ async function deleteTag (tag: TTag) {
   }
 }
 
-function formatDate (iso: string) {
-  return new Date(iso).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  })
-}
 </script>

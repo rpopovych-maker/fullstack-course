@@ -1,18 +1,31 @@
 <template>
-  <aside class="space-y-1">
-    <RouterLink
-      v-for="link in links"
-      :key="link.name"
-      :to="{ name: link.name }"
-      active-class="bg-(--el-fill-color) text-(--el-color-primary)"
-      class="t-body-sm flex items-center gap-2 rounded px-3 py-2 no-underline hover:bg-(--el-fill-color-light)"
+  <aside>
+    <p class="t-label mb-3 px-3">
+      Administration
+    </p>
+
+    <el-menu
+      :default-active="activeRouteName"
+      router
+      aria-label="Administration"
     >
-      {{ link.label }}
-    </RouterLink>
+      <el-menu-item
+        v-for="link in links"
+        :key="link.name"
+        :index="link.name"
+        :route="{ name: link.name }"
+      >
+        {{ link.label }}
+      </el-menu-item>
+    </el-menu>
   </aside>
 </template>
 
 <script lang="ts" setup>
+const route = useRoute()
+
+const activeRouteName = computed(() => String(route.name ?? ''))
+
 const links = [
   {
     label: 'Users',

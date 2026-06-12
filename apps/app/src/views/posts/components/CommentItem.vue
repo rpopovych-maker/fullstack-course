@@ -1,5 +1,5 @@
 <template>
-  <div class="rounded-md border border-(--el-border-color-lighter) p-4">
+  <div class="rounded-md border border-zinc-800 p-4">
     <div class="flex items-start gap-3">
       <AuthorAvatar :username="comment.author.username" />
 
@@ -84,7 +84,6 @@
 
 <script lang="ts" setup>
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { useAuthStore } from '@/views/auth/auth.store'
 
 const props = defineProps<{
   comment: TComment
@@ -92,6 +91,7 @@ const props = defineProps<{
 }>()
 
 const authStore = useAuthStore()
+const { hasPermission } = usePermissions()
 const isEditing = ref(false)
 const draft = ref(props.comment.text)
 const updateMutation = useUpdateCommentMutation()
@@ -99,8 +99,8 @@ const softDeleteMutation = useSoftDeleteCommentMutation()
 const hardDeleteMutation = useHardDeleteCommentMutation()
 
 const createdAgo = useTimeAgo(() => props.comment.createdAt)
-const canEditComment = computed(() => authStore.hasPermission('update:comments', props.comment))
-const canDeleteComment = computed(() => authStore.hasPermission('delete:comments', props.comment))
+const canEditComment = computed(() => hasPermission('update:comments', props.comment))
+const canDeleteComment = computed(() => hasPermission('delete:comments', props.comment))
 const isAdmin = computed(() => authStore.user?.role === 'admin')
 
 function startEdit () {

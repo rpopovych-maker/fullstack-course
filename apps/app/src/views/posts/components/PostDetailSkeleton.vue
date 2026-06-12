@@ -23,7 +23,7 @@
       <template #template>
         <div class="space-y-6">
           <el-skeleton-item variant="text" style="width: 9rem; height: 1.25rem;" />
-          <div v-for="n in 2" :key="n" class="rounded-md border border-(--el-border-color-lighter) p-4 space-y-2">
+          <div v-for="n in 2" :key="n" class="space-y-2 rounded-md border border-zinc-800 p-4">
             <el-skeleton-item variant="text" style="width: 6rem;" />
             <el-skeleton-item variant="text" style="width: 100%;" />
             <el-skeleton-item variant="text" style="width: 80%;" />

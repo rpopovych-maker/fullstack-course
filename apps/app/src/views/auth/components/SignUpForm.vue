@@ -56,7 +56,6 @@
 <script setup lang="ts">
 import { isAxiosError } from 'axios'
 import { ElMessage } from 'element-plus'
-import { useAuthStore } from '../auth.store'
 
 const authStore = useAuthStore()
 const route = useRoute()

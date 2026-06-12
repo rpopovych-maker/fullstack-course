@@ -13,14 +13,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: var(--el-text-color-primary);
-    background-color: #07070b;
-    background-image:
-      radial-gradient(ellipse 70% 50% at 12% -8%, rgba(64, 102, 200, 0.22), transparent 60%),
-      radial-gradient(ellipse 60% 50% at 100% 0%, rgba(120, 60, 200, 0.18), transparent 60%),
-      radial-gradient(ellipse 60% 40% at 90% 100%, rgba(40, 80, 170, 0.18), transparent 65%),
-      radial-gradient(ellipse 50% 40% at 0% 100%, rgba(20, 50, 90, 0.18), transparent 65%);
-    background-attachment: fixed;
-    background-repeat: no-repeat;
+    background-color: #09090b;
   }
 
   /* Modern, transparent scrollbar — visible only on hover/scroll. */

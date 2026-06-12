@@ -2,10 +2,10 @@
 import AuthLayout from '@/layouts/AuthLayout.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import AdminLayout from '@/layouts/AdminLayout.vue'
-import { getAuthInitPromise } from '@/views/auth/auth.init'
+import { hideSplashScreen } from 'vite-plugin-splash-screen/runtime'
+import { initializeAuth } from '@/views/auth/auth.init'
 
 const route = useRoute()
-const isAuthReady = ref(false)
 
 const layouts = {
   AppLayout,
@@ -19,30 +19,13 @@ const currentLayout = computed(() => {
   return layouts[layoutName ?? 'AppLayout'] ?? AppLayout
 })
 
-getAuthInitPromise().finally(() => {
-  isAuthReady.value = true
+initializeAuth().finally(() => {
+  hideSplashScreen()
 })
 </script>
 
 <template>
-  <div
-    v-if="!isAuthReady"
-    class="min-h-screen flex items-center justify-center px-4"
-  >
-    <div class="space-y-2 text-center">
-      <div class="t-label">
-        Loading
-      </div>
-      <div class="t-caption">
-        Preparing your session
-      </div>
-    </div>
-  </div>
-
-  <component
-    :is="currentLayout"
-    v-else
-  >
+  <component :is="currentLayout">
     <router-view />
   </component>
 

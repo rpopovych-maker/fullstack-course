@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-(--el-bg-color-page)">
+  <div class="min-h-screen">
     <AppHeader />
 
     <main>

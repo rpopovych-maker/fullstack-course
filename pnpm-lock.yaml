@@ -98,6 +98,9 @@ importers:
       vite:
         specifier: ^7.3.1
         version: 7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3)
+      vite-plugin-splash-screen:
+        specifier: 0.2.2
+        version: 0.2.2
       vite-plugin-vue-devtools:
         specifier: ^8.0.5
         version: 8.1.1(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3))(vue@3.5.31(typescript@5.9.3))
@@ -3167,6 +3170,9 @@ packages:
       '@nuxt/kit':
         optional: true
 
+  vite-plugin-splash-screen@0.2.2:
+    resolution: {integrity: sha512-RNHMTldDbVCubB1Al2uqS5zpdHI+rDvm9/c3qRUdvHy59GlTNCLH6CRLdS9cHNBT//a09NO/XCoeFShasFn2UQ==}
+
   vite-plugin-vue-devtools@8.1.1:
     resolution: {integrity: sha512-9qTpOmZ2vHpvlI9hdVXAQ1Ry4I8GcBArU7aPi0qfIaV7fQIXy0L1nb6X4mFY2Gw0dYshHuLbIl0Ulb572SCjsQ==}
     engines: {node: '>=v14.21.3'}
@@ -6104,6 +6110,8 @@ snapshots:
       vite-dev-rpc: 1.1.0(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3))
     transitivePeerDependencies:
       - supports-color
+
+  vite-plugin-splash-screen@0.2.2: {}
 
   vite-plugin-vue-devtools@8.1.1(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.8.3))(vue@3.5.31(typescript@5.9.3)):
     dependencies:

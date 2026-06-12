@@ -7,24 +7,18 @@ import { router } from '@/router'
 import {
   VueGlobalPropertiesPlugin
 } from '@/plugins'
-import { initializeAuth } from '@/views/auth/auth.init'
 
 import '@/assets/styles/main.css'
 
 const app = createApp(App)
-const pinia = createPinia()
-
-initializeAuth(pinia)
 
 app
-  .use(pinia)
+  .use(createPinia())
   .use(PiniaColada)
   .use(router)
   .use(VueGlobalPropertiesPlugin)
 
-router.isReady().then(() => {
-  app.mount('#app')
-})
+app.mount('#app')
 
 export {
   app

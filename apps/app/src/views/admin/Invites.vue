@@ -23,70 +23,16 @@
       />
     </div>
 
-    <el-table
-      v-loading="isLoading"
-      :data="invitesPage.data"
-      stripe
-      class="rounded-md"
-      empty-text="No invites yet"
-      :default-sort="{ prop: sort.orderBy, order: tableSortOrder }"
+    <InvitesTable
+      :invites="invitesPage"
+      :loading="isLoading"
+      :page="pagination.page"
+      :sort="sort"
+      :pending-resend-invite-id="pendingResendInviteId"
+      @resend="resendInvite"
+      @page-change="setPage"
       @sort-change="setSort"
-    >
-      <el-table-column prop="email" label="Email" min-width="240" sortable="custom" />
-
-      <el-table-column prop="status" label="Status" width="120" sortable="custom">
-        <template #default="{ row }: { row: TInvite }">
-          <el-tag
-            :type="row.status === 'accepted' ? 'success' : 'warning'"
-            disable-transitions
-          >
-            {{ formatStatus(row.status) }}
-          </el-tag>
-        </template>
-      </el-table-column>
-
-      <el-table-column prop="sentAt" label="Sent" width="160" sortable="custom">
-        <template #default="{ row }: { row: TInvite }">
-          <span class="t-caption">{{ formatDate(row.sentAt) }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column prop="resentAt" label="Resent" width="160" sortable="custom">
-        <template #default="{ row }: { row: TInvite }">
-          <span class="t-caption">{{ formatNullableDate(row.resentAt) }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column prop="acceptedAt" label="Accepted" width="160" sortable="custom">
-        <template #default="{ row }: { row: TInvite }">
-          <span class="t-caption">{{ formatNullableDate(row.acceptedAt) }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Actions" width="130" align="right">
-        <template #default="{ row }: { row: TInvite }">
-          <el-button
-            v-if="row.status === 'pending'"
-            size="small"
-            :loading="pendingResendInviteId === row.id"
-            @click="resendInvite(row)"
-          >
-            Resend
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-
-    <div v-if="invitesPage.totalPages > 1" class="flex justify-center">
-      <el-pagination
-        background
-        :current-page="pagination.page"
-        layout="prev, pager, next, total"
-        :page-size="pagination.pageSize"
-        :total="invitesPage.total"
-        @current-change="setPage"
-      />
-    </div>
+    />
   </div>
 </template>
 
@@ -140,8 +86,6 @@ const invitesPage = computed<TInviteList>(() => {
     totalPages: 0
   }
 })
-const tableSortOrder = computed(() => sort.order === 'asc' ? 'ascending' : 'descending')
-
 watch(searchTerm, () => {
   setPage(1)
 })
@@ -156,22 +100,6 @@ watch(
     }
   }
 )
-
-function formatStatus (status: TInvite['status']) {
-  return status === 'accepted' ? 'Accepted' : 'Pending'
-}
-
-function formatDate (iso: string) {
-  return new Date(iso).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  })
-}
-
-function formatNullableDate (iso: string | null) {
-  return iso ? formatDate(iso) : 'Never'
-}
 
 function openInviteDialog () {
   openModal('InviteUserModal')

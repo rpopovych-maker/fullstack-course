@@ -56,7 +56,6 @@
 
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
-import { useAuthStore } from '../auth.store'
 
 const authStore = useAuthStore()
 const route = useRoute()

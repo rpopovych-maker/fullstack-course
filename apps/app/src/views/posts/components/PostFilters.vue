@@ -1,8 +1,11 @@
 <template>
   <section class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-    <SearchInput
-      v-model="search"
+    <el-input
+      v-model.trim="search"
       class="w-full lg:max-w-sm"
+      clearable
+      placeholder="Search posts"
+      aria-label="Search posts"
     />
 
     <div class="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:w-auto">

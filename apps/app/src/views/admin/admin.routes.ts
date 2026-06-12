@@ -5,7 +5,7 @@ export const adminRoutes: RouteRecordRaw[] = [
     meta: {
       layout: 'AdminLayout',
       requireAuth: true,
-      requirePermission: 'view:admin'
+      allowedRoles: ['admin']
     },
     children: [
       {

@@ -1,6 +1,5 @@
 import { setInfiniteQueryData, useInfiniteQuery, useMutation, useQueryCache } from '@pinia/colada'
 import type { UseInfiniteQueryData } from '@pinia/colada'
-import { useAuthStore } from '@/views/auth/auth.store'
 
 const COMMENTS_PAGE_SIZE = 20
 

@@ -28,7 +28,7 @@
 
             <el-table-column label="Deleted" width="170">
               <template #default="{ row }: { row: IArchiveDisplayRow }">
-                <span class="t-caption">{{ formatNullableDate(row.date) }}</span>
+                <span class="t-caption">{{ filters.formatDate(row.date) }}</span>
               </template>
             </el-table-column>
 
@@ -81,7 +81,7 @@
 
             <el-table-column label="Archived" width="170">
               <template #default="{ row }: { row: IArchiveDisplayRow }">
-                <span class="t-caption">{{ formatNullableDate(row.date) }}</span>
+                <span class="t-caption">{{ filters.formatDate(row.date) }}</span>
               </template>
             </el-table-column>
 
@@ -117,7 +117,6 @@
 
 <script lang="ts" setup>
 import { ElMessage, ElMessageBox } from 'element-plus'
-
 type TArchiveTab = 'soft' | 'hard'
 
 const pageSize = 10
@@ -294,18 +293,6 @@ function setSoftPage (page: number) {
 
 function setHardPage (page: number) {
   hardPagination[hardEntity.value] = page
-}
-
-function formatNullableDate (iso: string | null) {
-  if (!iso) {
-    return 'Unknown'
-  }
-
-  return new Date(iso).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  })
 }
 
 async function confirmRestore (row: IArchiveDisplayRow, mode: TArchiveTab) {

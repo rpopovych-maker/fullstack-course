@@ -23,7 +23,6 @@
 
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus'
-import { useAuthStore } from '@/views/auth/auth.store'
 
 const props = defineProps<{
   postId: string

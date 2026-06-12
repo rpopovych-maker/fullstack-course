@@ -1,22 +1,18 @@
-import type { Pinia } from 'pinia'
 import { supabase } from '@/features/platform/supabase/supabase.client'
-import { useAuthStore } from './auth.store'
 
 let authInitPromise: Promise<void> | null = null
 let authStateUnsubscribe: (() => void) | null = null
 
-export const initializeAuth = (pinia: Pinia) => {
-  subscribeToAuthChanges(pinia)
+export const initializeAuth = () => {
+  subscribeToAuthChanges()
 
-  authInitPromise ??= hydrateAuth(pinia)
+  authInitPromise ??= hydrateAuth()
 
   return authInitPromise
 }
 
-export const getAuthInitPromise = () => authInitPromise ?? Promise.resolve()
-
-const hydrateAuth = async (pinia: Pinia) => {
-  const authStore = useAuthStore(pinia)
+const hydrateAuth = async () => {
+  const authStore = useAuthStore()
 
   authStore.user = null
 
@@ -33,12 +29,12 @@ const hydrateAuth = async (pinia: Pinia) => {
   }
 }
 
-const subscribeToAuthChanges = (pinia: Pinia) => {
+const subscribeToAuthChanges = () => {
   if (authStateUnsubscribe) {
     return
   }
 
-  const authStore = useAuthStore(pinia)
+  const authStore = useAuthStore()
   const { data } = supabase.auth.onAuthStateChange((event) => {
     if (event === 'SIGNED_OUT') {
       authStore.user = null

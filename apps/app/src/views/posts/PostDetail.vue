@@ -105,7 +105,7 @@
           <div
             v-for="n in 2"
             :key="n"
-            class="rounded-md border border-(--el-border-color-lighter) p-4"
+            class="rounded-md border border-zinc-800 p-4"
           >
             <el-skeleton :rows="2" animated />
           </div>
@@ -128,7 +128,7 @@
             class="min-h-10"
           >
             <div v-if="areMoreCommentsLoading" class="space-y-3">
-              <div class="rounded-md border border-(--el-border-color-lighter) p-4">
+              <div class="rounded-md border border-zinc-800 p-4">
                 <el-skeleton :rows="2" animated />
               </div>
             </div>
@@ -152,11 +152,11 @@
 import type { AxiosError } from 'axios'
 import pluralize from 'pluralize'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { useAuthStore } from '@/views/auth/auth.store'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const { hasPermission } = usePermissions()
 const postId = computed(() => route.params.postId as string)
 
 const { data: post, isLoading, error } = usePostQuery(postId)
@@ -181,9 +181,9 @@ const isNotFound = computed(() => {
 const createdAgo = useTimeAgo(() => post.value?.createdAt ?? '')
 const flatComments = computed(() => comments.value?.pages.flatMap(page => page.data) ?? [])
 const commentsHeading = computed(() => pluralize('Comment', flatComments.value.length, true))
-const canEditPost = computed(() => post.value ? authStore.hasPermission('update:posts', post.value) : false)
+const canEditPost = computed(() => post.value ? hasPermission('update:posts', post.value) : false)
 const canDeletePost = computed(() => {
-  return post.value ? authStore.hasPermission('delete:posts', post.value) : false
+  return post.value ? hasPermission('delete:posts', post.value) : false
 })
 const isAdmin = computed(() => authStore.user?.role === 'admin')
 

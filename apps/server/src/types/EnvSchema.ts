@@ -15,7 +15,10 @@ export const EnvSchema = z.object({
   CLIENT_APP_URL: z.string().url(),
   RESEND_API_KEY: z.string(),
   SIGNATURE_SECRET: z.string(),
-  SENDER_EMAIL: z.string().email()
+  SENDER_EMAIL: z.string().email(),
+  STRIPE_SECRET_KEY: z.string().startsWith('sk_'),
+  STRIPE_PRO_PRICE_ID: z.string().startsWith('price_'),
+  STRIPE_WEBHOOK_SECRET: z.string().startsWith('whsec_')
 });
 
 export type Env = z.infer<typeof EnvSchema>;

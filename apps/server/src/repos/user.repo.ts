@@ -7,6 +7,19 @@ import { UserSchema } from 'src/types/user/User';
 
 export function getUserRepo(db: NodePgDatabase): IUserRepo {
   return {
+    async updateUser(id, data) {
+      const users = await db
+        .update(usersTable)
+        .set(data)
+        .where(and(
+          isNull(usersTable.deletedAt),
+          eq(usersTable.id, id)
+        ))
+        .returning();
+      
+      return users.length > 0 ? UserSchema.parse(users[0]) : null;
+    },
+
     async deleteUser(id, tx) {
       await (tx ?? db)
         .delete(usersTable)

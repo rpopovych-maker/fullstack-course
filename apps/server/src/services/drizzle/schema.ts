@@ -1,9 +1,20 @@
-import { uuid, pgTable, varchar, timestamp, text, index, primaryKey, jsonb } from 'drizzle-orm/pg-core';
+import {
+  uuid,
+  pgTable,
+  varchar,
+  timestamp,
+  text,
+  index,
+  primaryKey,
+  jsonb,
+  boolean
+} from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
 export const usersTable = pgTable('users', {
   id: uuid().primaryKey().default(sql`uuid_generate_v4()`),
   subId: uuid().notNull().unique(),
+  stripeCustomerId: text().unique(),
   role: varchar({ length: 20 }).notNull(),
   email: text().notNull().unique(),
   username: varchar({ length: 255 }).notNull().unique(),
@@ -81,4 +92,22 @@ export const archivesTable = pgTable('archives', {
   archivedAt: timestamp().defaultNow().notNull()
 }, (t) => [
   index('archives_entity_idx').on(t.entityType, t.originalEntityId)
+]);
+
+export const subscriptionsTable = pgTable('subscriptions', {
+  id: uuid().primaryKey().default(sql`uuid_generate_v4()`),
+  userId: uuid().notNull().references(() => usersTable.id, { onDelete: 'cascade' }),
+  stripeSubscriptionId: text().notNull().unique(),
+  stripeCustomerId: text().notNull(),
+  stripePriceId: text().notNull(),
+  status: varchar({ length: 30 }).notNull(),
+  cancelAtPeriodEnd: boolean().notNull().default(false),
+  currentPeriodStart: timestamp(),
+  currentPeriodEnd: timestamp(),
+  canceledAt: timestamp(),
+  createdAt: timestamp().defaultNow().notNull(),
+  updatedAt: timestamp().defaultNow().$onUpdate(() => new Date()).notNull()
+}, (table) => [
+  index('subscriptions_user_id_idx').on(table.userId),
+  index('subscriptions_customer_id_idx').on(table.stripeCustomerId)
 ]);

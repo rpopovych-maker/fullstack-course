@@ -169,6 +169,20 @@
       "when": 1780995619039,
       "tag": "0023_common_hairball",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1781265836128,
+      "tag": "0024_mature_celestials",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1781453322972,
+      "tag": "0025_handy_rocket_raccoon",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,7 @@
 import 'src/services/env/env.service';
 import fastify from 'fastify';
 import autoload from '@fastify/autoload';
+import fastifyRawBody from 'fastify-raw-body';
 import path from 'path';
 import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
 import { getUUIDService } from 'src/services/uuid/uuid.service';
@@ -20,6 +21,7 @@ import { getDb, dbHealthCheck, getTransactionManager } from 'src/services/drizzl
 import { getIdentityService } from 'src/services/identity/identity.service';
 import { getEmailService } from 'src/services/email/email.service';
 import { getSignatureService } from 'src/services/signature/signature.service';
+import { getStripeService } from 'src/services/stripe/stripe.service';
 
 async function run() {
   const server = fastify({
@@ -71,6 +73,12 @@ async function run() {
   );
   server.decorate('emailService', getEmailService());
   server.decorate('signatureService', getSignatureService());
+  server.decorate('stripeService', getStripeService({
+    secretKey: process.env.STRIPE_SECRET_KEY,
+    proPriceId: process.env.STRIPE_PRO_PRICE_ID,
+    clientAppUrl: process.env.CLIENT_APP_URL,
+    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET
+  }));
   server.decorate(
     'db',
     getDb({
@@ -98,6 +106,11 @@ async function run() {
   });
 
   // load routes
+  server.register(fastifyRawBody, {
+    global: false,
+    encoding: false,
+    runFirst: true
+  });
   server.register(autoload, {
     dir: path.join(__dirname, 'routes'),
     ignoreFilter: 'schemas',

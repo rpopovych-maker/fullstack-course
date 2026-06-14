@@ -6,6 +6,7 @@ import { getInviteRepo } from './invite.repo';
 import { getTagsRepo } from './tags.repo';
 import { getPostToTagRepo } from './post-to-tag.repo';
 import { getArchiveRepo } from './archive.repo';
+import { getSubscriptionRepo } from './subscription.repo';
 
 export function getRepos(db: NodePgDatabase) {
   return {
@@ -15,7 +16,8 @@ export function getRepos(db: NodePgDatabase) {
     inviteRepo: getInviteRepo(db),
     tagsRepo: getTagsRepo(db),
     postToTagRepo: getPostToTagRepo(db),
-    archiveRepo: getArchiveRepo(db)
+    archiveRepo: getArchiveRepo(db),
+    subscriptionRepo: getSubscriptionRepo(db)
   };
 }
 

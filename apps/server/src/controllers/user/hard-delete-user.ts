@@ -3,6 +3,7 @@ import { IArchiveRepo } from 'src/types/archive/IArchiveRepo';
 import { ICommentRepo } from 'src/types/comment/ICommentRepo';
 import { ITransactionManager } from 'src/types/ITransaction';
 import { IPostRepo } from 'src/types/post/IPostRepo';
+import { ISubscriptionRepo } from 'src/types/subscription/ISubscriptionRepo';
 import { IUserRepo } from 'src/types/user/IUserRepo';
 
 export async function hardDeleteUser(params: {
@@ -12,11 +13,20 @@ export async function hardDeleteUser(params: {
   postRepo: IPostRepo
   commentRepo: ICommentRepo
   archiveRepo: IArchiveRepo
+  subscriptionRepo: ISubscriptionRepo
 }) {
   const user = await params.userRepo.getUserById(params.userId, true);
 
   if (!user) {
     throw new HttpError(404, 'User not found');
+  }
+
+  const subscription = await params.subscriptionRepo.getCurrentSubscriptionByUserId(
+    params.userId
+  );
+
+  if (subscription) {
+    throw new HttpError(409, 'Cannot delete a user with a current subscription');
   }
 
   const posts = await params.postRepo.getPostsWithCommentsAndTagsByUserId(params.userId, true);

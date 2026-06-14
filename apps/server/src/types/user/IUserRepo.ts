@@ -4,12 +4,13 @@ import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { SortOrder } from 'src/types/SortOrder';
 
 export interface IUserRepo {
+  updateUser(id: string, data: Partial<Pick<User, 'bannedAt' | 'email' | 'role' | 'stripeCustomerId' | 'username'>>): Promise<User | null>;
   getUserBySubId(subId: string): Promise<User | null>;
   getUserById(id: string, returnDeleted?: boolean): Promise<User | null>;
   getExistingUserIds(ids: string[]): Promise<string[]>;
   createUser(
     data: Pick<User, 'subId' | 'email' | 'username' | 'role'> &
-      Partial<Pick<User, 'id' | 'deletedAt' | 'bannedAt' | 'createdAt' | 'updatedAt'>>,
+      Partial<Pick<User, 'id' | 'deletedAt' | 'bannedAt' | 'createdAt' | 'updatedAt' | 'stripeCustomerId'>>,
     tx?: NodePgDatabase
   ): Promise<User>;
   getUsers(params: {

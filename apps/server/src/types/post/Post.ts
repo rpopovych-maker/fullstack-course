@@ -1,10 +1,12 @@
 import { z } from 'zod';
+import { PostVisibilitySchema } from './PostVisibility';
 
 export const PostSchema = z.object({
   id: z.string().uuid(),
   userId: z.string().uuid(),
   title: z.string(),
   description: z.string().optional().nullable(),
+  visibility: PostVisibilitySchema,
   deletedAt: z.coerce.date().nullable(),
   updatedAt: z.coerce.date(),
   createdAt: z.coerce.date()

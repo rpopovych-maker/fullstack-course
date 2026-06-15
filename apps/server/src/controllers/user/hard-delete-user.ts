@@ -4,6 +4,7 @@ import { ICommentRepo } from 'src/types/comment/ICommentRepo';
 import { ITransactionManager } from 'src/types/ITransaction';
 import { IPostRepo } from 'src/types/post/IPostRepo';
 import { ISubscriptionRepo } from 'src/types/subscription/ISubscriptionRepo';
+import { TERMINAL_SUBSCRIPTION_STATUSES } from 'src/types/subscription/SubscriptionStatus';
 import { IUserRepo } from 'src/types/user/IUserRepo';
 
 export async function hardDeleteUser(params: {
@@ -21,11 +22,11 @@ export async function hardDeleteUser(params: {
     throw new HttpError(404, 'User not found');
   }
 
-  const subscription = await params.subscriptionRepo.getCurrentSubscriptionByUserId(
+  const subscription = await params.subscriptionRepo.getLatestSubscriptionByUserId(
     params.userId
   );
 
-  if (subscription) {
+  if (subscription && !TERMINAL_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
     throw new HttpError(409, 'Cannot delete a user with a current subscription');
   }
 

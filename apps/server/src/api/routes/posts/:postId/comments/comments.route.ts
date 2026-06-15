@@ -32,7 +32,9 @@ const routes: FastifyPluginAsync = async function (f) {
         commentRepo: fastify.repos.commentRepo,
         ...req.body,
         postId: req.params.postId,
-        userId: req.user!.id
+        userId: req.user!.id,
+        viewer: req.user!,
+        currentSubscription: req.userCurrentSubscription ?? null
       });
       return comment;
     }
@@ -49,9 +51,6 @@ const routes: FastifyPluginAsync = async function (f) {
         response: {
           200: GetPostCommentsRespSchema
         }
-      },
-      config: {
-        skipAuth: true
       }
     },
     async (req) => {
@@ -67,7 +66,9 @@ const routes: FastifyPluginAsync = async function (f) {
         postRepo: fastify.repos.postRepo,
         postId: req.params.postId,
         cursor,
-        pageSize: req.query.pageSize
+        pageSize: req.query.pageSize,
+        viewer: req.user!,
+        currentSubscription: req.userCurrentSubscription ?? null
       });
 
       return comments;

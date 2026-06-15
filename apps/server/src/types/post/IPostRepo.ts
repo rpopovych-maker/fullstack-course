@@ -10,19 +10,19 @@ import { GetSoftDeletedPostsResult } from './GetSoftDeletedPostsResult';
 export interface IPostRepo {
   createPost(
     data: Pick<Post, 'userId' | 'title' | 'description'> &
-      Partial<Pick<Post, 'id' | 'deletedAt' | 'createdAt' | 'updatedAt'>>,
+      Partial<Pick<Post, 'id' | 'deletedAt' | 'createdAt' | 'updatedAt' | 'visibility'>>,
     tx?: NodePgDatabase
   ): Promise<Post>;
   createPosts(
     data: Array<
       Pick<Post, 'userId' | 'title' | 'description'> &
-        Partial<Pick<Post, 'id' | 'deletedAt' | 'createdAt' | 'updatedAt'>>
+        Partial<Pick<Post, 'id' | 'deletedAt' | 'createdAt' | 'updatedAt' | 'visibility'>>
     >,
     tx?: NodePgDatabase
   ): Promise<Post[]>;
   updatePostById(
     postId: string,
-    data: Partial<Pick<Post, 'title' | 'description'>>,
+    data: Partial<Pick<Post, 'title' | 'description' | 'visibility'>>,
     tx?: NodePgDatabase
   ): Promise<Post | null>;
   getPostById(

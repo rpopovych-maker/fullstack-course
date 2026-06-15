@@ -8,6 +8,7 @@ import { IdentityUser } from './identity/IdentityUser';
 import { EmailService } from './services/EmailService';
 import { SignatureService } from './services/SignatureService';
 import { StripeService } from './services/StripeService';
+import { Subscription } from './subscription/Subscription';
 
 // set context type
 declare module 'fastify' {
@@ -24,6 +25,7 @@ declare module 'fastify' {
 
   interface FastifyRequest {
     user?: User;
+    userCurrentSubscription?: Subscription | null;
     identityUser?: IdentityUser
   }
 

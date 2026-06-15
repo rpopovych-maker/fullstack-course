@@ -28,7 +28,10 @@ const routes: FastifyPluginAsync = async function (f) {
         postToTagRepo: fastify.repos.postToTagRepo,
         transactionManager: fastify.transactionManager,
         userId: req.user!.id,
-        ...req.body
+        title: req.body.title,
+        description: req.body.description,
+        tagIds: req.body.tagIds,
+        visibility: req.body.visibility
       });
 
       return post;
@@ -43,9 +46,6 @@ const routes: FastifyPluginAsync = async function (f) {
         response: {
           200: GetPostsRespSchema
         }
-      },
-      config: {
-        skipAuth: true
       }
     },
     async (req) => {
@@ -57,7 +57,9 @@ const routes: FastifyPluginAsync = async function (f) {
         orderBy: req.query.orderBy,
         order: req.query.order,
         minCommentsCount: req.query.minCommentsCount,
-        tagIds: req.query.tagIds
+        tagIds: req.query.tagIds,
+        viewer: req.user!,
+        currentSubscription: req.userCurrentSubscription ?? null
       });
       return posts;
     }

@@ -1,6 +1,7 @@
 import { HttpError } from 'src/api/errors/HttpError';
 import { StripeService } from 'src/types/services/StripeService';
 import { ISubscriptionRepo } from 'src/types/subscription/ISubscriptionRepo';
+import { TERMINAL_SUBSCRIPTION_STATUSES } from 'src/types/subscription/SubscriptionStatus';
 import { IUserRepo } from 'src/types/user/IUserRepo';
 
 export async function createCheckoutSession(params: {
@@ -11,11 +12,14 @@ export async function createCheckoutSession(params: {
   email: string
   stripeCustomerId: string | null
 }) {
-  const existingSubscription = await params.subscriptionRepo.getCurrentSubscriptionByUserId(
+  const existingSubscription = await params.subscriptionRepo.getLatestSubscriptionByUserId(
     params.userId
   );
 
-  if (existingSubscription) {
+  if (
+    existingSubscription
+    && !TERMINAL_SUBSCRIPTION_STATUSES.includes(existingSubscription.status)
+  ) {
     throw new HttpError(409, 'User already has a current subscription');
   }
   

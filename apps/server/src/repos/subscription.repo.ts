@@ -1,4 +1,4 @@
-import { and, eq, inArray } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { subscriptionsTable } from 'src/services/drizzle/schema';
 import { ISubscriptionRepo } from 'src/types/subscription/ISubscriptionRepo';
@@ -15,28 +15,18 @@ export function getSubscriptionRepo(db: NodePgDatabase): ISubscriptionRepo {
           set: data
         })
         .returning();
-      
+
       return SubscriptionSchema.parse(subscriptions[0]);
     },
-    async getCurrentSubscriptionByUserId(userId) {
-      const subscriptions = await db
+    async getLatestSubscriptionByUserId(userId) {
+      const [subscription] = await db
         .select()
         .from(subscriptionsTable)
-        .where(
-          and(
-            eq(subscriptionsTable.userId, userId),
-            inArray(subscriptionsTable.status, [
-              'active',
-              'incomplete',
-              'past_due',
-              'paused',
-              'trialing',
-              'unpaid'
-            ])
-          )
-        );
-      
-      return subscriptions.length > 0 ? SubscriptionSchema.parse(subscriptions[0]) : null;
+        .where(eq(subscriptionsTable.userId, userId))
+        .orderBy(desc(subscriptionsTable.createdAt))
+        .limit(1);
+
+      return subscription ? SubscriptionSchema.parse(subscription) : null;
     }
   };
 }

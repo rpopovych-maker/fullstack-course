@@ -1,6 +1,7 @@
 import { IPostToTagRepo } from 'src/types/IPostTagsRepo';
 import { ITransactionManager } from 'src/types/ITransaction';
 import { IPostRepo } from 'src/types/post/IPostRepo';
+import { PostVisibility } from 'src/types/post/PostVisibility';
 
 export async function createPost(params: {
   postRepo: IPostRepo;
@@ -10,12 +11,14 @@ export async function createPost(params: {
   description?: string | null;
   userId: string;
   tagIds?: string[]
+  visibility?: PostVisibility
 }) {
   return params.transactionManager.execute(async ({ tx }) => {
     const post = await params.postRepo.createPost({
       title: params.title,
       description: params.description,
-      userId: params.userId
+      userId: params.userId,
+      visibility: params.visibility ?? 'public'
     }, tx);
 
     if (params.tagIds?.length) {

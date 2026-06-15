@@ -24,12 +24,14 @@ export function getAuthHook(fastify: FastifyInstance): preHandlerAsyncHookHandle
 
     if (!request.routeOptions.config.skipUserLookup) {
       const user = await fastify.repos.userRepo.getUserBySubId(request.identityUser.subId);
-      
+
       if (!user) {
         throw new HttpError(404, 'User not found');
       }
 
       request.user = user;
+      request.userCurrentSubscription = await fastify.repos.subscriptionRepo
+        .getLatestSubscriptionByUserId(user.id);
     }
   };
 }

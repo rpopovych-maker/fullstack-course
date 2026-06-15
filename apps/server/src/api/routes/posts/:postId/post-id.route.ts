@@ -23,15 +23,14 @@ const routes: FastifyPluginAsync = async function (f) {
         response: {
           200: GetPostByIdRespSchema
         }
-      },
-      config: {
-        skipAuth: true
       }
     },
     async (req) => {
       const post = await getPostById({
         postRepo: fastify.repos.postRepo,
-        postId: req.params.postId
+        postId: req.params.postId,
+        viewer: req.user!,
+        currentSubscription: req.userCurrentSubscription ?? null
       });
       return post;
     }
@@ -67,7 +66,8 @@ const routes: FastifyPluginAsync = async function (f) {
         postId: req.params.postId,
         title: req.body.title,
         description: req.body.description,
-        tagIds: req.body.tagIds
+        tagIds: req.body.tagIds,
+        visibility: req.body.visibility
       });
       return post;
     }

@@ -183,6 +183,13 @@
       "when": 1781453322972,
       "tag": "0025_handy_rocket_raccoon",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1781518797093,
+      "tag": "0026_sticky_callisto",
+      "breakpoints": true
     }
   ]
 }

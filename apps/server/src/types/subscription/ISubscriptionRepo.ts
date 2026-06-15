@@ -2,5 +2,5 @@ import { Subscription } from './Subscription';
 
 export interface ISubscriptionRepo {
   upsertSubscription(data: Pick<Subscription, 'cancelAtPeriodEnd' | 'canceledAt' | 'currentPeriodEnd' | 'currentPeriodStart' | 'status' | 'stripeCustomerId' | 'stripePriceId' | 'stripeSubscriptionId' | 'userId'>): Promise<Subscription>
-  getCurrentSubscriptionByUserId(userId: string): Promise<Subscription | null>;
+  getLatestSubscriptionByUserId(userId: string): Promise<Subscription | null>;
 }

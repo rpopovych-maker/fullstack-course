@@ -6,11 +6,17 @@ export const postsRoutes: RouteRecordRaw[] = [
   {
     path: '/posts',
     name: routeNames.posts,
-    component: () => import('./Posts.vue')
+    component: () => import('./Posts.vue'),
+    meta: {
+      requireAuth: true
+    }
   },
   {
     path: '/posts/:postId',
     name: routeNames.postDetail,
-    component: () => import('./PostDetail.vue')
+    component: () => import('./PostDetail.vue'),
+    meta: {
+      requireAuth: true
+    }
   }
 ]

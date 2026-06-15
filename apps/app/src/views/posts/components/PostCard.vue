@@ -3,7 +3,14 @@
     :to="{ name: routeNames.postDetail, params: { postId: post.id }, query: route.query }"
     class="post-card group flex h-full flex-col gap-3 rounded-xl p-5"
   >
-    <h3 class="line-clamp-2 wrap-break-word">{{ post.title }}</h3>
+    <div class="flex items-start justify-between gap-2">
+      <h3 class="line-clamp-2 wrap-break-word">{{ post.title }}</h3>
+      <MemberOnlyBadge
+        v-if="post.visibility === 'members'"
+        :locked="post.isLocked"
+        class="shrink-0"
+      />
+    </div>
 
     <p
       v-if="post.description"

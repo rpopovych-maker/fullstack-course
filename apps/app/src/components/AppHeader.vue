@@ -27,6 +27,17 @@
         </RouterLink>
 
         <RouterLink
+          v-if="authStore.isAuthenticated"
+          #default="{ navigate }"
+          :to="{ name: routeNames.pricing }"
+          custom
+        >
+          <el-button text @click="navigate">
+            {{ isProActive ? 'Subscription' : 'Pricing' }}
+          </el-button>
+        </RouterLink>
+
+        <RouterLink
           v-if="isAdmin"
           #default="{ navigate }"
           :to="{ name: routeNames.adminUsers }"
@@ -59,5 +70,6 @@
 
 <script setup lang="ts">
 const authStore = useAuthStore()
+const { isProActive } = useSubscription()
 const isAdmin = computed(() => authStore.user?.role === 'admin')
 </script>

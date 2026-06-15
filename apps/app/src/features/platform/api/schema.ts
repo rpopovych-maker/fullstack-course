@@ -233,6 +233,8 @@ export interface paths {
                             userId: string;
                             title: string;
                             description?: string | null;
+                            /** @enum {string} */
+                            visibility: "public" | "members";
                             /** Format: date-time */
                             deletedAt: string | null;
                             /** Format: date-time */
@@ -337,6 +339,8 @@ export interface paths {
                             id: string;
                             /** Format: uuid */
                             subId: string;
+                            /** @default null */
+                            stripeCustomerId: string | null;
                             /** @enum {string} */
                             role: "user" | "admin";
                             /** Format: email */
@@ -452,6 +456,8 @@ export interface paths {
                                 userId: string;
                                 title: string;
                                 description?: string | null;
+                                /** @enum {string} */
+                                visibility: "public" | "members";
                                 /** Format: date-time */
                                 deletedAt: string | null;
                                 /** Format: date-time */
@@ -490,7 +496,7 @@ export interface paths {
                     pageSize?: number;
                     search?: string;
                     order?: "asc" | "desc";
-                    orderBy?: "id" | "subId" | "role" | "email" | "username" | "deletedAt" | "bannedAt" | "createdAt" | "updatedAt";
+                    orderBy?: "id" | "subId" | "stripeCustomerId" | "role" | "email" | "username" | "deletedAt" | "bannedAt" | "createdAt" | "updatedAt";
                 };
                 header?: never;
                 path?: never;
@@ -510,6 +516,8 @@ export interface paths {
                                 id: string;
                                 /** Format: uuid */
                                 subId: string;
+                                /** @default null */
+                                stripeCustomerId: string | null;
                                 /** @enum {string} */
                                 role: "user" | "admin";
                                 /** Format: email */
@@ -572,6 +580,8 @@ export interface paths {
                             id: string;
                             /** Format: uuid */
                             subId: string;
+                            /** @default null */
+                            stripeCustomerId: string | null;
                             /** @enum {string} */
                             role: "user" | "admin";
                             /** Format: email */
@@ -1033,7 +1043,7 @@ export interface paths {
                     pageSize?: number;
                     search?: string;
                     order?: "asc" | "desc";
-                    orderBy?: "id" | "subId" | "role" | "email" | "username" | "deletedAt" | "bannedAt" | "createdAt" | "updatedAt";
+                    orderBy?: "id" | "subId" | "stripeCustomerId" | "role" | "email" | "username" | "deletedAt" | "bannedAt" | "createdAt" | "updatedAt";
                 };
                 header?: never;
                 path?: never;
@@ -1053,6 +1063,8 @@ export interface paths {
                                 id: string;
                                 /** Format: uuid */
                                 subId: string;
+                                /** @default null */
+                                stripeCustomerId: string | null;
                                 /** @enum {string} */
                                 role: "user" | "admin";
                                 /** Format: email */
@@ -1116,6 +1128,8 @@ export interface paths {
                             id: string;
                             /** Format: uuid */
                             subId: string;
+                            /** @default null */
+                            stripeCustomerId: string | null;
                             /** @enum {string} */
                             role: "user" | "admin";
                             /** Format: email */
@@ -1206,6 +1220,8 @@ export interface paths {
                             id: string;
                             /** Format: uuid */
                             subId: string;
+                            /** @default null */
+                            stripeCustomerId: string | null;
                             /** @enum {string} */
                             role: "user" | "admin";
                             /** Format: email */
@@ -1260,6 +1276,8 @@ export interface paths {
                             id: string;
                             /** Format: uuid */
                             subId: string;
+                            /** @default null */
+                            stripeCustomerId: string | null;
                             /** @enum {string} */
                             role: "user" | "admin";
                             /** Format: email */
@@ -1346,6 +1364,8 @@ export interface paths {
                             id: string;
                             /** Format: uuid */
                             subId: string;
+                            /** @default null */
+                            stripeCustomerId: string | null;
                             /** @enum {string} */
                             role: "user" | "admin";
                             /** Format: email */
@@ -1408,6 +1428,8 @@ export interface paths {
                             id: string;
                             /** Format: uuid */
                             subId: string;
+                            /** @default null */
+                            stripeCustomerId: string | null;
                             /** @enum {string} */
                             role: "user" | "admin";
                             /** Format: email */
@@ -1473,6 +1495,8 @@ export interface paths {
                             id: string;
                             /** Format: uuid */
                             subId: string;
+                            /** @default null */
+                            stripeCustomerId: string | null;
                             /** @enum {string} */
                             role: "user" | "admin";
                             /** Format: email */
@@ -1535,6 +1559,8 @@ export interface paths {
                                 userId: string;
                                 title: string;
                                 description?: string | null;
+                                /** @enum {string} */
+                                visibility: "public" | "members";
                                 /** Format: date-time */
                                 deletedAt: string | null;
                                 /** Format: date-time */
@@ -1556,6 +1582,8 @@ export interface paths {
                                     updatedAt: string;
                                 }[];
                                 commentsCount: number;
+                                /** @default false */
+                                isLocked: boolean;
                             }[];
                             page: number;
                             pageSize: number;
@@ -1580,6 +1608,8 @@ export interface paths {
                         title: string;
                         description?: string;
                         tagIds?: string[];
+                        /** @enum {string} */
+                        visibility?: "public" | "members";
                     };
                 };
             };
@@ -1597,6 +1627,8 @@ export interface paths {
                             userId: string;
                             title: string;
                             description?: string | null;
+                            /** @enum {string} */
+                            visibility: "public" | "members";
                             /** Format: date-time */
                             deletedAt: string | null;
                             /** Format: date-time */
@@ -1645,6 +1677,8 @@ export interface paths {
                             userId: string;
                             title: string;
                             description?: string | null;
+                            /** @enum {string} */
+                            visibility: "public" | "members";
                             /** Format: date-time */
                             deletedAt: string | null;
                             /** Format: date-time */
@@ -1665,6 +1699,8 @@ export interface paths {
                                 /** Format: date-time */
                                 updatedAt: string;
                             }[];
+                            /** @default false */
+                            isLocked: boolean;
                         };
                     };
                 };
@@ -1696,6 +1732,8 @@ export interface paths {
                             userId: string;
                             title: string;
                             description?: string | null;
+                            /** @enum {string} */
+                            visibility: "public" | "members";
                             /** Format: date-time */
                             deletedAt: string | null;
                             /** Format: date-time */
@@ -1724,6 +1762,8 @@ export interface paths {
                         title?: string;
                         description?: string;
                         tagIds?: string[];
+                        /** @enum {string} */
+                        visibility?: "public" | "members";
                     };
                 };
             };
@@ -1741,6 +1781,8 @@ export interface paths {
                             userId: string;
                             title: string;
                             description?: string | null;
+                            /** @enum {string} */
+                            visibility: "public" | "members";
                             /** Format: date-time */
                             deletedAt: string | null;
                             /** Format: date-time */
@@ -2079,6 +2121,8 @@ export interface paths {
                             userId: string;
                             title: string;
                             description?: string | null;
+                            /** @enum {string} */
+                            visibility: "public" | "members";
                             /** Format: date-time */
                             deletedAt: string | null;
                             /** Format: date-time */
@@ -2128,6 +2172,8 @@ export interface paths {
                             userId: string;
                             title: string;
                             description?: string | null;
+                            /** @enum {string} */
+                            visibility: "public" | "members";
                             /** Format: date-time */
                             deletedAt: string | null;
                             /** Format: date-time */
@@ -2181,6 +2227,166 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stripe/webhook/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/subscriptions/cancel/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/subscriptions/checkout/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uri */
+                            url: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/subscriptions/current/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            userId: string;
+                            stripeSubscriptionId: string;
+                            stripeCustomerId: string;
+                            stripePriceId: string;
+                            /** @enum {string} */
+                            status: "active" | "canceled" | "incomplete" | "incomplete_expired" | "past_due" | "paused" | "trialing" | "unpaid";
+                            cancelAtPeriodEnd: boolean;
+                            /** Format: date-time */
+                            currentPeriodStart: string | null;
+                            /** Format: date-time */
+                            currentPeriodEnd: string | null;
+                            /** Format: date-time */
+                            canceledAt: string | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                        } | null;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;

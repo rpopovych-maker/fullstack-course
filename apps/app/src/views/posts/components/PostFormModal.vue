@@ -51,6 +51,17 @@
           />
         </el-select>
       </el-form-item>
+      <el-form-item label="Visibility" prop="visibility">
+        <el-radio-group v-model="form.visibility">
+          <el-radio value="public">Public</el-radio>
+          <el-radio value="members">
+            <span class="inline-flex items-center gap-1">
+              <Icon name="lock" />
+              Members only
+            </span>
+          </el-radio>
+        </el-radio-group>
+      </el-form-item>
     </el-form>
 
     <template #footer>
@@ -73,6 +84,7 @@ interface IPostFormPayload {
   title: string
   description: string
   tags: TPostDetail['tags']
+  visibility: 'public' | 'members'
 }
 
 const props = defineProps<{
@@ -87,7 +99,8 @@ const formRef = useElFormRef(null)
 const form = useElFormModel({
   title: props.post?.title ?? '',
   description: props.post?.description ?? '',
-  tagIds: props.post?.tags.map(tag => tag.id) ?? []
+  tagIds: props.post?.tags.map(tag => tag.id) ?? [],
+  visibility: props.post?.visibility ?? 'public'
 })
 const rules = useElFormRules({
   title: [useRequiredRule(), useMaxLenRule(255)],
@@ -115,7 +128,8 @@ async function submit () {
   const body = {
     title: form.title,
     description: form.description || undefined,
-    tagIds: form.tagIds
+    tagIds: form.tagIds,
+    visibility: form.visibility
   }
 
   if (isEdit.value && props.post) {

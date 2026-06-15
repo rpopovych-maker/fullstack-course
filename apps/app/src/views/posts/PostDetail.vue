@@ -31,7 +31,13 @@
           <div class="flex min-w-0 items-start gap-3">
             <AuthorAvatar :username="post.author.username" :size="40" />
             <div class="space-y-1 min-w-0">
-              <h1 class="wrap-break-word">{{ post.title }}</h1>
+              <div class="flex flex-wrap items-center gap-2">
+                <h1 class="wrap-break-word">{{ post.title }}</h1>
+                <MemberOnlyBadge
+                  v-if="post.visibility === 'members'"
+                  :locked="post.isLocked"
+                />
+              </div>
               <p class="t-caption">{{ post.author.username }} · {{ createdAgo }}</p>
             </div>
           </div>
@@ -79,7 +85,14 @@
           </div>
         </div>
 
-        <p v-if="post.description" class="t-body whitespace-pre-line wrap-break-word">
+        <MemberLockCta
+          v-if="post.isLocked"
+          :preview="post.description"
+        />
+        <p
+          v-else-if="post.description"
+          class="t-body whitespace-pre-line wrap-break-word"
+        >
           {{ post.description }}
         </p>
 
@@ -142,7 +155,7 @@
             :closable="false"
           />
         </template>
-        <CommentCreate :post-id="post.id" />
+        <CommentCreate v-if="!post.isLocked" :post-id="post.id" />
       </section>
     </template>
   </div>
@@ -219,7 +232,8 @@ function openEditModal () {
       id: post.value.id,
       title: post.value.title,
       description: post.value.description ?? '',
-      tags: post.value.tags
+      tags: post.value.tags,
+      visibility: post.value.visibility
     }
   })
 }

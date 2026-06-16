@@ -4,10 +4,6 @@
   "private": true,
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "test": "npm run typecheck",
-    "typecheck": "npm --prefix apps/app run type-check && npm --prefix apps/server run build"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",

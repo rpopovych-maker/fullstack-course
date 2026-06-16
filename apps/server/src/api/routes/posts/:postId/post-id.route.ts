@@ -28,6 +28,7 @@ const routes: FastifyPluginAsync = async function (f) {
     async (req) => {
       const post = await getPostById({
         postRepo: fastify.repos.postRepo,
+        postToTagRepo: fastify.repos.postToTagRepo,
         postId: req.params.postId,
         viewer: req.user!,
         currentSubscription: req.userCurrentSubscription ?? null

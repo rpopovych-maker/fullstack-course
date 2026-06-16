@@ -1,12 +1,14 @@
 import { HttpError } from 'src/api/errors/HttpError';
 import { canReadFullPost } from 'src/services/post-access/canReadFullPost';
 import { truncateText } from 'src/utils/truncate-text';
+import { IPostToTagRepo } from 'src/types/IPostTagsRepo';
 import { IPostRepo } from 'src/types/post/IPostRepo';
 import { Subscription } from 'src/types/subscription/Subscription';
 import { User } from 'src/types/user/User';
 
 export async function getPostById(params: {
   postRepo: IPostRepo;
+  postToTagRepo: IPostToTagRepo;
   postId: string;
   viewer: User;
   currentSubscription: Subscription | null;
@@ -17,6 +19,13 @@ export async function getPostById(params: {
     throw new HttpError(404, 'Post not found');
   }
 
+  const tags = await params.postToTagRepo.getTagsByPostId(params.postId);
+  
+  const postWithTags = {
+    ...post,
+    tags
+  };
+
   const canRead = canReadFullPost({
     post,
     viewer: params.viewer,
@@ -24,12 +33,12 @@ export async function getPostById(params: {
   });
 
   if (canRead) {
-    return post;
+    return postWithTags;
   }
 
   return {
-    ...post,
-    description: truncateText(post.description),
+    ...postWithTags,
+    description: truncateText(postWithTags.description),
     isLocked: true
   };
 }

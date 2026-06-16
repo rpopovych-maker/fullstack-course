@@ -209,17 +209,8 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
       if (!post) {
         return null;
       }
-      
-      const tags = await db
-        .select(getTableColumns(tagsTable))
-        .from(postToTagTable)
-        .innerJoin(tagsTable, eq(tagsTable.id, postToTagTable.tagId))
-        .where(eq(postToTagTable.postId, id));
 
-      return PostWithAuthorSchema.parse({
-        ...post,
-        tags
-      });
+      return PostWithAuthorSchema.parse(post);
     },
 
     async getPosts({ page, pageSize, search, orderBy, order, minCommentsCount, tagIds }) {

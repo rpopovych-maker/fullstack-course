@@ -79,16 +79,8 @@
 import { ElMessage } from 'element-plus'
 import { usePublicTagsQuery } from '../post.queries'
 
-interface IPostFormPayload {
-  id: string
-  title: string
-  description: string
-  tags: TPostDetail['tags']
-  visibility: 'public' | 'members'
-}
-
 const props = defineProps<{
-  post?: IPostFormPayload
+  post?: TPostFormPayload
 }>()
 
 const { isOpen, closeModal } = useModals()

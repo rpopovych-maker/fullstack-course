@@ -1,23 +1,30 @@
-import { ENTITLED_SUBSCRIPTION_STATUSES, isProActive } from '../policy/post-access'
-
 export const useSubscription = () => {
+  const ENTITLED_SUBSCRIPTION_STATUSES: TSubscriptionStatus[] = [
+    'active',
+    'trialing'
+  ]
+
   const authStore = useAuthStore()
   const { data, isLoading, refetch } = useCurrentSubscriptionQuery({
     enabled: () => authStore.isAuthenticated
   })
 
   const subscription = computed(() => data.value ?? null)
-  const isProActiveRef = computed(() => isProActive(subscription.value))
+  const isProActive = computed(() => {
+    const currentSubscription = subscription.value
+
+    return currentSubscription !== null &&
+      ENTITLED_SUBSCRIPTION_STATUSES.includes(currentSubscription.status)
+  })
   const isCanceledAtPeriodEnd = computed(() => {
     return subscription.value?.cancelAtPeriodEnd === true
   })
 
   return {
     subscription,
-    isProActive: isProActiveRef,
+    isProActive,
     isCanceledAtPeriodEnd,
     isLoading,
-    refetch,
-    ENTITLED_SUBSCRIPTION_STATUSES
+    refetch
   }
 }

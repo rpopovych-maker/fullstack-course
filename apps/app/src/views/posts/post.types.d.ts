@@ -6,6 +6,9 @@ type TPublicTagList = TResponse<'/api/tags/', 'get'>
 type TPublicTagListQuery = NonNullable<TRequestQuery<'/api/tags/', 'get'>>
 
 type TPostDetail = TResponse<'/api/posts/{postId}/', 'get'>
+type TPostVisibility = TPostDetail['visibility']
+type TPostFormPayload = TRequestBody<'/api/posts/', 'post'>
+
 type TPostComments = TResponse<'/api/posts/{postId}/comments/', 'get'>
 type TPostCommentsQuery = NonNullable<TRequestQuery<'/api/posts/{postId}/comments/', 'get'>>
 type TComment = TPostComments['data'][number]

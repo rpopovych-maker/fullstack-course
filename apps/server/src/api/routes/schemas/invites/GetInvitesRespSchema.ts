@@ -1,3 +1,4 @@
-import { GetInvitesResultSchema } from 'src/types/invite/GetInvitesResult';
+import { paginationResponseSchema } from 'src/types/PaginationResponse';
+import { InviteSchema } from 'src/types/invite/Invite';
 
-export const GetInvitesRespSchema = GetInvitesResultSchema;
+export const GetInvitesRespSchema = paginationResponseSchema(InviteSchema);

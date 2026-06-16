@@ -2,9 +2,8 @@ import { and, asc, count, desc, eq, gt, or, lt, getTableColumns, isNull, inArray
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { ICommentRepo } from 'src/types/comment/ICommentRepo';
 import { CommentSchema } from 'src/types/comment/Comment';
+import { CommentWithAuthorSchema } from 'src/types/comment/CommentWithAuthor';
 import { commentsTable, postsTable, usersTable } from 'src/services/drizzle/schema';
-import { GetPostCommentsResultSchema } from 'src/types/comment/GetPostCommentsResult';
-import { GetSoftDeletedCommentsResultSchema } from 'src/types/comment/GetSoftDeletedCommentsResult';
 
 export function getCommentRepo(db: NodePgDatabase): ICommentRepo {
   return {
@@ -22,13 +21,13 @@ export function getCommentRepo(db: NodePgDatabase): ICommentRepo {
         .from(commentsTable)
         .where(isNotNull(commentsTable.deletedAt));
 
-      return GetSoftDeletedCommentsResultSchema.parse({
-        data: comments,
+      return {
+        data: CommentSchema.array().parse(comments),
         page,
         pageSize,
         total,
         totalPages: Math.ceil(total / pageSize)
-      });
+      };
     },
 
     async getCommentsByUserId(userId, returnDeleted) {
@@ -246,15 +245,15 @@ export function getCommentRepo(db: NodePgDatabase): ICommentRepo {
       const hasNextPage = comments.length > pageSize;
       const lastComment = data[data.length - 1];
 
-      return GetPostCommentsResultSchema.parse({
-        data,
+      return {
+        data: CommentWithAuthorSchema.array().parse(data),
         nextCursor: hasNextPage && lastComment
           ? {
             id: lastComment.id,
             createdAt: lastComment.createdAt
           }
           : null
-      });
+      };
     }
   };
 }

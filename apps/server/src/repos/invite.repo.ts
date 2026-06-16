@@ -1,7 +1,6 @@
 import { asc, count, desc, eq, ilike } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { invitesTable } from 'src/services/drizzle/schema';
-import { GetInvitesResultSchema } from 'src/types/invite/GetInvitesResult';
 import { IInviteRepo } from 'src/types/invite/IInviteRepo';
 import { InviteSchema } from 'src/types/invite/Invite';
 
@@ -74,13 +73,13 @@ export function getInviteRepo(db: NodePgDatabase): IInviteRepo {
       
       const total = totalResult[0]?.total ?? 0;     
       
-      return GetInvitesResultSchema.parse({
-        data: invites,
+      return {
+        data: InviteSchema.array().parse(invites),
         page,
         pageSize,
         total,
         totalPages: Math.ceil(total / pageSize)
-      });
+      };
     }
   };
 }

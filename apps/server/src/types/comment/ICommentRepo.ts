@@ -1,8 +1,8 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Comment } from './Comment';
 import { CommentCursor } from './CommentCursor';
-import { GetPostCommentsResult } from './GetPostCommentsResult';
-import { GetSoftDeletedCommentsResult } from './GetSoftDeletedCommentsResult';
+import { CommentWithAuthor } from './CommentWithAuthor';
+import { PaginationResponse } from 'src/types/PaginationResponse';
 
 type CreateCommentData =
   Pick<Comment, 'userId' | 'postId' | 'text'> &
@@ -31,7 +31,10 @@ export interface ICommentRepo {
     postId: string;
     cursor?: CommentCursor;
     pageSize: number
-  }): Promise<GetPostCommentsResult>;
+  }): Promise<{
+    data: CommentWithAuthor[]
+    nextCursor: CommentCursor | null
+  }>;
   getCommentsByPostId(
     postId: string,
     returnDeleted?: boolean
@@ -43,7 +46,7 @@ export interface ICommentRepo {
   getSoftDeletedComments(params: {
     page: number
     pageSize: number
-  }): Promise<GetSoftDeletedCommentsResult>;
+  }): Promise<PaginationResponse<Comment>>;
   getCommentOwner(commentId: string): Promise<string | null>;
   softDeleteCommentsByPostOwnerId(
     userId: string,

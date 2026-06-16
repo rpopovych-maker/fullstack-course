@@ -1,3 +1,4 @@
-import { GetUsersResultSchema } from 'src/types/user/GetUsersResult';
+import { paginationResponseSchema } from 'src/types/PaginationResponse';
+import { UserSchema } from 'src/types/user/User';
 
-export const GetUsersRespSchema = GetUsersResultSchema;
+export const GetUsersRespSchema = paginationResponseSchema(UserSchema);

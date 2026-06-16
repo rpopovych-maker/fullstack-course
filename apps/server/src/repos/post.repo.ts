@@ -2,14 +2,13 @@ import { and, asc, count, countDistinct, desc, eq, getTableColumns, gte, ilike, 
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { IPostRepo } from 'src/types/post/IPostRepo';
 import { commentsTable, postsTable, postToTagTable, tagsTable, usersTable } from 'src/services/drizzle/schema';
-import { GetPostsResultSchema } from 'src/types/post/GetPostsResult';
 import { PostWithAuthorSchema } from 'src/types/post/PostWithAuthor';
 import { Tag } from 'src/types/tag/Tag';
 import { PostSchema } from 'src/types/post/Post';
 import { jsonAggBuildObject } from 'src/utils/json-agg-build-object';
 import { PostWithCommentsAndTagsSchema } from 'src/types/post/PostWithCommentsAndTags';
 import { PostWithTagsSchema } from 'src/types/post/PostWithTags';
-import { GetSoftDeletedPostsResultSchema } from 'src/types/post/GetSoftDeletedPostsResult';
+import { PostWithCommentsCountSchema } from 'src/types/post/PostWithCommentsCount';
 
 export function getPostRepo(db: NodePgDatabase): IPostRepo {
   return {
@@ -27,13 +26,13 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
         .from(postsTable)
         .where(isNotNull(postsTable.deletedAt));
 
-      return GetSoftDeletedPostsResultSchema.parse({
-        data: posts,
+      return {
+        data: PostSchema.array().parse(posts),
         page,
         pageSize,
         total,
         totalPages: Math.ceil(total / pageSize)
-      });
+      };
     },
 
     async getExistingPostIds(ids) {
@@ -335,13 +334,13 @@ export function getPostRepo(db: NodePgDatabase): IPostRepo {
       const total = totalResult[0]?.total ?? 0;
       const totalPages = Math.ceil(total / pageSize);
 
-      return GetPostsResultSchema.parse({
-        data: postWithTags,
+      return {
+        data: PostWithCommentsCountSchema.array().parse(postWithTags),
         page,
         pageSize,
         total,
         totalPages
-      });
+      };
     }
   };
 }

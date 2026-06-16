@@ -1,7 +1,7 @@
-import { GetUsersResult } from 'src/types/user/GetUsersResult';
 import { User } from './User';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { SortOrder } from 'src/types/SortOrder';
+import { PaginationResponse } from 'src/types/PaginationResponse';
 
 export interface IUserRepo {
   updateUser(id: string, data: Partial<Pick<User, 'bannedAt' | 'email' | 'role' | 'stripeCustomerId' | 'username'>>): Promise<User | null>;
@@ -19,14 +19,14 @@ export interface IUserRepo {
     search?: string
     order?: SortOrder
     orderBy?: keyof User
-  }): Promise<GetUsersResult>;
+  }): Promise<PaginationResponse<User>>;
   getSoftDeletedUsers(params: {
     page: number
     pageSize: number
     search?: string
     order?: SortOrder
     orderBy?: keyof User
-  }): Promise<GetUsersResult>;
+  }): Promise<PaginationResponse<User>>;
   banUser(id: string): Promise<User | null>;
   unbanUser(id: string): Promise<User | null>;
   softDeleteUser(id: string, deletedAt: Date, tx?: NodePgDatabase): Promise<User | null>

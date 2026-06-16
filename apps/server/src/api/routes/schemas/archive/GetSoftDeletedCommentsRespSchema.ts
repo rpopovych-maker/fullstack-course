@@ -1,3 +1,4 @@
-import { GetSoftDeletedCommentsResultSchema } from 'src/types/comment/GetSoftDeletedCommentsResult';
+import { paginationResponseSchema } from 'src/types/PaginationResponse';
+import { CommentSchema } from 'src/types/comment/Comment';
 
-export const GetSoftDeletedCommentsRespSchema = GetSoftDeletedCommentsResultSchema;
+export const GetSoftDeletedCommentsRespSchema = paginationResponseSchema(CommentSchema);

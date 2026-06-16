@@ -1,3 +1,4 @@
-import { GetSoftDeletedPostsResultSchema } from 'src/types/post/GetSoftDeletedPostsResult';
+import { paginationResponseSchema } from 'src/types/PaginationResponse';
+import { PostSchema } from 'src/types/post/Post';
 
-export const GetSoftDeletedPostsRespSchema = GetSoftDeletedPostsResultSchema;
+export const GetSoftDeletedPostsRespSchema = paginationResponseSchema(PostSchema);

@@ -1,12 +1,12 @@
 import { SortOrder } from 'src/types/SortOrder';
 import { Post } from './Post';
-import { GetPostsResult } from './GetPostsResult';
 import { PostOrderBy } from './PostOrderBy';
 import { PostWithAuthor } from './PostWithAuthor';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { PostWithCommentsAndTags } from './PostWithCommentsAndTags';
 import { PostWithTags } from './PostWithTags';
-import { GetSoftDeletedPostsResult } from './GetSoftDeletedPostsResult';
+import { PostWithCommentsCount } from './PostWithCommentsCount';
+import { PaginationResponse } from 'src/types/PaginationResponse';
 export interface IPostRepo {
   createPost(
     data: Pick<Post, 'userId' | 'title' | 'description'> &
@@ -42,7 +42,7 @@ export interface IPostRepo {
     order?: SortOrder,
     tagIds?: string[],
     minCommentsCount?: number
-  }): Promise<GetPostsResult>;
+  }): Promise<PaginationResponse<PostWithCommentsCount>>;
   getPostOwner(postId: string): Promise<string | null>;
   getPostsWithCommentsAndTagsByUserId(
     userId: string,
@@ -51,7 +51,7 @@ export interface IPostRepo {
   getSoftDeletedPosts(params: {
     page: number
     pageSize: number
-  }): Promise<GetSoftDeletedPostsResult>;
+  }): Promise<PaginationResponse<Post>>;
   softDeletePostsByUserId(userId: string, deletedAt: Date, tx?: NodePgDatabase): Promise<void>
   softDeletePost(postId: string, deletedAt: Date, tx?: NodePgDatabase): Promise<Post | null>
   restoreSoftDeletedPostsByUserId(

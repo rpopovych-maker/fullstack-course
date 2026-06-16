@@ -1,7 +1,6 @@
 import { and, asc, count, desc, eq, ilike, inArray, isNotNull, isNull, or } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { usersTable } from 'src/services/drizzle/schema';
-import { GetUsersResultSchema } from 'src/types/user/GetUsersResult';
 import { IUserRepo } from 'src/types/user/IUserRepo';
 import { UserSchema } from 'src/types/user/User';
 
@@ -145,13 +144,13 @@ export function getUserRepo(db: NodePgDatabase): IUserRepo {
       
       const total = totalResult[0]?.total ?? 0;   
 
-      return GetUsersResultSchema.parse({
-        data: users,
+      return {
+        data: UserSchema.array().parse(users),
         page,
         pageSize,
         total,
         totalPages: Math.ceil(total / pageSize)
-      });
+      };
     },
 
     async getSoftDeletedUsers({ page, pageSize, search, order, orderBy }) {
@@ -178,13 +177,13 @@ export function getUserRepo(db: NodePgDatabase): IUserRepo {
       
       const total = totalResult[0]?.total ?? 0;   
 
-      return GetUsersResultSchema.parse({
-        data: users,
+      return {
+        data: UserSchema.array().parse(users),
         page,
         pageSize,
         total,
         totalPages: Math.ceil(total / pageSize)
-      });
+      };
     }
   };
 }

@@ -122,12 +122,13 @@ pnpm db:migration:run
 
 ### 5. Start the Stripe webhook forwarder
 
-In a dedicated terminal, run the Stripe CLI in listen mode. It opens a tunnel from Stripe → your local server:
+In a dedicated terminal, from `apps/server/`:
 
 ```sh
-stripe login                                                    # one-time
-stripe listen --forward-to http://localhost:3000/api/stripe/webhook
+pnpm stripe:listen
 ```
+
+This authenticates the Stripe CLI with the `STRIPE_SECRET_KEY` from your `.env` (no `stripe login` needed) and opens a tunnel that forwards webhook events from Stripe → `http://localhost:3000/api/stripe/webhook`.
 
 On startup it prints a line like:
 
@@ -217,7 +218,7 @@ The Pro-subscription checkout uses Stripe-hosted Checkout. The backend creates t
      │     /me                    │                           │
      ├───────────────────────────►│                           │
      │                            │                           │
-     │ 11. { status, plan, … }    │                           │
+     │ 11. { status, … }          │                           │
      │◄───────────────────────────┤                           │
 ```
 

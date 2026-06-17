@@ -12,7 +12,8 @@
     "lint:fix": "eslint --fix .",
     "db:migration:run": "npx drizzle-kit migrate",
     "db:migration:generate": "npx drizzle-kit generate",
-    "db:migration:studio": "npx drizzle-kit studio"
+    "db:migration:studio": "npx drizzle-kit studio",
+    "stripe:listen": "sh -c 'set -a; . ./.env; set +a; stripe listen --api-key \"$STRIPE_SECRET_KEY\" --forward-to http://localhost:3000/api/stripe/webhook'"
   },
   "keywords": [],
   "author": "",

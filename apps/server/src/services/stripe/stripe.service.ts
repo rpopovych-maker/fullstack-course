@@ -37,9 +37,11 @@ export function getStripeService(params: {
         },
         success_url: `${params.clientAppUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${params.clientAppUrl}/pricing`
-      }, {
-        idempotencyKey: `pro-checkout:${userId}`
       });
+      // Note: removed for local development for easier testing
+      // {
+      //   idempotencyKey: `pro-checkout:${userId}`
+      // }
     },
 
     constructWebhookEvent(payload, signature) {

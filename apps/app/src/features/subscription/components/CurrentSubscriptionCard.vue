@@ -1,5 +1,5 @@
 <template>
-  <el-card shadow="never" class="current-subscription-card">
+  <el-card shadow="never" class="current-subscription-card" :class="cardToneClass">
     <div class="space-y-5">
       <div class="flex items-start justify-between gap-3">
         <div class="space-y-1">
@@ -9,7 +9,7 @@
             <el-tag :type="statusTagType" size="small">{{ statusLabel }}</el-tag>
           </h2>
         </div>
-        <Icon name="lock" class="text-yellow-400" />
+        <Icon name="lock" :class="statusIconClass" />
       </div>
 
       <el-divider class="!my-0" />
@@ -34,7 +34,25 @@
         :closable="false"
       />
 
-      <div v-else class="flex justify-end">
+      <el-alert
+        v-else-if="isTerminalStatus"
+        :title="terminalStatusTitle"
+        type="error"
+        :description="terminalStatusDescription"
+        show-icon
+        :closable="false"
+      />
+
+      <el-alert
+        v-else-if="isProblemStatus"
+        title="Payment needs attention"
+        type="warning"
+        description="Your subscription is not active right now. Check your billing details or start a new checkout."
+        show-icon
+        :closable="false"
+      />
+
+      <div v-if="canCancelSubscription" class="flex justify-end">
         <el-button
           type="danger"
           plain
@@ -58,10 +76,50 @@ const props = defineProps<{
 const cancelMutation = useCancelSubscriptionMutation()
 
 const isCanceledAtPeriodEnd = computed(() => props.subscription.cancelAtPeriodEnd)
+const isTerminalStatus = computed(() => {
+  return props.subscription.status === 'canceled' ||
+    props.subscription.status === 'incomplete_expired'
+})
+const isProblemStatus = computed(() => {
+  return [
+    'incomplete',
+    'past_due',
+    'paused',
+    'unpaid'
+  ].includes(props.subscription.status)
+})
+const canCancelSubscription = computed(() => {
+  return !isCanceledAtPeriodEnd.value && !isTerminalStatus.value
+})
+
+const cardToneClass = computed(() => {
+  if (isTerminalStatus.value) {
+    return 'current-subscription-card--danger'
+  }
+
+  if (isCanceledAtPeriodEnd.value || isProblemStatus.value) {
+    return 'current-subscription-card--warning'
+  }
+
+  return ''
+})
+
+const statusIconClass = computed(() => {
+  if (isTerminalStatus.value) {
+    return 'text-red-400'
+  }
+
+  if (isCanceledAtPeriodEnd.value || isProblemStatus.value) {
+    return 'text-yellow-400'
+  }
+
+  return 'text-emerald-400'
+})
 
 const statusLabel = computed(() => {
   const status = props.subscription.status
-  return status.charAt(0).toUpperCase() + status.slice(1)
+  const label = status.replace(/_/g, ' ')
+  return label.charAt(0).toUpperCase() + label.slice(1)
 })
 
 const statusTagType = computed<'success' | 'warning' | 'danger' | 'info'>(() => {
@@ -85,6 +143,16 @@ const statusTagType = computed<'success' | 'warning' | 'danger' | 'info'>(() => 
 })
 
 const periodEndLabel = computed(() => isCanceledAtPeriodEnd.value ? 'Access ends' : 'Renews on')
+const terminalStatusTitle = computed(() => {
+  return props.subscription.status === 'incomplete_expired'
+    ? 'Checkout expired'
+    : 'Subscription ended'
+})
+const terminalStatusDescription = computed(() => {
+  return props.subscription.status === 'incomplete_expired'
+    ? 'The checkout was not completed in time. Start a new checkout to activate Pro.'
+    : 'Your Pro access has ended. Start a new checkout to subscribe again.'
+})
 
 const formattedPeriodEnd = computed(() => formatDate(props.subscription.currentPeriodEnd))
 
@@ -127,5 +195,13 @@ async function confirmCancel () {
 <style scoped>
 .current-subscription-card :deep(.el-card__body) {
   padding: 1.5rem;
+}
+
+.current-subscription-card--warning {
+  border-color: var(--el-color-warning-light-5);
+}
+
+.current-subscription-card--danger {
+  border-color: var(--el-color-danger-light-5);
 }
 </style>

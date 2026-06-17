@@ -47,5 +47,9 @@ export const AutoImportScripts = () => AutoImport({
     }
   ],
 
-  resolvers: [ElementPlusResolver()]
+  resolvers: [ElementPlusResolver({
+    // Keep style auto-imports enabled during development for simpler setup.
+    // Switch to false and import styles manually before optimizing production bundles.
+    importStyle: true
+  })]
 })

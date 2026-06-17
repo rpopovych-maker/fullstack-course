@@ -14,11 +14,11 @@
     </div>
 
     <CurrentSubscriptionCard
-      v-else-if="isProActive && subscription"
+      v-if="!isLoading && subscription"
       :subscription="subscription"
     />
 
-    <el-card v-else shadow="hover" class="pro-card">
+    <el-card v-if="!isLoading && !isProActive" shadow="hover" class="pro-card">
       <div class="space-y-6 p-2">
         <div class="space-y-1">
           <p class="t-caption">Single plan</p>

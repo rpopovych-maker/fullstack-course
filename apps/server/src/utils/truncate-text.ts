@@ -1,3 +1,5 @@
+export function truncateText(text: string, maxLen?: number): string;
+export function truncateText(text: null | undefined, maxLen?: number): null;
 export function truncateText(
   text: string | null | undefined,
   maxLen = 300

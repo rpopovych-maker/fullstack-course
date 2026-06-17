@@ -8,7 +8,7 @@ export async function createPost(params: {
   postToTagRepo: IPostToTagRepo
   transactionManager: ITransactionManager
   title: string;
-  description?: string | null;
+  description: string;
   userId: string;
   tagIds?: string[]
   visibility?: PostVisibility

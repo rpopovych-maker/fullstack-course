@@ -190,6 +190,13 @@
       "when": 1781518797093,
       "tag": "0026_sticky_callisto",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1781684906642,
+      "tag": "0027_vengeful_fallen_one",
+      "breakpoints": true
     }
   ]
 }

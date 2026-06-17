@@ -96,7 +96,7 @@ const form = useElFormModel({
 })
 const rules = useElFormRules({
   title: [useRequiredRule(), useMaxLenRule(255)],
-  description: [useMaxLenRule(2000)]
+  description: [useRequiredRule(), useMaxLenRule(2000)]
 })
 
 const createMutation = useCreatePostMutation()
@@ -119,7 +119,7 @@ async function submit () {
 
   const body = {
     title: form.title,
-    description: form.description || undefined,
+    description: form.description,
     tagIds: form.tagIds,
     visibility: form.visibility
   }

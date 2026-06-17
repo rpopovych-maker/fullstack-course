@@ -46,7 +46,7 @@ export const postsTable = pgTable('posts', {
   id: uuid().primaryKey().default(sql`uuid_generate_v4()`),
   userId: uuid().notNull().references(() => usersTable.id, { onDelete: 'cascade' }),
   title: varchar({ length: 255 }).notNull(),
-  description: text(),
+  description: text().notNull(),
   visibility: varchar({ length: 20 }).notNull().default('public'),
   deletedAt: timestamp(),
   createdAt: timestamp().defaultNow().notNull(),

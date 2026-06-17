@@ -232,7 +232,7 @@ export interface paths {
                             /** Format: uuid */
                             userId: string;
                             title: string;
-                            description?: string | null;
+                            description: string;
                             /** @enum {string} */
                             visibility: "public" | "members";
                             /** Format: date-time */
@@ -455,7 +455,7 @@ export interface paths {
                                 /** Format: uuid */
                                 userId: string;
                                 title: string;
-                                description?: string | null;
+                                description: string;
                                 /** @enum {string} */
                                 visibility: "public" | "members";
                                 /** Format: date-time */
@@ -1558,7 +1558,7 @@ export interface paths {
                                 /** Format: uuid */
                                 userId: string;
                                 title: string;
-                                description?: string | null;
+                                description: string;
                                 /** @enum {string} */
                                 visibility: "public" | "members";
                                 /** Format: date-time */
@@ -1606,7 +1606,7 @@ export interface paths {
                 content: {
                     "application/json": {
                         title: string;
-                        description?: string;
+                        description: string;
                         tagIds?: string[];
                         /** @enum {string} */
                         visibility?: "public" | "members";
@@ -1626,7 +1626,7 @@ export interface paths {
                             /** Format: uuid */
                             userId: string;
                             title: string;
-                            description?: string | null;
+                            description: string;
                             /** @enum {string} */
                             visibility: "public" | "members";
                             /** Format: date-time */
@@ -1676,7 +1676,7 @@ export interface paths {
                             /** Format: uuid */
                             userId: string;
                             title: string;
-                            description?: string | null;
+                            description: string;
                             /** @enum {string} */
                             visibility: "public" | "members";
                             /** Format: date-time */
@@ -1731,7 +1731,7 @@ export interface paths {
                             /** Format: uuid */
                             userId: string;
                             title: string;
-                            description?: string | null;
+                            description: string;
                             /** @enum {string} */
                             visibility: "public" | "members";
                             /** Format: date-time */
@@ -1780,7 +1780,7 @@ export interface paths {
                             /** Format: uuid */
                             userId: string;
                             title: string;
-                            description?: string | null;
+                            description: string;
                             /** @enum {string} */
                             visibility: "public" | "members";
                             /** Format: date-time */
@@ -2120,7 +2120,7 @@ export interface paths {
                             /** Format: uuid */
                             userId: string;
                             title: string;
-                            description?: string | null;
+                            description: string;
                             /** @enum {string} */
                             visibility: "public" | "members";
                             /** Format: date-time */
@@ -2171,7 +2171,7 @@ export interface paths {
                             /** Format: uuid */
                             userId: string;
                             title: string;
-                            description?: string | null;
+                            description: string;
                             /** @enum {string} */
                             visibility: "public" | "members";
                             /** Format: date-time */

@@ -8,7 +8,7 @@
       aria-label="Search posts"
     />
 
-    <div class="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:w-auto">
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-[16rem_14rem_16rem] lg:w-auto">
       <el-select
         v-model="tagIds"
         multiple
@@ -19,7 +19,7 @@
         :loading="areTagsLoading"
         placeholder="Tags"
         aria-label="Filter by tags"
-        class="w-full sm:w-64"
+        class="w-full min-w-0"
       >
         <el-option
           v-for="tag in tagOptions"
@@ -31,7 +31,7 @@
 
       <el-input-number
         v-model="minCommentsCount"
-        class="w-full sm:w-56"
+        class="w-full min-w-0"
         :min="0"
         :step="1"
         step-strictly
@@ -42,7 +42,7 @@
 
       <PostSortSelect
         v-model:query="sortQuery"
-        class="w-full sm:w-64"
+        class="w-full min-w-0"
       />
     </div>
   </section>

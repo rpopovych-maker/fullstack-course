@@ -11,6 +11,7 @@ const routes: FastifyPluginAsync = async function (fastify) {
     await processWebhook({
       stripeService: fastify.stripeService,
       subscriptionRepo: fastify.repos.subscriptionRepo,
+      userRepo: fastify.repos.userRepo,
       payload: req.rawBody,
       signature: req.headers['stripe-signature']
     });

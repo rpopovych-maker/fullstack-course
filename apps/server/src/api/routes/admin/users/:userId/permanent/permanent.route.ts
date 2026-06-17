@@ -23,6 +23,8 @@ const routes: FastifyPluginAsync = async function (f) {
       commentRepo: fastify.repos.commentRepo,
       postRepo: fastify.repos.postRepo,
       subscriptionRepo: fastify.repos.subscriptionRepo,
+      stripeService: fastify.stripeService,
+      identityService: fastify.identityService,
       userRepo: fastify.repos.userRepo,
       transactionManager: fastify.transactionManager
     });

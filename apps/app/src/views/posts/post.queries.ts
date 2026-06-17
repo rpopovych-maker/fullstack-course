@@ -109,7 +109,7 @@ const useDeletePostMutation = (
     },
     onSettled: (_data, _error, postId) => {
       cache.invalidateQueries({ key: postsQueryKeys.lists() })
-      cache.invalidateQueries({ key: postsQueryKeys.detail(postId), exact: true })
+      cache.invalidateQueries({ key: postsQueryKeys.detail(postId), exact: true }, false)
     }
   })
 }

@@ -133,16 +133,21 @@
         />
 
         <template v-else>
-          <CommentList :comments="flatComments" :post-id="post.id" />
-
           <div
-            v-if="hasNextCommentsPage || areMoreCommentsLoading"
-            ref="commentsLoadMoreTarget"
-            class="min-h-10"
+            ref="commentsScrollContainer"
+            class="max-h-[60vh] overflow-y-auto pr-3 space-y-3"
           >
-            <div v-if="areMoreCommentsLoading" class="space-y-3">
-              <div class="rounded-md border border-zinc-800 p-4">
-                <el-skeleton :rows="2" animated />
+            <CommentList :comments="flatComments" :post-id="post.id" />
+
+            <div
+              v-if="hasNextCommentsPage || areMoreCommentsLoading"
+              ref="commentsLoadMoreTarget"
+              class="min-h-10"
+            >
+              <div v-if="areMoreCommentsLoading" class="space-y-3">
+                <div class="rounded-md border border-zinc-800 p-4">
+                  <el-skeleton :rows="2" animated />
+                </div>
               </div>
             </div>
           </div>
@@ -184,6 +189,7 @@ const { openModal } = useModals()
 const softDeletePostMutation = useSoftDeletePostMutation()
 const hardDeletePostMutation = useHardDeletePostMutation()
 const commentsLoadMoreTarget = ref<HTMLElement | null>(null)
+const commentsScrollContainer = ref<HTMLElement | null>(null)
 const areMoreCommentsLoading = ref(false)
 
 const isNotFound = computed(() => {
@@ -207,7 +213,7 @@ useIntersectionObserver(
       loadMoreComments()
     }
   },
-  { rootMargin: '240px 0px' }
+  { root: commentsScrollContainer, rootMargin: '240px 0px' }
 )
 
 async function loadMoreComments () {
@@ -215,9 +221,16 @@ async function loadMoreComments () {
     return
   }
 
+  const container = commentsScrollContainer.value
+  const previousScrollTop = container?.scrollTop ?? 0
+
   areMoreCommentsLoading.value = true
   try {
     await loadNextCommentsPage({ cancelRefetch: false })
+    await nextTick()
+    if (container) {
+      container.scrollTop = previousScrollTop
+    }
   } finally {
     areMoreCommentsLoading.value = false
   }

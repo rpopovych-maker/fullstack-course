@@ -168,6 +168,16 @@ pnpm dev
 
 Swagger is basic-auth gated with `SWAGGER_USER` / `SWAGGER_PWD`.
 
+## What the Stripe subscription is for
+
+The app has a single paid plan — **Pro** — billed monthly via Stripe (cancel anytime). It gates the following member-only features:
+
+- Read member-only posts in full
+- Comment on member-only threads
+- Support ongoing development
+
+Non-subscribers can still browse the site and read public posts; the subscription only unlocks the member tier. Subscription state is held in our own Postgres `subscriptions` table and kept in sync with Stripe via webhooks — see the flow below.
+
 ## Frontend ↔ Backend ↔ Stripe flow
 
 The Pro-subscription checkout uses Stripe-hosted Checkout. The backend creates the session and verifies the resulting webhooks; Stripe holds the card form.

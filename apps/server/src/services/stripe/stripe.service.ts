@@ -56,6 +56,10 @@ export function getStripeService(params: {
       return stripeClient.subscriptions.update(subscriptionId, {
         cancel_at_period_end: true
       });
+    },
+
+    cancelSubscription(subscriptionId) {
+      return stripeClient.subscriptions.cancel(subscriptionId);
     }
   };
 }

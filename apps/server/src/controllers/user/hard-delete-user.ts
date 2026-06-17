@@ -3,6 +3,8 @@ import { IArchiveRepo } from 'src/types/archive/IArchiveRepo';
 import { ICommentRepo } from 'src/types/comment/ICommentRepo';
 import { ITransactionManager } from 'src/types/ITransaction';
 import { IPostRepo } from 'src/types/post/IPostRepo';
+import { IdentityService } from 'src/types/services/IdentityService';
+import { StripeService } from 'src/types/services/StripeService';
 import { ISubscriptionRepo } from 'src/types/subscription/ISubscriptionRepo';
 import { TERMINAL_SUBSCRIPTION_STATUSES } from 'src/types/subscription/SubscriptionStatus';
 import { IUserRepo } from 'src/types/user/IUserRepo';
@@ -15,6 +17,8 @@ export async function hardDeleteUser(params: {
   commentRepo: ICommentRepo
   archiveRepo: IArchiveRepo
   subscriptionRepo: ISubscriptionRepo
+  stripeService: StripeService
+  identityService: IdentityService
 }) {
   const user = await params.userRepo.getUserById(params.userId, true);
 
@@ -27,8 +31,10 @@ export async function hardDeleteUser(params: {
   );
 
   if (subscription && !TERMINAL_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
-    throw new HttpError(409, 'Cannot delete a user with a current subscription');
+    await params.stripeService.cancelSubscription(subscription.stripeSubscriptionId);
   }
+
+  await params.identityService.banUser(user.subId);
 
   const posts = await params.postRepo.getPostsWithCommentsAndTagsByUserId(params.userId, true);
   const userComments = await params.commentRepo.getCommentsByUserId(params.userId, true);

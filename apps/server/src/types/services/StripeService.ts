@@ -16,4 +16,7 @@ export interface StripeService {
   scheduleSubscriptionCancellation(
     subscriptionId: string
   ): ReturnType<StripeClient['subscriptions']['update']>;
+  cancelSubscription(
+    subscriptionId: string
+  ): ReturnType<StripeClient['subscriptions']['cancel']>;
 }

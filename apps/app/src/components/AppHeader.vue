@@ -17,6 +17,7 @@
 
       <nav class="flex items-center gap-2">
         <RouterLink
+          v-if="authStore.isAuthenticated"
           #default="{ navigate }"
           :to="{ name: routeNames.posts }"
           custom

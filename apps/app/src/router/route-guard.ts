@@ -28,7 +28,9 @@ export const routeGuard = async (
     return
   }
 
-  if (to.path.startsWith('/auth') && authStore.isAuthenticated) {
+  const isResetPasswordRoute = to.name === routeNames.resetPassword
+
+  if (to.path.startsWith('/auth') && authStore.isAuthenticated && !isResetPasswordRoute) {
     next({ name: routeNames.posts })
     return
   }

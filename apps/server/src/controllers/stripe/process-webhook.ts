@@ -1,10 +1,12 @@
 import { HttpError } from 'src/api/errors/HttpError';
 import { StripeService } from 'src/types/services/StripeService';
 import { ISubscriptionRepo } from 'src/types/subscription/ISubscriptionRepo';
+import { IUserRepo } from 'src/types/user/IUserRepo';
 
 export async function processWebhook(params: {
   stripeService: StripeService;
   subscriptionRepo: ISubscriptionRepo
+  userRepo: IUserRepo
   payload: unknown;
   signature: string | string[] | undefined;
 }) {
@@ -37,6 +39,12 @@ export async function processWebhook(params: {
 
     if (!userId) {
       throw new HttpError(400, 'Stripe subscription is missing userId metadata');
+    }
+
+    const user = await params.userRepo.getUserById(userId, true);
+
+    if (!user) {
+      return;
     }
 
     if (!item) {
